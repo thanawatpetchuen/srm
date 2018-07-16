@@ -1,0 +1,37 @@
+<page_footer>
+<table width="730"  id="footer_table">
+<tr>
+	<td width="230" align="center" height="16">สำหรับช่าง</td>
+	<td width="250" align="center">สำหรับลูกค้า</td>
+	<td width="250" align="center">สำหรับผู้ตรวจสอบ</td>
+</tr>
+<tr>
+	<td height="50" align="center">
+	ลงชื่อ.........................................................<BR><BR>
+	(...............................................................)<BR>
+	</td>
+	<td height="50" valign="top" align="center">
+	โปรดตรวจสอบความถูกต้องก่อนลงนามทุกครั้ง<BR><BR>
+	ลงชื่อ.........................................................<BR><BR>
+	(...............................................................)<BR>
+	พร้อมประทับตรา - ถ้ามี
+	</td>
+	<td height="50" align="center"><BR>
+	ลงชื่อ.........................................................<BR><BR> 
+	(&nbsp;&nbsp;<?=$labelEmployees[$_REQUEST["approve_employee_id"]];?>&nbsp;&nbsp;)<BR><BR>
+	ตำแหน่ง.....................................................<BR>
+	วันที่ตรวจสอบ  <?=$_REQUEST["approve_dt"]?>
+	</td>
+</tr>
+</table>
+
+<style>	 
+	#footer_table { 
+		margin: 0em;
+		font-size: 13px;
+	}
+	#footer_table td, th { 
+		border: 1px #ccc thin; 
+	} 
+</style>
+</page_footer>

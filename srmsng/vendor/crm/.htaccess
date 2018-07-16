@@ -1,0 +1,14 @@
+RewriteEngine on
+
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^public_formviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=pdf_public_reportwork&_comp=employee&_action=list&job_order_id=$1
+RewriteRule ^public_formviewer/customer_receive_reports/([^/]*).pdf$ pdf_viewer.php?_compgrp=pdf_public_reportwork&_comp=customer_print_receive_reports&_action=view&receive_no=$1
+RewriteRule ^public_formviewer/tntdeliverys/([^/]*).pdf$ pdf_viewer.php?_compgrp=pdf_public_reportwork&_comp=tntdeliverys&_action=view&receive_no=$1
+RewriteRule ^public_formviewer/tntinvoices/([^/]*).pdf$ pdf_viewer.php?_compgrp=pdf_public_reportwork&_comp=tntinvoices&_action=view&receive_no=$1
+RewriteRule ^public_formviewer/rpttagrev01/([^/]*).pdf$ pdf_viewer.php?_compgrp=pdf_public_reportwork&_comp=rpttagrev01&_action=view&receive_no=$1
+RewriteRule ^public_formviewer/storedeliverys/([^/]*).pdf$ pdf_viewer.php?_compgrp=pdf_public_reportwork&_comp=storedeliverys&_action=view&receive_no=$1
+
+RewriteRule ^public_formviewer/qoutations/([^/]*).pdf$ pdf_viewer.php?_compgrp=pdf_public_reportwork&_comp=qoutations&_action=view&job_order_id=$1
+RewriteRule ^public_formviewer/pre_qoutations/([^/]*).pdf$ pdf_viewer.php?_compgrp=pdf_public_reportwork&_comp=pre_qoutations&_action=view&job_order_id=$1
+
+RewriteRule ^public_customer_formviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=pdf_public_reportwork&_comp=customer_crms&_action=view&job_order_crm_id=$1

@@ -1,0 +1,26 @@
+RewriteEngine on
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
+RewriteRule ^card_serviceviewer/([^/]*).pdf$ pdf_viewer.php?_compgrp=reportviewers&_comp=cardservices&_action=viewer&serial_no=$1
