@@ -3,11 +3,12 @@ function fetchTable() {
     $("#supertable").DataTable({
       ajax: $.fn.dataTable.pipeline({
         url: "/srmsng/public/fetch-ajax/fetchAccountAdmin.php",
-        pages: 5 // number of pages to cache,
+        pages: 5, // number of pages to cache,
+        processing: true,
+        serverSide: true,
       }),
       dom: '<lf<"table-wrapper"t>ip>',
-      processing: true,
-      serverSide: true,
+      
       stateSave: true,
       columnDefs: [
         {

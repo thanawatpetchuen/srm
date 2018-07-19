@@ -24,14 +24,14 @@ $sng_code = $_GET['sng_code'];
 // $sng_code = '6227';
 
 $table = "srm_request, asset_tracker, location, material_master_record, fse, root_cause, correction, job_fse 
-WHERE asset_tracker.sng_code = ' . $sng_code .' 
+WHERE srm_request.sng_code = '$sng_code' 
 AND srm_request.job_status != 'Closed' 
 AND location.location_code = asset_tracker.location_code
 AND asset_tracker.itemnumber = material_master_record.itemnumber
 AND srm_request.cm_id = job_fse.job_id 
 AND fse.fse_code = job_fse.fse_code
 AND srm_request.cause_id = root_cause.cause_id
-AND srm_request.correction_id = correction.correction_id GROUP BY srm_request.cm_id  UNION SELECT service_request_id, due_date, title, description, work_class, 
+AND srm_request.correction_id = correction.correction_id GROUP BY srm_request.cm_id  UNION SELECT service_request_id, due_date, title, description, work_class, job_type 
 GROUP_CONCAT(DISTINCT fse_engname ORDER BY fse_engname ASC SEPARATOR '<br>')          AS groupFSE,
 status FROM (SELECT service_request.service_request_id,
 service_request.title,
@@ -56,7 +56,8 @@ location.region,
 location.country,
 location.store_phone,
 service_request.due_date,
-service_asset.sng_code 
+service_asset.sng_code, 
+service_request.job_type, 
 FROM service_request, asset_tracker, fse, location, service_fse, service_asset
 WHERE service_request.service_request_id = service_asset.service_request_id
 AND service_request.service_request_id = service_fse.service_request_id
@@ -76,8 +77,10 @@ $columns = array(
     array( 'db' => 'correction_description',     'dt' => 2 ),
     array( 'db' => "solution", 'dt' => 3),
     array( 'db' => 'work_class',     'dt' => 4 ),
-    array( 'db' => "GROUP_CONCAT(fse.engname ORDER BY engname ASC SEPARATOR '<br>') AS groupFSE",     'dt' => 5 ),
-    array( 'db' => 'job_status',     'dt' => 6 ),
+    array( 'db' => 'job_type',     'dt' => 5 ),
+    array( 'db' => 'srm_request.job_type',     'dt' => 6 ), 
+    array( 'db' => "GROUP_CONCAT(DISTINCT fse.engname ORDER BY engname ASC SEPARATOR '<br>') AS groupFSE", 'dt' => 7 ),
+    array( 'db' => 'job_status',     'dt' => 8 ),
 );
  
 // SQL server connection information

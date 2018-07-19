@@ -38,6 +38,9 @@
                     }else if($_SESSION['account_type'] == "ADMIN"){
                         error_log("ADMIN: ".$_SESSION["username_unhash"]." has try to use superadmin", 0);
                         header("location: /srmsng/public/admin_page");
+                    }else if($_SESSION['account_type'] == "FSE"){
+                        error_log("FSE: ".$_SESSION["username_unhash"]." has try to use superadmin", 0);
+                        header("location: /srmsng/public/fse_page");
                     }
                 }else{
                     // Session_id is not match.

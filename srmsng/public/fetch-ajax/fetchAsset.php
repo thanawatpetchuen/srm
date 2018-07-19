@@ -20,8 +20,16 @@
 
 // DB table to use
 // $table = 'asset_tracker a JOIN customers b ON a.customer_no = b.customer_no JOIN location c ON a.location_code = c.location_code JOIN sale_order d ON a.sale_order_no = d.sale_order_no JOIN material_master_record e ON a.itemnumber = e.itemnumber JOIN fse f ON a.fse_code = f.fse_code';
+
+// $table = 'asset_tracker, location, sale_order, customers, fse, material_master_record 
+// WHERE asset_tracker.fse_code = fse.fse_code 
+// AND asset_tracker.customer_no = customers.customer_no 
+// AND asset_tracker.location_code = location.location_code 
+// AND sale_order.sale_order_no = asset_tracker.sale_order_no 
+// AND asset_tracker.itemnumber = material_master_record.itemnumber';
 $table = 'asset_tracker, location, sale_order, customers, fse, material_master_record 
-WHERE asset_tracker.fse_code = fse.fse_code 
+WHERE 
+asset_tracker.fse_code = fse.fse_code 
 AND asset_tracker.customer_no = customers.customer_no 
 AND asset_tracker.location_code = location.location_code 
 AND sale_order.sale_order_no = asset_tracker.sale_order_no 

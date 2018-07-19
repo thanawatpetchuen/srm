@@ -22,6 +22,13 @@
     <?php include_once('../admin/admin_nav.php'); ?>
     <main class="container" data-sng-code="<?php echo $_GET['sng_code']?>" id="main-container">
 
+        <div class="input-group page-title">
+            <h1 style="margin-bottom:0;" id="sng-title"></h1>
+            <a href="" id="view-asset" target="_blank" class="btn btn-primary" style="margin-right:10px;">
+                <i class="fa fa-search"></i> View Details
+            </a>
+        </div>
+
         <div class="tabs">
             <div class="tab-item active" id="scheduled-work-tab">
                 Scheduled Work
@@ -46,7 +53,7 @@
 
         <div class="tab-content active" id="scheduled-work">
             <div class="input-group page-title">
-                <h1 style="margin-bottom:0;">Scheduled Work</h1>
+                <h3 style="margin-bottom:0;">Scheduled Work</h3>
                 <a href="../service/add_service" id="pm_add" target="_blank" class="btn btn-primary" style="margin-right:10px;">
                     <i class="fa fa-plus"></i> Add PM Work
                 </a>
@@ -61,6 +68,7 @@
                     <th>Site Name</th>
                     <th>Description</th>
                     <th>Work Class</th>
+                    <th>Job Type</th>
                     <th>Assgined to</th>
                     <th>Status</th>
                     <th>Action</th>
@@ -73,19 +81,18 @@
 
         <div class="tab-content" id="history">
             <div class="input-group page-title">
-                <h1 style="margin-bottom:0;">Work History</h1>
+                <h3 style="margin-bottom:0;">Work History</h3>
             </div>
             <table id="supertable-history">
                 <thead>
-                    <th>No.</th>
-                    <th>Creation Date</th>
                     <th>Job ID</th>
+                    <th>Creation Date</th>
                     <th>Task</th>
                     <th>Work Class</th>
+                    <th>Job Type</th>
                     <th>Service Type</th>
                     <th>Assigned To</th>
                     <th>Service Time</th>
-                    <th>Task Cost</th>
                     <th>Status</th>
                 </thead>
                 <tbody id="maintable-history">
@@ -104,7 +111,6 @@
     <script src="/srmsng/public/js/table_setup.js"></script>
     <script src="/srmsng/public/js/fetch_ajax.js"></script>
     <script src="/srmsng/public/js/fetch_plan.js"></script>
-    <script src="/srmsng/public/js/fetch_history.js"></script>
     <script src="/srmsng/public/js/submit.js"></script>
 
     <script>
@@ -124,6 +130,8 @@
 
             var sng_code = url.searchParams.get("sng_code");
             $("#cm_add").attr('href','../ticket/add_ticket?sng_code=' + sng_code)
+            $('#view-asset').attr('href','view_asset?sng_code=' + sng_code);
+            $('#sng-title').text('SNG Code: ' + sng_code);
             // $("#pm_add").attr('href','../service/add_service?sng_code=' + sng_code)
 
             $('#scheduled-work-tab').on('click',function() {

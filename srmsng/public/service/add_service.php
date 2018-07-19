@@ -61,16 +61,16 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
             <legend>Contact Information</legend>
             <div class="form-group">
               <label>Contact Name</label>
-              <input type="text" class="form-control" name="contact_name" placeholder="Customer Name" required/>
+              <input type="text" class="form-control" name="contact_name" placeholder="Customer Name"/>
             </div>
             <div class="form-group">
               <label>Phone Number</label>
-              <input type="text" class="form-control" name="contact_number" placeholder="Phone Number" maxlength="10" size="10" id="contact-number-field" required/>
+              <input type="text" class="form-control" name="contact_number" placeholder="Phone Number" maxlength="10" size="10" id="contact-number-field"/>
               <small class="form-text text-muted" id="contact-number-warning">Mobile phone number only (10 digits)</small>
             </div>
             <div class="form-group">
               <label>Alternate Number</label>
-              <input type="text" class="form-control" name="alternate_number" placeholder="Phone Number" maxlength="10" size="10" id="alternate-number-field" required/>
+              <input type="text" class="form-control" name="alternate_number" placeholder="Phone Number" maxlength="10" size="10" id="alternate-number-field"/>
               <small class="form-text text-muted" id="alternate-number-warning">Mobile phone number only (10 digits)</small>
             </div>
           </fieldset>
@@ -78,49 +78,50 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
       </div>
 
       <div class="row">
-        <div class="col">
-          <fieldset>
-            <legend>Select Assets</legend>
-            <div class="form-group" id="asset_array">
-              <div class="form-group">
-                <input type="text" class="form-control" name="asset[]" placeholder="SNG-Code" required/>
+          <?php /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */ ?>
+          <div class="col">
+            <fieldset>
+              <legend>SNG Code</legend>
+              <div class="form-group" id="asset_array">
+                <div class="form-group">
+                  <input type="text" class="form-control" name="asset[]" placeholder="SNG-Code" onfocusout="get_asset_location_and_customer(this.value);" required/>
+                </div>
               </div>
-            </div>
-            <button type="button" class="btn btn-light btn btn-block" id="add_asset"><i class="fa fa-plus"></i> Add more asset</button>
-          </fieldset>
-        </div>
-        <?php /*
-        <div class="col">
-          <fieldset>
-            <legend>Asset Location</legend>
-            <div class="form-group">
+              <button type="button" class="btn btn-light btn btn-block" id="add_asset"><i class="fa fa-plus"></i> Add more asset</button>
+            </fieldset>
+          </div>
+          <?php /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */ ?>
+          <div class="col">
+            <fieldset>
+              <legend>Asset Location</legend>
               <div class="form-group">
-                <label>Site Name</label>
-                <input type="text" class="form-control disabled" name="sitename" placeholder="Site Name"/>
+                <div class="form-group">
+                  <label>Site Name</label>
+                  <input type="text" class="form-control" name="sitename" placeholder="Site Name" disabled/>
+                </div>
+                <div class="form-group">
+                  <label>Location Code</label>
+                  <input type="text" class="form-control" name="location_code" placeholder="Location Code" disabled/>
+                </div>
               </div>
+            </fieldset>
+          </div>
+          <div class="col">
+            <fieldset>
+              <legend>Asset Owner</legend>
               <div class="form-group">
-                <label>Location Code</label>
-                <input type="text" class="form-control disabled" name="location_code" placeholder="Location Code"/>
+                <div class="form-group">
+                  <label>Customer Name</label>
+                  <input type="text" class="form-control" name="customer_name" placeholder="Customer Name" disabled/>
+                </div>
+                <div class="form-group">
+                  <label>Customer Code</label>
+                  <input type="text" class="form-control" name="customer_no" placeholder="Customer Code" disabled/>
+                </div>
               </div>
-            </div>
-          </fieldset>
-        </div>
-        <div class="col">
-          <fieldset>
-            <legend>Asset Owner</legend>
-            <div class="form-group">
-              <div class="form-group">
-                <label>Customer Name</label>
-                <input type="text" class="form-control disabled" name="customer_name" placeholder="Site Name"/>
-              </div>
-              <div class="form-group">
-                <label>Customer Code</label>
-                <input type="text" class="form-control disabled" name="customer_no" placeholder="Location Code"/>
-              </div>
-            </div>
-          </fieldset>
-        </div>
-        */ ?>
+            </fieldset>
+          </div>
+          <?php /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */ ?>
       </div>
 
       <fieldset>
@@ -166,17 +167,20 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script src="/srmsng/public/js/asset_location_check.js"></script>
 <script src="/srmsng/public/js/submit.js"></script>
 <script>
   // Initialize Date Range Pickers
   $(function() {
     $('input[name="due_date"]').daterangepicker({
-      singleDatePicker: true,
-      startDate: moment().startOf('day'),
-      endDate: moment().startOf('day').add(1, 'day'),
-      locale: {
-        format: 'YYYY-MM-DD'
-      }
+        timePicker: true,
+        "timePicker24Hour": true,
+        singleDatePicker: true,
+        startDate: moment().startOf('hour'),
+        endDate: moment().startOf('hour').add(32, 'hour'),
+        locale: {
+            format: 'Y-MM-DD H:mm:ss'
+        }
     });
   });
 
@@ -239,15 +243,17 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
     });
   })
 
-  $("#add_asset").on("click", function() {
+$("#add_asset").on("click", function() {
     var asset = document.createElement('input');
     asset.setAttribute("type", "text");
     asset.setAttribute("class", "form-control");
     asset.setAttribute("name", "asset[]");
     asset.setAttribute("placeholder", "SNG-Code");
+    asset.setAttribute("onfocusout", "check_asset_location_code(this);");
     var asset_form = document.createElement('div');
     asset_form.setAttribute("class", "form-group");
     asset_form.appendChild(asset);
     document.getElementById('asset_array').appendChild(asset_form);
-  });
+});
+
 </script>

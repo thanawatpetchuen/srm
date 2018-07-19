@@ -1,7 +1,17 @@
-function setUpFixed() {
-  $(".table-wrapper").addClass("fixed-right");
+function setUpFixed(id) {
+  if (id) {
+    $(id + "_wrapper .table-wrapper").addClass("fixed-right");
+  } else {
+    $(".table-wrapper").addClass("fixed-right");
+  }
   // fixed-columns
-  var fixedWidth = $("td.fixed-col").outerWidth();
+  var fixedWidth = 0;
+  $("td.fixed-col").each(function() {
+    var curFixedWidth = $(this).outerWidth();
+    if (curFixedWidth > fixedWidth) {
+      fixedWidth = curFixedWidth;
+    }
+  });
   if (fixedWidth < 100) {
     fixedWidth = 100;
   }
@@ -14,7 +24,7 @@ function setUpFixed() {
   $("td.fixed-col").css("width", fixedWidth + "px");
   $("th.fixed-col").css("width", fixedWidth + "px");
   $(".fixed-right").css("marginRight", fixedWidth + "px");
-  $(".fixed-left").css("marginLeft", fixedWidth + "px");
+  // $(".fixed-left").css("marginLeft", fixedWidth + "px");
 
   $("th.fixed-col").css("lineHeight", fixedHeightHeader + "px");
 }

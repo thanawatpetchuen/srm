@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
     <a class="navbar-brand">
-        <img src="/srm_not/image/logo/logo.png" class="nav-logo" height="50" alt="">
+        <img src="/srmsng/public/image/logo/logo.png" class="nav-logo" height="50" alt="">
     </a>
     <span class="nav-item" id="nav-logo-title">Service Request Management</span>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -22,15 +22,15 @@
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="/srmsng/public/ticket/">Tickets</a>
                         <!-- <a class="dropdown-item" href="/srmsng/public/asset">Assets</a> -->
-                        <div class="dropdown-divider"></div>  
+                        <!-- <div class="dropdown-divider"></div>   -->
                         <!-- <a class="dropdown-item" href="/srmsng/public/account">Account Management</a> -->
                         <!-- <a class="dropdown-item" href="/srmsng/public/account/customer">Customers</a> -->
                         <!-- <a class="dropdown-item" href="/srmsng/public/account/fse">FSE</a> -->
-                        <div class="dropdown-divider"></div> 
+                        <!-- <div class="dropdown-divider"></div>  -->
                         <!-- <a class="dropdown-item" href="/srmsng/public/account/item">Items</a> -->
                         <div class="dropdown-divider"></div> 
                         <h6 class="dropdown-header">System</h6>
-                        <a href="/srmsng/public/system/passwordreset" class="dropdown-item">Password Reset</a>
+                        <a href="/srmsng/public/fse/passwordreset" class="dropdown-item">Password Reset</a>
                         <!-- <a href="/srmsng/public/system/log" class="dropdown-item">System Log</a> -->
                     </div>
                 </li>

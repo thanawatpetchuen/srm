@@ -19,6 +19,8 @@
     <link href='http://fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.16/fc-3.2.4/r-2.2.1/datatables.min.css"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    
     <link rel="stylesheet" href="/srmsng/public/css/style.css">
 </head>
 <body>
@@ -47,7 +49,9 @@
                 <th>Job Status</th>
                 <th>CM Time</th>
                 <th>Request Time</th>
+                <th>Start Time</th>
                 <th>Close Time</th>
+                <th>Action</th>
             </thead>
             <tbody id="maintable">
          
@@ -55,19 +59,8 @@
         </table>
     </main>
 </body>
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-	<!-- <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js"></script> -->
-    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.16/fc-3.2.4/r-2.2.1/datatables.min.js"></script>
-    <script src="/srmsng/public/js/table_setup.js"></script>
-    <script src="/srmsng/public/js/fetch_ajax.js"></script>
-    <script src="/srmsng/public/js/fetch_ticket_fse.js"></script>
-    <script src="/srmsng/public/js/submit.js"></script>
-    <script src="/srmsng/public/js/onclose.js"></script>
-    <script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script>
         console.log("READY");
         // console.log(String()+"<= This is String");
 
@@ -88,6 +81,7 @@
             }
            
             console.log(<?php echo json_encode($_SESSION)?>);
+            sessionStorage.setItem("username_unhash", "<?php echo $_SESSION["username_unhash"] ?>");
         });
         window.addEventListener("beforeunload", function (e) {       
             
@@ -110,4 +104,20 @@
             }
         }); 
     </script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+	<!-- <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js"></script> -->
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.16/fc-3.2.4/r-2.2.1/datatables.min.js"></script>
+    <script type="text/javascript" src="/srmsng/bower_components/remarkable-bootstrap-notify/bootstrap-notify.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <!-- /srmsng/bower_components/remarkable-bootstrap-notify -->
+    <script src="/srmsng/public/js/table_setup.js"></script>
+    <script src="/srmsng/public/js/fetch_ajax.js"></script>
+    <script src="/srmsng/public/js/fetch_ticket_fse.js"></script>
+    <script src="/srmsng/public/js/submit.js"></script>
+    <script src="/srmsng/public/js/onclose.js"></script>
+    
 </html>

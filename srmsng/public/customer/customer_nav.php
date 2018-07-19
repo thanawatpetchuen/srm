@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
     <a class="navbar-brand">
-        <img src="/srm_not/image/logo/logo.png" class="nav-logo" height="50" alt="">
+        <img src="/srmsng/public/image/logo/logo.png" class="nav-logo" height="50" alt="">
     </a>
     <span class="nav-item" id="nav-logo-title">Service Request Management</span>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

@@ -34,6 +34,9 @@
                     if($_SESSION['account_type'] == "ADMIN"){
                         // This user is USER. Not allow to see this page.
                         header("location: /srmsng/public/admin_page");
+                    }else if ($_SESSION['account_type'] == "FSE"){
+                        header("location: /srmsng/public/fse_page");
+                       
                     }
                 }else{
                     // Session_id is not match.

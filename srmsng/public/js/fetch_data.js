@@ -23,7 +23,7 @@ function fetchData() {
         targets: 0,
         data: 0,
         render: function(data) {
-          return '<a href="work?sng_code=' + data + '">' + data + "</a>";
+          return '<a href="work?sng_code=' + data + '" target="_blank">' + data + "</a>";
         }
       },
       {

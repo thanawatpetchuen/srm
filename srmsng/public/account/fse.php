@@ -56,6 +56,7 @@
                 <th>Status</th>
                 <th>Email</th>
                 <th>Phone</th>
+                <th>Username</th>
                 <th>Action</th>
             </thead>
             <tbody id="maintable">

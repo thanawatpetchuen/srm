@@ -46,6 +46,7 @@ $columns = array(
     array( 'db' => 'status',  'dt' => 9 ),
     array( 'db' => 'email',  'dt' => 10 ),
     array( 'db' => 'phone',  'dt' => 11 ),
+    array( 'db' => 'username',  'dt' => 12 ),
 );
  
 // SQL server connection information

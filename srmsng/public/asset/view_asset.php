@@ -150,7 +150,6 @@
             return res.json();
         })
         .then(data => {
-            console.log(data);
             for (var value in data[0]) {
                 $("#" + value).text(data[0][value]);
             }
@@ -159,25 +158,25 @@
             var subdistrict = "";
             var district = "";
             var province = "";
-            if (data[0]["village_no"] != "") {
-                village = "หมู่ " + data[3] + " ";
+            if (data[0]["village_no"] != "" && data[0]["village_no"] != undefined) {
+                village = "หมู่ " + data[0]["village_no"] + " ";
             }
-            if (data[0]["road"] != "") {
-                road = "ถนน" + data[4] + ", ";
+            if (data[0]["road"] != "" && data[0]["road"] != undefined) {
+                road = "ถนน" + data[0]["road"] + ", ";
             }
             if (data[0]["region"] == "กรุงเทพมหานคร" || data[0]["province"] == "กรุงเทพมหานคร") {
-                if (data[0]["sub_district"] != "") {
+                if (data[0]["sub_district"] != "" && data[0]["sub_district"] != undefined) {
                 subdistrict = "แขวง" + data[0]["sub_district"] + ", ";
                 }
-                if (data[0]["district"] != "") {
+                if (data[0]["district"] != "" && data[0]["district"] != undefined) {
                 subdistrict = "เขต" + data[0]["district"] + ", ";
                 }
                 province = data[0]["province"] + " ";
             } else {
-                if (data[0]["sub_district"] != "") {
+                if (data[0]["sub_district"] != "" && data[0]["sub_district"] != undefined) {
                 subdistrict = "ตำบล" + data[0]["sub_district"] + ", ";
                 }
-                if (data[0]["district"] != "") {
+                if (data[0]["district"] != "" && data[0]["district"] != undefined) {
                 subdistrict = "อำเภอ" + data[0]["district"] + ", ";
                 }
                 province = "จังหวัด" + data[0]["province"] + " ";

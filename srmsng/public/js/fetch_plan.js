@@ -31,11 +31,11 @@ function fetchTable(sng_code) {
       }
     ],
     initComplete: function() {
-      setUpFixed();
+      setUpFixed("#supertable-plan");
       $("#supertable-plan").addClass("display");
     },
     drawCallback: function() {
-      setUpFixed();
+      setUpFixed("#supertable-plan");
     }
   });
 

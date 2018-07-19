@@ -86,29 +86,30 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
       </div>
 
       <div class="row">
+        <?php /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */ ?>
         <div class="col">
           <fieldset>
-            <legend>Select Assets</legend>
+            <legend>SNG Code</legend>
             <div class="form-group" id="asset_array">
               <div class="form-group">
-                <input type="text" class="form-control" name="asset[]" placeholder="SNG-Code" required/>
+                <input type="text" class="form-control" name="asset[]" placeholder="SNG-Code" onfocusout="get_asset_location_and_customer(this.value);" required/>
               </div>
             </div>
             <button type="button" class="btn btn-light btn btn-block" id="add_asset"><i class="fa fa-plus"></i> Add more asset</button>
           </fieldset>
         </div>
-        <?php /*
+        <?php /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */ ?>
         <div class="col">
           <fieldset>
             <legend>Asset Location</legend>
             <div class="form-group">
               <div class="form-group">
                 <label>Site Name</label>
-                <input type="text" class="form-control disabled" name="sitename" placeholder="Site Name"/>
+                <input type="text" class="form-control" name="sitename" placeholder="Site Name" disabled/>
               </div>
               <div class="form-group">
                 <label>Location Code</label>
-                <input type="text" class="form-control disabled" name="location_code" placeholder="Location Code"/>
+                <input type="text" class="form-control" name="location_code" placeholder="Location Code" disabled/>
               </div>
             </div>
           </fieldset>
@@ -119,16 +120,16 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
             <div class="form-group">
               <div class="form-group">
                 <label>Customer Name</label>
-                <input type="text" class="form-control disabled" name="customer_name" placeholder="Site Name"/>
+                <input type="text" class="form-control" name="customer_name" placeholder="Customer Name" disabled/>
               </div>
               <div class="form-group">
                 <label>Customer Code</label>
-                <input type="text" class="form-control disabled" name="customer_no" placeholder="Location Code"/>
+                <input type="text" class="form-control" name="customer_no" placeholder="Customer Code" disabled/>
               </div>
             </div>
           </fieldset>
         </div>
-        */ ?>
+        <?php /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */ ?>
       </div>
 
       <fieldset>
@@ -155,6 +156,7 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
             <option value="Acknowledged">Acknowledged</option>
             <option value="Assigned">Assigned</option>
             <option value="Fixed by Phone">Fixed by Phone</option>
+            <option value="Canceled">Canceled</option>
           </select>
         </div>
       </fieldset>
@@ -173,16 +175,19 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script src="/srmsng/public/js/asset_location_check.js"></script>
 <script src="/srmsng/public/js/submit.js"></script>
 <script>
 // Initialize Date Range Pickers
 $(function() {
     $('input[name="due_date"]').daterangepicker({
+        timePicker: true,
+        "timePicker24Hour": true,
         singleDatePicker: true,
-        startDate: moment().startOf('day'),
-        endDate: moment().startOf('day').add(1, 'day'),
+        startDate: moment().startOf('hour'),
+        endDate: moment().startOf('hour').add(32, 'hour'),
         locale: {
-            format: 'YYYY-MM-DD'
+            format: 'Y-MM-DD H:mm:ss'
         }
     });
 });
@@ -259,7 +264,7 @@ $(document).ready(function() {
             for (var value in data[0]) {
                 $(".form-control[name='" + value + "']").val(data[0][value]);
             }
-            if (data[0]['GROUP_CONCAT(fse_code)'] != 0) {
+            if (data[0]['GROUP_CONCAT(fse_code)']) {
                 // enable assign fse if fse already exists for this ticket
                 $('input[name="assign-fse"]').prop('checked', true);
                 $('#fse-fieldset').removeClass('disabled');
@@ -267,24 +272,44 @@ $(document).ready(function() {
                 var leaderArray = data[0]['GROUP_CONCAT(is_leader)'].split(',');
                 for (var i in fseArray) {
                     $('#fse-dropdown input[value="' + fseArray[i] + '"]').trigger('click');
-                    if (leaderArray[i]) {
+                    if (leaderArray[i] == 1) {
                         $('#' + fseArray[i] + ' input[value="' + fseArray[i] + '"]').trigger('click');
                     }
+                }
+            }
+            if (data[1]['GROUP_CONCAT(sng_code)']) {
+                var sngArray = data[1]['GROUP_CONCAT(sng_code)'].split(',');
+                document.getElementsByName('asset[]')[0].value = sngArray[0];
+                get_asset_location_and_customer(sngArray[0]);
+                for (var i = 1; i < sngArray.length; i++) {
+                    var asset = document.createElement('input');
+                    asset.setAttribute("type", "text");
+                    asset.setAttribute("class", "form-control");
+                    asset.setAttribute("name", "asset[]");
+                    asset.setAttribute("placeholder", "SNG-Code");
+                    asset.setAttribute("onfocusout", "check_asset_location_code(this);");
+                    asset.setAttribute("value", sngArray[i]);
+                    var asset_form = document.createElement('div');
+                    asset_form.setAttribute("class", "form-group");
+                    asset_form.appendChild(asset);
+                    document.getElementById('asset_array').appendChild(asset_form);
                 }
             }
         })
     });
 })
 
-  $("#add_asset").on("click", function() {
+$("#add_asset").on("click", function() {
     var asset = document.createElement('input');
     asset.setAttribute("type", "text");
     asset.setAttribute("class", "form-control");
     asset.setAttribute("name", "asset[]");
     asset.setAttribute("placeholder", "SNG-Code");
+    asset.setAttribute("onfocusout", "check_asset_location_code(this);");
     var asset_form = document.createElement('div');
     asset_form.setAttribute("class", "form-group");
     asset_form.appendChild(asset);
     document.getElementById('asset_array').appendChild(asset_form);
-  });
+});
+
 </script>

@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
     <a class="navbar-brand">
-        <img src="/srm_not/image/logo/logo.png" class="nav-logo" height="50" alt="">
+        <img src="/srmsng/public/image/logo/logo.png" class="nav-logo" height="50" alt="">
     </a>
     <span class="nav-item" id="nav-logo-title">Service Request Management <i class="fa fa-crown" style="font-size: 1.5em; color:gold"></i></span>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,14 +21,16 @@
                     </a>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="/srmsng/public/ticket/">Tickets</a>
+                        <a class="dropdown-item" href="/srmsng/public/service">Service Request</a>
+                        <a class="dropdown-item" href="/srmsng/public/plan">Maintenance Plan</a>
                         <a class="dropdown-item" href="/srmsng/public/tracking">Tracking</a>
                         <a class="dropdown-item" href="/srmsng/public/account/fse">FSE</a>
-                        <div class="dropdown-divider"></div> 
+                        <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="/srmsng/public/asset">Assets</a>
                         <a class="dropdown-item" href="/srmsng/public/account/item">Items</a>
-                        <div class="dropdown-divider"></div>  
+                        <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="/srmsng/public/account/customer">Customers</a>
-                        <div class="dropdown-divider"></div> 
+                        <div class="dropdown-divider"></div>
                         <h6 class="dropdown-header">System</h6>
                         <a class="dropdown-item" href="/srmsng/public/account">Account Management</a>
                         <a href="/srmsng/public/system/passwordreset" class="dropdown-item">Password Reset</a>
@@ -42,7 +44,7 @@
                     <span>Logout</span>
                 </a>
             </li>
-  
+
         </ul>
     </div>
 </nav>

@@ -19,7 +19,7 @@
  */
  
 // DB table to use
-$table = 'account, customers WHERE account_no = customer_no';
+$table = 'account, customers WHERE account.account_no = customers.customer_no';
  
 // Table's primary key
 $primaryKey = 'username_tag';
@@ -36,6 +36,7 @@ $columns = array(
     array( 'db' => 'account_status', 'dt' => 4 ),
     array( 'db' => 'is_lock',  'dt' => 5 ),
     array( 'db' => 'last_login',   'dt' => 6 ),
+  
 );
  
 // SQL server connection information

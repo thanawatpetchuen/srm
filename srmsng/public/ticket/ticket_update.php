@@ -135,13 +135,21 @@
             </div>
             <fieldset>
                 <legend>Job</legend>
+                <div class="form-group">
+                    <label>Job Type</label>
+                    <select name="job_type" class="form-control">
+                        <option value="">-- Select Job Type --</option>
+                        <option value="Fixed by phone">Fixed by Phone</option>
+                        <option value="On site">On Site</option>
+                    </select>
+                </div>
                 <div class="form-group checkbox">
                     <input type="checkbox" name="assign-fse"/>
                     <label class="checkbox">Assign Field Service Engineer</label>
                 </div>
                 <div class="form-group disabled" id="fse-fieldset">
                     <div class="select-multiple" id="fse-dropdown"></div>
-                    <span>Selected Field Service Engineer(s):</span>
+                    <span>Assign Field Service Engineer <b>Leader</b></span>
                     <div id="selected-fse">
                         <span class="selected-fse-none">None</span>
                     </div>
@@ -153,23 +161,13 @@
                 <div class="form-group disabled" id="cm-time-field">
                     <input type="text" class="form-control" name="cm_time" placeholder="CM Time" id="cm_time" autocomplete="off" disabled/>
                 </div>
-                <div class="form-group checkbox">
+                <div class="form-group checkbox disabled" id="close-time-check">
                     <input type="checkbox" name="assign-close-time"/>
-                    <label class="checkbox">Assign Close Time</label>
+                    <label class="checkbox">Completed</label>
                 </div>
                 <div class="form-group disabled" id="close-time-field">
-                    <input type="text" class="form-control" name="close_time" placeholder="Close Time" id="close_time" autocomplete="off" disabled/>
-                </div>
-                <div class="form-group">
-                    <label>Job Status</label>
-                    <select name="job_status" class="form-control">
-                        <option value="Closed">Closed</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Work in Progress">Work in Progress</option>
-                        <option value="Acknowledged">Acknowledged</option>
-                        <option value="Assigned">Assigned</option>
-                        <option value="Fixed by Phone">Fixed by Phone</option>
-                    </select>
+                    <label>Completion time</label>
+                    <input type="text" class="form-control" name="complete_time" placeholder="Completion Time" id="complete_time" autocomplete="off" disabled/>
                 </div>
             </fieldset>
             <div class="form-group" style="margin-top:40px; display: flex; align-items: center; justify-content: flex-end; ">
@@ -193,14 +191,14 @@
 <script>
     // Initialize Date Range Pickers
     $(function() {
-        $('input[name="cm_time"], input[name="close_time"]').daterangepicker({
+        $('input[name="cm_time"], input[name="complete_time"]').daterangepicker({
             timePicker: true,
             "timePicker24Hour": true,
             singleDatePicker: true,
             startDate: moment().startOf('hour'),
             endDate: moment().startOf('hour').add(32, 'hour'),
             locale: {
-            format: 'DD/M/Y H:mm'
+                format: 'Y-MM-DD H:mm:ss'
             }
         });
     });
@@ -257,6 +255,12 @@
 
                         checkbox.onclick = function() {
                             var fselabel = document.createElement('span');
+                            var radio_leader = document.createElement('input');
+                            radio_leader.setAttribute("type", "radio");
+                            radio_leader.setAttribute("name", "leader");
+                            radio_leader.setAttribute("value", element['fse_code']);
+                            radio_leader.required = true;
+                            fselabel.appendChild(radio_leader);
                             fselabel.setAttribute('id',element['fse_code']);
                             fselabel.appendChild(document.createTextNode(element['engname']));
                             if (!checkbox.checked) {
@@ -305,10 +309,11 @@
                             $('#cm-time-field').removeClass('disabled');
                             $('input[name="assign-cm-time"]').prop('checked',true);
                         }
-                        if (data[0]['close_time'] != '' && data[0]['close_time'] != null) {
+                        if (data[0]['complete_time'] != '' && data[0]['complete_time'] != null) {
                             $('#close-time-field input').prop('disabled', false);
-                            $('#close-time-field input').val(data[0]['close_time']);
+                            $('#close-time-field input').val(data[0]['complete_time']);
                             $('#close-time-field').removeClass('disabled');
+                            $('#close-time-check').removeClass('disabled');
                             $('input[name="assign-close-time"]').prop('checked',true);
                         }
                 })
@@ -316,25 +321,41 @@
 
         // Tick to assign
         $('input[name="assign-fse"]').on('change', function() {
-            
             if ($(this).is(':checked')) {
                 $('#fse-fieldset').removeClass('disabled');
+                
+                if ($('input[name="assign-cm-time"]').is(':checked')) {
+                    $('#close-time-check').removeClass('disabled');
+                }
+
             } else {
                 $('#fse-fieldset').addClass('disabled');
-                $('#fse-dropdown span input').each(function(){
-                    $(this).prop('checked', false);
-                    document.getElementById('selected-fse').innerHTML = "";
-            
-                })
+
+                // Cannot assign completion time
+                $('#close-time-check').addClass('disabled');
+                $('#close-time-check input').prop('checked',false);
+                $('#close-time-field').addClass('disabled');
+                $('#close-time-field input').prop('disabled',true);
             }
         });
         $('input[name="assign-cm-time"]').on('change', function() {
             if ($(this).is(':checked')) {
                 $('#cm-time-field input').prop('disabled', false);
                 $('#cm-time-field').removeClass('disabled');
+                
+                if ($('input[name="assign-fse"]').is(':checked')) {
+                    $('#close-time-check').removeClass('disabled');
+                }
+
             } else {
                 $('#cm-time-field input').prop('disabled', true);
                 $('#cm-time-field').addClass('disabled');
+
+                // Cannot assign completion time
+                $('#close-time-check').addClass('disabled');
+                $('#close-time-check input').prop('checked',false);
+                $('#close-time-field').addClass('disabled');
+                $('#close-time-field input').prop('disabled',true);
             }
         });
         $('input[name="assign-close-time"]').on('change', function() {

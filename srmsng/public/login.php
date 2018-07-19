@@ -36,6 +36,8 @@
                         header('location: /srmsng/public/admin_page');
                     }else if($test_cookie->{"account_type"} == "SUPERADMIN"){
                         header('location: /srmsng/public/admin_page');
+                    }else if($test_cookie->{"account_type"} == "FSE"){
+                        header('location: /srmsng/public/fse_page');
                     }
                 }else{
                     // Clear the cookie
@@ -60,6 +62,8 @@
                         header('location: /srmsng/public/admin_page');
                     }else if($cookie_decode->{'account_type'} == "SUPERADMIN"){
                         header('location: /srmsng/public/admin_page');
+                    }else if($cookie_decode->{'account_type'} == "FSE"){
+                        header('location: /srmsng/public/fse_page');
                     }else{
                         // "You're not LOGIN";
                         // header("location: /srmsng/public/login.php");    
@@ -78,6 +82,8 @@
                     header("location: /srmsng/public/admin_page");
                 }else if($_SESSION['account_type'] == "SUPERADMIN"){
                     header("location: /srmsng/public/admin_page");
+                }else if($_SESSION['account_type'] == "FSE"){
+                    header("location: /srmsng/public/fse_page");
                 }
                 // header("location: /srmsng/public/admin_page");
             } 

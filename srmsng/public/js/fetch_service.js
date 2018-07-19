@@ -53,16 +53,49 @@ function fetchTable() {
         targets: 6,
         className: "td-with-details",
         data: function(row) {
-          return [row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18], row[19], row[20], row[21]];
+          return [row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18], row[19], row[20]];
         },
         render: function(data) {
-          labels = ['sitename','location_code','house_no','village_no','soi','road','sub_district','district','province','postal_code','region','country','store_phone'];
-          return data[0] + makeDropArrow().outerHTML + makeCollapse(labels, data).outerHTML;
+          var village = "";
+          var road = "";
+          var subdistrict = "";
+          var district = "";
+          var province = "";
+          if (data[3] != "") {
+            village = "หมู่ " + data[3] + " ";
+          }
+          if (data[4] != "") {
+            road = "ถนน" + data[4] + ", ";
+          }
+          if (data[9] == "กรุงเทพมหานคร" || data[7] == "กรุงเทพมหานคร") {
+            if (data[5] != "") {
+              subdistrict = "แขวง" + data[5] + ", ";
+            }
+            if (data[6] != "") {
+              district = "เขต" + data[6] + ", ";
+            }
+            province = data[7] + " ";
+          } else {
+            if (data[5] != "") {
+              subdistrict = "ตำบล" + data[5] + ", ";
+            }
+            if (data[6] != "") {
+              district = "อำเภอ" + data[6] + ", ";
+            }
+            province = "จังหวัด" + data[7] + " ";
+          }
+          var address = data[2] + " " + village + road + subdistrict + district + province + data[8];
+          return (
+            data[0] +
+            makeDropArrow().outerHTML +
+            makeCollapse(["Location Code", "Address", "Region", "Country"], [data[1], address, data[9], data[10]])
+              .outerHTML
+          );
         }
       },
       {
         targets: 7,
-        data: 22
+        data: 21
       },
       {
         targets: -1,

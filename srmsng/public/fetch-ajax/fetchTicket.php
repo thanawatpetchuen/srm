@@ -1,38 +1,30 @@
 <?php
  
-/*
- * DataTables example server-side processing script.
- *
- * Please note that this script is intentionally extremely simply to show how
- * server-side processing can be implemented, and probably shouldn't be used as
- * the basis for a large complex system. It is suitable for simple use cases as
- * for learning.
- *
- * See http://datatables.net/usage/server-side for full details on the server-
- * side processing requirements of DataTables.
- *
- * @license MIT - http://datatables.net/license_mit
- */
- 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Easy set variables
- */
+// SQL statement for "fetchTicket.php" is 
 
-// SELECT cm_id, srm_request.sng_code, model, sitename, name, phone_number, email, asset_problem, fse,
-// job_status, fixed_by, asset_detected, solution, ups_status, cause, cm_time,
-// record_time, close_time, request_time, date_cm
+//  SELECT srm_request.cm_id, srm_request.sng_code, model, power, battery, quantity, sitename, name, phone_number, srm_request.email, problem_type, asset_problem, asset_detected, correction_description, correction_detail, cause_description, cause_detail, solution, suggestions, asset_tracker.ups_status, GROUP_CONCAT(DISTINCT fse.engname ORDER BY engname ASC SEPARATOR '<br>') AS groupFSE, job_type, job_status, cm_time, request_time, start_time, close_time
+//  FROM srm_request, asset_tracker, location, material_master_record, fse, root_cause, correction, job_fse 
+//  WHERE asset_tracker.sng_code = srm_request.sng_code 
+//      AND location.location_code = asset_tracker.location_code
+//      AND asset_tracker.itemnumber = material_master_record.itemnumber
+//      AND srm_request.cm_id = job_fse.job_id 
+//      AND fse.fse_code = job_fse.fse_code
+//      AND srm_request.cause_id = root_cause.cause_id
+//      AND srm_request.correction_id = correction.correction_id 
+//  GROUP BY srm_request.cm_id
+
+
  
-//DB table to use
-// $table = 'srm_request, asset_tracker, location, material_master_record, fse';
-// $pp = $_SESSION['account_no'];   
-$table = 'srm_request, asset_tracker, location, material_master_record, fse, root_cause, correction, job_fse 
-        WHERE asset_tracker.sng_code = srm_request.sng_code 
-        AND location.location_code = asset_tracker.location_code
-        AND asset_tracker.itemnumber = material_master_record.itemnumber
-        AND srm_request.cm_id = job_fse.job_id 
-        AND fse.fse_code = job_fse.fse_code
-        AND srm_request.cause_id = root_cause.cause_id
-        AND srm_request.correction_id = correction.correction_id GROUP BY srm_request.cm_id';
+$statement_after_for = 'srm_request, asset_tracker, location, material_master_record, fse, 
+                        root_cause, correction, job_fse 
+                        WHERE asset_tracker.sng_code = srm_request.sng_code 
+                            AND location.location_code = asset_tracker.location_code
+                            AND asset_tracker.itemnumber = material_master_record.itemnumber
+                            AND srm_request.cm_id = job_fse.job_id 
+                            AND fse.fse_code = job_fse.fse_code
+                            AND srm_request.cause_id = root_cause.cause_id
+                            AND srm_request.correction_id = correction.correction_id 
+                        GROUP BY srm_request.cm_id';
 
 // Table's primary key
 $primaryKey = 'cm_id';
@@ -41,6 +33,8 @@ $primaryKey = 'cm_id';
 // The `db` parameter represents the column name in the database, while the `dt`
 // parameter represents the DataTables column identifier. In this case simple
 // indexes
+
+// These array elements are selected columns that appear after SELECT in the SQL statement.
 $columns = array(
     array( 'db' => "srm_request.cm_id", 'dt' => 0),
     array( 'db' => 'srm_request.sng_code', 'dt' => 1 ),
@@ -62,11 +56,13 @@ $columns = array(
     array( 'db' => 'solution',     'dt' => 17 ),
     array( 'db' => 'suggestions',     'dt' => 18 ),
     array( 'db' => 'asset_tracker.ups_status',     'dt' => 19 ),
-    array( 'db' => "GROUP_CONCAT(fse.engname ORDER BY engname ASC SEPARATOR '<br>') AS groupFSE",     'dt' => 20 ),
-    array( 'db' => 'job_status',     'dt' => 21 ),
-    array( 'db' => 'cm_time',     'dt' => 22 ),
-    array( 'db' => 'request_time',     'dt' => 23 ),
-    array( 'db' => 'close_time',     'dt' => 24 ),
+    array( 'db' => "GROUP_CONCAT(DISTINCT fse.engname ORDER BY engname ASC SEPARATOR '<br>') AS groupFSE", 'dt' => 20 ),
+    array( 'db' => 'job_type',     'dt' => 21 ),
+    array( 'db' => 'job_status',     'dt' => 22 ),
+    array( 'db' => 'cm_time',     'dt' => 23 ),
+    array( 'db' => 'request_time',     'dt' => 24 ),
+    array( 'db' => 'start_time',     'dt' => 25 ),
+    array( 'db' => 'close_time',     'dt' => 26 ),
 );
  
 // SQL server connection information
@@ -80,6 +76,6 @@ $sql_details = array(
 require( 'ssp2.class.php' );
  
 echo json_encode(
-    SSP::complex( $_GET, $sql_details, $table, $primaryKey, $columns)
+    SSP::complex( $_GET, $sql_details, $statement_after_for, $primaryKey, $columns)
 );
 ?>
