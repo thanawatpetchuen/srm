@@ -1,5 +1,5 @@
 function fetchTable(fse_code) {
-  $("#supertable").DataTable({
+  $("#supertable-cm").DataTable({
     //columnDefs: [{ orderable: false, targets: [6, 7, 9] }],
     stateSave: true,
     deferRender: true,
@@ -7,7 +7,7 @@ function fetchTable(fse_code) {
     processing: true,
     serverSide: true,
     ajax: $.fn.dataTable.pipeline({
-      url: "/srmsng/public/fetch-ajax/fetchTicketFSE.php?fse_code="+fse_code,
+      url: "/srmsng/public/fetch-ajax/fetchTicketFSE.php?fse_code=" + fse_code,
       pages: 5 // number of pages to cache,
     }),
     columnDefs: [
@@ -16,22 +16,23 @@ function fetchTable(fse_code) {
       },
       {
         targets: 1,
+        data: 0
+      },
+      {
+        targets: 2,
         data: 1,
         render: function(data) {
-          var dataQ = "'" + data + "'";
           return (
-            '<a href="/srmsng/public/asset/view_asset?sng_code=' +
+            '<a href="view_asset?sng_code=' +
             data +
-            '" onClick="getAssetDetails(' +
-            dataQ +
-            ')" target="_blank">' +
+            '" target="_blank">' +
             data +
             '<i class="fa fa-search" style="padding-left:5px;"></i></a>'
           );
         }
       },
       {
-        targets: 10,
+        targets: 11,
         className: "td-with-details",
         data: function(row) {
           return [row[10], row[11]];
@@ -41,11 +42,11 @@ function fetchTable(fse_code) {
         }
       },
       {
-        targets: 11,
+        targets: 12,
         data: 12
       },
       {
-        targets: 12,
+        targets: 13,
         className: "td-with-details",
         data: function(row) {
           return [row[13], row[14]];
@@ -55,7 +56,7 @@ function fetchTable(fse_code) {
         }
       },
       {
-        targets: 13,
+        targets: 14,
         className: "td-with-details",
         data: function(row) {
           return [row[15], row[16]];
@@ -65,43 +66,47 @@ function fetchTable(fse_code) {
         }
       },
       {
-        targets: 14,
+        targets: 15,
         data: 17
       },
       {
-        targets: 15,
+        targets: 16,
         data: 18
       },
       {
-        targets: 16,
+        targets: 17,
         data: 19
       },
       {
-        targets: 17,
+        targets: 18,
         data: 20
       },
       {
-        targets: 18,
+        targets: 19,
         data: 21
       },
       {
-        targets: 19,
+        targets: 20,
         data: 22
       },
       {
-        targets: 20,
+        targets: 21,
         data: 23
       },
       {
-        targets: 21,
+        targets: 22,
         data: 24
       },
       {
-        targets: 22,
+        targets: 23,
         data: 25
       },
       {
-        targets: 23,
+        targets: 24,
+        data: 26
+      },
+      {
+        targets: 0,
         data: function(row) {
           return [row[0], row[21], row[20]];
         },
@@ -125,53 +130,50 @@ function fetchTable(fse_code) {
             status2 = "Incomplete";
             type = "Complete";
             type2 = "Incomplete";
-            let btt = `<a href='#' class='btn btn-primary' style="width:auto; margin-right:2px" onClick="action${type}('${
+            let btt = `<a href='#' class='btn btn-block btn-primary' style="width:auto; margin-right:2px" onClick="action${type}('${
               data[0]
             }', '${data[2]}')"> ${status} </a>`;
-            let btt2 = `<a href='#' class='btn btn-primary' style="width:auto; margin-left:2px" onClick="action${type2}('${
-              data[0]
-            }', '${data[2]}')"> ${status2} </a>`;
+            let btt2 =
+              `<a href='#' class='btn btn-primary' style="width:auto; margin-left:2px" data-toggle="modal" data-target="#note-modal" onClick="setModal('` +
+              data[0] +
+              `')"> ${status2} </a>`;
             return `<div class="form-group" style="margin-bottom:0">${btt}${btt2}</div>`;
           } else if (data[1] == "Pending Approve") {
-            let btt = `<a href='#' class='btn btn-primary disabled'">Done</a>`;
+            let btt = `<a href='#' class='btn btn-primary btn-block disabled'">Done</a>`;
             return btt;
-          }else if (data[1] == "Incomplete") {
-            let btt = `<a href='#' class='btn btn-primary disabled'">Incomplete</a>`;
+          } else if (data[1] == "Incomplete") {
+            let btt = `<a href='#' class='btn btn-primary btn-block disabled'">Incomplete</a>`;
             return btt;
-          }else if (data[1] == "Completed") {
-            let btt = `<a href='#' class='btn btn-primary disabled'">Done</a>`;
+          } else if (data[1] == "Completed") {
+            let btt = `<a href='#' class='btn btn-primary btn-block disabled'">Done</a>`;
             return btt;
           }
           // return data[2];
           // return "<a href='#' class='btn btn-primary'"+ "onClick=action"+data[2]+">"+status+"</a>";
-          var btt = `<a href='#' class='btn btn-primary' onClick="action${type}('${data[0]}', '${
+          var btt = `<a href='#' class='btn btn-primary btn-block' onClick="action${type}('${data[0]}', '${
             data[2]
           }')"> ${status} </a>`;
           return btt;
           // return "<a href='#' class='btn btn-primary'"+ "onClick=action"+type+"("+"'"+data[2]+"'"+")"+">"+status+"</a>";
-        },
-        className: "fixed-col"
+        }
       }
     ],
     initComplete: function() {
-      setUpFixed();
-      $("#supertable").addClass("display");
-    },
-    drawCallback: function() {
-      setUpFixed();
+      $("#supertable-cm").addClass("display");
     }
   });
 }
 
 $(document).ready(function() {
   let username = sessionStorage.getItem("username_unhash");
-  fetch("/srmsng/public/index.php/api/admin/getsinglefse?username="+username).then((data) => {
-    return data.json();
-  }).then((data2) => {
-    console.log(data2[0].fse_code);
-    fetchTable(data2[0].fse_code);
-  })
-  
+  fetch("/srmsng/public/index.php/api/admin/getsinglefse?username=" + username)
+    .then(data => {
+      return data.json();
+    })
+    .then(data2 => {
+      console.log(data2[0].fse_code);
+      fetchTable(data2[0].fse_code);
+    });
 });
 
 function showCollapse() {
@@ -317,30 +319,6 @@ function actionComplete(cm_id, name) {
   $.ajax({
     type: "PUT",
     url: "/srmsng/public/index.php/api/fse/finishwork",
-    data: "cm_id=" + cm_id + "&engname=" + name,
-    success: data => {
-      console.log(data);
-      toastr.options = {
-        positionClass: "toast-bottom-center"
-      };
-      toastr.success("<span>Please wait, this website is going to refresh...</span>");
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-      // window.location.reload();
-    },
-    error: data => {
-      console.log(data);
-    }
-  });
-}
-
-function actionIncomplete(cm_id, name) {
-  console.log("Complete");
-  console.log(cm_id);
-  $.ajax({
-    type: "PUT",
-    url: "/srmsng/public/index.php/api/fse/notfinishwork",
     data: "cm_id=" + cm_id + "&engname=" + name,
     success: data => {
       console.log(data);

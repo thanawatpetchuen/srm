@@ -1,7 +1,65 @@
-function genReport(form_data) {
-  var title = form_data[0]["value"] + ": Workload " + form_data[1]["value"] + " to " + form_data[2]["value"];
+////////////////////////////////////////////////////
+//                     PDF                        //
+////////////////////////////////////////////////////
 
-  // Fonts
+function genReportPDF(form_data) {
+  // Get data from form_data (serializeArray)
+  var fse_code = form_data[0]["value"].split("_")[0];
+  var month = form_data[1]["value"];
+  var year = form_data[2]["value"];
+
+  // Create array to hold data of all rows
+  var tableData = [];
+
+  // Get data
+  fetch("/srmsng/public/index.php/api/admin/workload?fse_code=" + fse_code + "&month=" + month + "&year=" + year)
+    .then(resp => {
+      return resp.json();
+    })
+    .then(data_json => {
+      data_json.forEach(element => {
+        // Put data in each row into an array
+        var tableRow = [];
+        for (var key in element) {
+          tableRow.push(element[key]);
+        }
+        // Add row to tableData
+        tableData.push(tableRow);
+      });
+    })
+    .then(() => {
+      // Create PDF file using pdfmake
+      createPDF(form_data, tableData);
+    });
+}
+function createPDF(form_data, rows) {
+  var fse_name = form_data[0]["value"].split("_")[1];
+  var month = form_data[1]["value"];
+  var year = form_data[2]["value"];
+
+  // Convert month number to month name
+  var monthName = "";
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+  ];
+  monthName = monthNames[month - 1];
+
+  // Title and file name for the PDF file
+  var title = fse_name + ": Workload " + monthName + " " + year;
+  var filename = fse_name + "_Workload_" + monthName + "_" + year;
+
+  // Thai Fonts
   pdfMake.fonts = {
     THSarabunNew: {
       normal: "THSarabunNew.ttf",
@@ -25,7 +83,7 @@ function genReport(form_data) {
     { text: "Store", style: "tableHeader" },
     { text: "Customer Name", style: "tableHeader" },
     { text: "Site Name", style: "tableHeader" },
-    { text: "Job Description", style: "tableHeader" },
+    { text: "Work Class", style: "tableHeader" },
     { text: "WH Time: 8:30-", style: "tableHeader" },
     { text: "OT 17:30-", style: "tableHeader" },
     { text: "OT 24:00-", style: "tableHeader" },
@@ -33,50 +91,37 @@ function genReport(form_data) {
     { text: "Working", style: "tableHeader" },
     { text: "Total Hr", style: "tableHeader" },
     { text: "การทำงานซ้ำ", style: "tableHeader" },
-    { text: "หมายเหตุการทำงานซ้ำ", style: "tableHeader" },
-    { text: "Hotline", style: "tableHeader" },
+    { text: "Job Status", style: "tableHeader" },
     { text: "Remarks", style: "tableHeader" }
   ];
+  // Widths of the columns
+  // * = the width of the column is widest as it can be
   var widths = [
     "auto",
     "auto",
     "auto",
     "auto",
-    "*",
-    "*",
-    "*",
-    "auto",
-    "auto",
-    "auto",
-    "auto",
-    "auto",
-    "auto",
     "auto",
     "*",
+    "auto",
+    "auto",
+    "auto",
+    "auto",
+    "auto",
+    "auto",
+    "auto",
+    "auto",
     "auto",
     "auto"
   ];
 
   // Table Data
-  var values = [
-    "KS",
-    "03-08-17",
-    "KSO170801",
-    "1107",
-    "Lotus Express",
-    "สุทธิสาร",
-    "Repairing",
-    "x",
-    "",
-    "x",
-    "2:00",
-    "3:00",
-    "5:00",
-    "",
-    "",
-    "",
-    ""
-  ];
+  var data = [columnNames];
+
+  // pdfmake recieves data as an array of arrays
+  // The first array is the data for the column names (table header). The others are the
+  // data for each row
+  data = data.concat(rows);
 
   // Document Setup
   var docDefinition = {
@@ -90,6 +135,7 @@ function genReport(form_data) {
       font: "THSarabunNew"
     },
     styles: {
+      // Style for text in table header
       tableHeader: {
         bold: true,
         fontSize: 13,
@@ -97,22 +143,120 @@ function genReport(form_data) {
       }
     },
     content: [
+      // Title
       { text: title, alignment: "center", fontSize: 15, bold: "true" },
+
+      // Table
       {
         table: {
           headerRows: 1,
           widths: widths,
-          body: [columnNames, values]
+          body: data
         },
         layout: {
-          // Colors
-          fillColor: function(i, node) {
+          // Color for the table header
+          fillColor: function(i) {
             return i === 0 ? "#CCCCCC" : null;
           }
         }
       }
     ]
   };
-  // Open PDF in browser
-  pdfMake.createPdf(docDefinition).open();
+  // Download the PDF
+  pdfMake.createPdf(docDefinition).download(filename + ".pdf");
+}
+
+////////////////////////////////////////////////////
+//                     CSV                        //
+////////////////////////////////////////////////////
+function genReportCSV(form_data) {
+  // Get data from form_data (serializeArray)
+  var fse_code = form_data[0]["value"].split("_")[0];
+  var fse_name = form_data[0]["value"].split("_")[1];
+
+  var month = form_data[1]["value"];
+  var year = form_data[2]["value"];
+
+  // Convert month number to month name
+  var monthName = "";
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+  ];
+  monthName = monthNames[month - 1];
+
+  // File Name
+  var filename = fse_name + "_Workload_" + monthName + "_" + year;
+
+  // Create string to hold data of all rows
+  var tableData = "";
+
+  // Table Columns
+  var columnNames = [
+    "Name",
+    "DD-MM-YY",
+    "Job No.",
+    "Store",
+    "Customer Name",
+    "Site Name",
+    "Work Class",
+    "WH Time: 8:30-",
+    "OT 17:30-",
+    "OT 24:00-",
+    "Travel",
+    "Working",
+    "Total Hr",
+    "การทำงานซ้ำ",
+    "Job Status",
+    "Remarks"
+  ];
+
+  for (var i in columnNames) {
+    tableData += columnNames[i] + ",";
+  }
+  tableData = tableData.slice(0, -1);
+  tableData += "\n";
+
+  // Get data
+  fetch("/srmsng/public/index.php/api/admin/workload?fse_code=" + fse_code + "&month=" + month + "&year=" + year)
+    .then(resp => {
+      return resp.json();
+    })
+    .then(data_json => {
+      data_json.forEach(element => {
+        // Put data in each row into a string
+        var tableRow = "";
+        for (var key in element) {
+          tableRow += element[key] + ",";
+        }
+        tableRow = tableRow.slice(0, -1);
+        tableRow += "\n";
+        // Add row to tableData
+        tableData += tableRow;
+      });
+    })
+    .then(() => {
+      var uri = "data:text/plain;charset=utf-8,\uFEFF" + encodeURI(tableData);
+
+      var element = document.createElement("a");
+      element.setAttribute("href", uri);
+      element.setAttribute("download", filename + ".csv");
+
+      element.style.display = "none";
+      document.body.appendChild(element);
+
+      element.click();
+
+      document.body.removeChild(element);
+    });
 }

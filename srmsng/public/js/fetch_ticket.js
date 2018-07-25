@@ -1,5 +1,5 @@
 function fetchTable() {
-  $("#supertable").DataTable({
+  $("#supertable-ticket").DataTable({
     //columnDefs: [{ orderable: false, targets: [6, 7, 9] }],
     stateSave: true,
     deferRender: true,
@@ -10,7 +10,7 @@ function fetchTable() {
       url: "/srmsng/public/fetch-ajax/fetchTicket.php",
       pages: 5 // number of pages to cache,
     }),
-    
+
     columnDefs: [
       {
         searchable: true
@@ -113,11 +113,11 @@ function fetchTable() {
       }
     ],
     initComplete: function() {
-      setUpFixed();
-      $("#supertable").addClass("display");
+      setUpFixed("supertable-ticket");
+      $("#supertable-ticket").addClass("display");
     },
     drawCallback: function() {
-      setUpFixed();
+      setUpFixed("supertable-ticket");
     }
   });
   $("#supertable-approve").DataTable({
@@ -225,27 +225,29 @@ function fetchTable() {
         targets: -1,
         searchable: false,
         data: function(row) {
-          return [row[0], row[21]];
+          return [row[0], row[22]];
         },
         className: "fixed-col",
         render: function(data) {
-          render_data = data[1] == "Completed" ? `<a class='btn btn-primary text-center disabled' href='#'">Completed</a>`: `<a class='btn btn-primary text-center' href='#' onClick="approve('${data[0]}')">Approve</a>`;
+          render_data =
+            data[1] == "Completed"
+              ? `<a class='btn btn-primary text-center disabled' href='#'>Completed</a>`
+              : `<a class='btn btn-primary text-center' href='#' onClick="approve('${data[0]}')">Approve</a>`;
           return render_data;
         }
       }
     ],
     initComplete: function() {
-      setUpFixed();
+      setUpFixed("supertable-approve");
       $("#supertable-approve").addClass("display");
     },
     drawCallback: function() {
-      setUpFixed();
+      setUpFixed("supertable-approve");
     }
   });
 }
 
 $(document).ready(function() {
-  
   fetchTable();
 });
 
@@ -293,7 +295,7 @@ function makeDropArrow() {
   return wrapper;
 }
 
-function approve(cm_id){
+function approve(cm_id) {
   $.ajax({
     type: "PUT",
     url: "/srmsng/public/index.php/api/admin/approvecm",

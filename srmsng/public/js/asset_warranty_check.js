@@ -30,7 +30,8 @@ function check_asset_warranty(this_element) {
                 if (result[0]['start_date'] != document.getElementsByName('warranty_start_date')[0].value
                     || result[0]['end_date'] != document.getElementsByName('warranty_end_date')[0].value
                     || result[0]['year_count'] != document.getElementsByName('warranty_year_count')[0].value
-                    || result[0]['times_per_year'] != document.getElementsByName('warranty_times_per_year')[0].value) {
+                    || result[0]['times_per_year'] != document.getElementsByName('warranty_times_per_year')[0].value
+                    || result[0]['typeofcontract'] != document.getElementsByName('warranty_typeofcontract')[0].value) {
                     alert('Assets warranty doesn\'t match');
                     this_element.setAttribute("class", "form-control is-invalid");
                 } else {

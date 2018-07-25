@@ -21,21 +21,25 @@ function fetchTable(sng_code) {
         render: function(data) {
           var type = data.substring(0, 3);
           if (type === "JOB") {
-            return (
-              '<a class="btn btn-primary" href="../service/edit_service?cm_id=' + data + '&from_plan=true">Edit</a>'
-            );
+            return '<a class="btn btn-primary" href="../service/update?service_request_id=' + data + '">Edit</a>';
           }
-          return '<a class="btn btn-primary" href="../ticket/ticket_update?cm_id=' + data + '&from_plan=true">Edit</a>';
+          return (
+            '<a class="btn btn-primary" href="../ticket/ticket_update?cm_id=' +
+            data +
+            "&sng_code=" +
+            sng_code +
+            '">Edit</a>'
+          );
         },
         className: "fixed-col"
       }
     ],
     initComplete: function() {
-      setUpFixed("#supertable-plan");
+      setUpFixed("supertable-plan");
       $("#supertable-plan").addClass("display");
     },
     drawCallback: function() {
-      setUpFixed("#supertable-plan");
+      setUpFixed("supertable-plan");
     }
   });
 

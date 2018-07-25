@@ -51,7 +51,7 @@
         </fieldset>
 
         <div class="row">
-            <div class="col">
+            <div class="col-md-6">
                 <fieldset>
                     <legend>Sale Order</legend>
                     <div class="asset-details">
@@ -85,13 +85,15 @@
                     </div>
                 </fieldset>
             </div>
-            <div class="col">
+            <div class="col-md-6">
                 <fieldset>
                     <legend>Battery</legend>
                     <div class="asset-details">
                         <strong>Battery Type: </strong><span id="battery"></span><br>
                         <strong>Item Number: </strong><span id="quantity"></span><br>
                         <strong>Battery Date: </strong><span id="battery_date"></span>
+                        <strong>Battery Start Warranty: </strong><span id="battery_startwarranty"></span>
+                        <strong>Battery End Warranty: </strong><span id="battery_endwarranty"></span>
                     </div>
                 </fieldset>
                 <fieldset>

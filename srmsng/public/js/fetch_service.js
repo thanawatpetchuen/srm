@@ -2,6 +2,8 @@ function fetchTable() {
   $("#supertable").DataTable({
     stateSave: true,
     deferRender: true,
+    processing: true,
+    serverSide: true,
     dom: '<lf<"table-wrapper"t>ip>',
     ajax: $.fn.dataTable.pipeline({
       url: "/srmsng/public/fetch-ajax/fetchService.php",

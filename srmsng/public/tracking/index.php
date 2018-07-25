@@ -48,9 +48,10 @@
                         </div>
                         <div class="form-group">
                             <label><b>Assign FSE</b></label>
-                            <div class="select-multiple" id="fse-dropdown" style="display:none"></div>
-                            <div class="selected-fse">
+                            <div class="selected-fse" id="selected-fse">
                                 <span class="selected-fse-none">None</span>
+                            </div>
+                            <div id="fse-code-input">
                             </div>
                             <button class="btn btn-primary" style="margin-top:15px;" type="button" id="select-from-map" data-dismiss="modal">Select from map</button>
                         </div>
@@ -66,7 +67,7 @@
     </div>
     <div class="tracking-select">
         <h5>Selected Field Service Engineers:</h5>
-        <div class="selected-fse">
+        <div class="selected-fse" id="selected-fse-on-select">
             <span class="selected-fse-none">None</span>
         </div>
         <button class="btn btn-primary" id="select-done" style="margin-top:15px;" data-toggle="modal" data-target="#assign-modal-site">Done</button>
@@ -97,41 +98,13 @@
                 format: 'Y-MM-DD H:mm:ss'
             }
         });
+
+        // Submit tracking form
+        $('#assign-tracking-form').submit(function() {
+            console.log($('#assign-tracking-form').serialize());
+            return false;
+        });
       });
-
-      // Fetch FSE List
-      fetch('/srmsng/public/index.php/api/admin/getfse')
-        .then(resp => {
-            return resp.json();
-        })
-        .then(data_json => {
-            data_json.forEach(element => {
-                if (element['fse_code'] != 0) {
-                    var item = document.createElement('span');
-                    item.setAttribute('class','select-multiple-item');
-
-                    var checkbox = document.createElement('input');
-                    checkbox.setAttribute('type','checkbox');
-                    checkbox.setAttribute('value',element['fse_code']);
-                    checkbox.setAttribute('name','fse_code[]');
-
-                    checkbox.onclick = function() {
-                        var fselabel = document.createElement('span');
-                        fselabel.setAttribute('id',element['fse_code']);
-                        fselabel.appendChild(document.createTextNode(element['engname']));
-                        if (!checkbox.checked) {
-                            document.getElementById(element['fse_code']).outerHTML = '';
-                        } else {
-                            document.getElementById('selected-fse').appendChild(fselabel);
-                        }
-                    }
-
-                    item.appendChild(checkbox);
-                    item.appendChild(document.createTextNode(' ' + element['engname']));
-                    document.getElementById('fse-dropdown').appendChild(item);
-                }
-            })
-        })
     </script>
     <script>
     var config = {

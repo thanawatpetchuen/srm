@@ -11,7 +11,15 @@ function fetchData() {
       pages: 5 // number of pages to cache,
     }),
     columns: [
-      { data: 0 },
+      {
+        data: 0,
+        render: function(data) {
+          return `<a href="/srmsng/public/customer/work?sng_code=${data}" target="_blank">${data}</a>`;
+        }
+        // render: function(data) {
+        //   return '<a href="/srmsng/public/asset/work?sng_code=' + data + '" target="_blank">' + data + "</a>";
+        // }
+      },
       { data: 1 },
       { data: 2 },
       { data: 3 },

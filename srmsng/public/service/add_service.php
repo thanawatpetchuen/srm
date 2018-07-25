@@ -26,7 +26,7 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
       <h1 style="margin-bottom:0;">Add Service</h1>
     </div>
 
-    <form id="add-service-form">
+    <form id="add-service-form"  data-type="add">
       <div class="row">
         <div class="col">
           <fieldset>
@@ -241,6 +241,20 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
         }
       });
     });
+
+    // Get SNG Code in case the user adds service from the work page
+    var url_string = window.location.href;
+    var url = new URL(url_string);
+    var sng_code = url.searchParams.get("sng_code");
+
+    if (sng_code) {
+      $('input[name="asset[]"]').val(sng_code);
+      $('input[name="asset[]"]').prop('readonly',true);
+      get_asset_location_and_customer(sng_code);
+
+      $('#add-service-form').attr('data-type','work');
+    }
+
   })
 
 $("#add_asset").on("click", function() {

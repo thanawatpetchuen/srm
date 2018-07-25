@@ -32,19 +32,47 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
                     <option value="">-- Select Field Service Engineer --</option>
                 </select>
             </div>
-            <div class="row">
-                <div class="col">
-                    <div class="form-group">
-                        <label>Start Date</label>
-                        <input type="text" class="form-control" name="start_date" placeholder="Start Date"/>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-group">
-                        <label>End Date</label>
-                        <input type="text" class="form-control" name="end_date" placeholder="End Date"/>
-                    </div>
-                </div>
+            <div class="form-group">
+                <label>Month</label>
+                <select name="month" class="form-control" required>
+                    <option value="">-- Select Month --</option>
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Year</label>
+                <select list="year" class="form-control" id="since-field" name="year" autocomplete="off">
+                    <datalist id="year">
+                        <?php 
+                        $right_now = getdate();
+                        $this_year = $right_now['year'];
+                        $start_year = 2008;
+                        while ($start_year <= $this_year) {
+                            echo "<option value='" . $this_year . "'>{$this_year}</option>";
+                            $this_year--;
+                        }
+                        ?>
+                    </datalist>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Format</label>
+                <select name="format" class="form-control" required>
+                    <option value="">-- Select File Format --</option>
+                    <option value="pdf">PDF</option>
+                    <option value="csv">CSV</option>
+                </select>
             </div>
             <div class="form-group" style="margin-top:20px; text-align:right">
                 <button type="submit" class="btn btn-primary">Generate Report</button>
@@ -62,7 +90,7 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
 <script>
     // Initialize Date Range Pickers
     $(function() {
-        $('input[name="start_date"],input[name="end_date"]').daterangepicker({
+        $('input[name="start_time"],input[name="stop_time"]').daterangepicker({
         singleDatePicker: true,
         startDate: moment().startOf('day'),
         endDate: moment().startOf('day').add(1, 'day'),
@@ -83,16 +111,25 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
             data_json.forEach(element => {
                 if (element['fse_code'] != 0) {
                     var option = document.createElement('option');
-                    // option.setAttribute('value',element['fse_code']);
+                    option.setAttribute('value',element['fse_code'] + "_" + element['engname']);
                     option.innerHTML = element['engname'];
                     document.getElementById('fse-code-dropdown').appendChild(option);
                 }
             })
         });
+
+        // Get current month
+        var d = new Date();
+        var m = d.getMonth();
+        $('select[name="month"]').val(m+1);
         
         // Generate Report
         $('#gen-report-form').submit(function() {
-            genReport($(this).serializeArray())
+            if ($('select[name="format"]').val() === 'pdf') {
+                genReportPDF($(this).serializeArray())
+            } else {
+                genReportCSV($(this).serializeArray())
+            }
             return false
         });
     })

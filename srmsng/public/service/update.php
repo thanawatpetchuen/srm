@@ -53,7 +53,7 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
               <select name="work_class" class="form-control" required>
                 <option value="">-- Select Work Class --</option>
                 <option>Preventive Maintenance</option>
-                <option>Preventive Building Maintenance - UOB</option>
+                <option>Building Preventive Maintenance - UOB</option>
                 <option>Battery Replacement</option>
                 <option>Install</option>
                 <option>Standby</option>
@@ -69,16 +69,16 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
             <legend>Contact Information</legend>
             <div class="form-group">
               <label>Contact Name</label>
-              <input type="text" class="form-control" name="contact_name" placeholder="Customer Name" required/>
+              <input type="text" class="form-control" name="contact_name" placeholder="Customer Name"/>
             </div>
             <div class="form-group">
               <label>Phone Number</label>
-              <input type="text" class="form-control" name="contact_number" placeholder="Phone Number" maxlength="10" size="10" id="contact-number-field" required/>
+              <input type="text" class="form-control" name="contact_number" placeholder="Phone Number" maxlength="10" size="10" id="contact-number-field"/>
               <small class="form-text text-muted" id="contact-number-warning">Mobile phone number only (10 digits)</small>
             </div>
             <div class="form-group">
               <label>Alternate Number</label>
-              <input type="text" class="form-control" name="alternate_number" placeholder="Phone Number" maxlength="10" size="10" id="alternate-number-field" required/>
+              <input type="text" class="form-control" name="alternate_number" placeholder="Phone Number" maxlength="10" size="10" id="alternate-number-field"/>
               <small class="form-text text-muted" id="alternate-number-warning">Mobile phone number only (10 digits)</small>
             </div>
           </fieldset>
@@ -297,6 +297,7 @@ $(document).ready(function() {
             }
         })
     });
+    $('#update-service-form').attr('data-type','work');
 })
 
 $("#add_asset").on("click", function() {

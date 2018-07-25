@@ -521,6 +521,8 @@ $(document).ready(function() {
     $("#add-location-form input[name='country']").val("Thailand");
     $("#add-location-popup input[name='location_code']").prop("readonly", false);
     isEdit = 0;
+    $("#add-location-form input[name='lat']").val("");
+    $("#add-location-form input[name='lon']").val("");
   });
   $("#location-edit-button").on("click", function() {
     $("#add-location-popup .modal-title").text("Edit Location");
@@ -537,7 +539,6 @@ $(document).ready(function() {
           $("#add-location-form input[name='" + value + "']").val(data_json[0][value]);
         }
         // Lat lng
-        console.log(data_json[0]["latitude"]);
         $("#add-location-form input[name='lat']").val(data_json[0]["latitude"]);
         $("#add-location-form input[name='lon']").val(data_json[0]["longitude"]);
       });

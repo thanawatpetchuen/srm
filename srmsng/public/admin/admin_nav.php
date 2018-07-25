@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
-    <a class="navbar-brand">
+    <a class="navbar-brand" href="/srmsng/public/announcement">
         <img src="/srmsng/public/image/logo/logo.png" class="nav-logo" height="50" alt="">
     </a>
     <span class="nav-item" id="nav-logo-title">Service Request Management</span>
@@ -20,6 +20,8 @@
                     Menu
                     </a>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="/srmsng/public/announcement/">Announcements</a>
+                        <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="/srmsng/public/ticket/">Tickets</a>
                         <a class="dropdown-item" href="/srmsng/public/service">Service Request</a>
                         <a class="dropdown-item" href="/srmsng/public/plan">Maintenance Plan</a>

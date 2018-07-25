@@ -36,6 +36,7 @@ $columns = array(
     array( 'db' => 'account_status', 'dt' => 4 ),
     array( 'db' => 'is_lock',  'dt' => 5 ),
     array( 'db' => 'last_login',   'dt' => 6 ),
+    array( 'db' => 'ip',   'dt' => 7 ),
   
 );
  

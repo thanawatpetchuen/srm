@@ -325,6 +325,20 @@
                             <label>Battery Installation Date</label>
                             <input type="text" class="form-control" name="battery_date" placeholder="Battery Installation Date"/>
                         </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label>Start Battery Warranty</label>
+                                    <input type="text" class="form-control" name="battery_startwarranty" placeholder="Start Warranty"/>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label>End Battery Warranty</label>
+                                    <input type="text" class="form-control" name="battery_endwarranty" placeholder="End Warranty"/>
+                                </div>
+                            </div>
+                        </div>
                     </fieldset>
 
                     <fieldset>
@@ -750,7 +764,11 @@
 <script>
     // Initialize Time/Date Picker
     $(function() {
-        $('input[name="startwarranty"], input[name="endwarranty"], input[name="battery_date"], input[name="nextpm"], #add-sale-order-popup input[name="po_date"], #add-sale-order-popup input[name="date_order"]').daterangepicker({
+        $('input[name="startwarranty"], \
+        input[name="endwarranty"], input[name="battery_date"], \
+        input[name="nextpm"], #add-sale-order-popup input[name="po_date"], \
+        #add-sale-order-popup input[name="date_order"], \
+        input[name="battery_endwarranty"], input[name="battery_startwarranty"]').daterangepicker({
             timePicker: true,
             "timePicker24Hour": true,
             singleDatePicker: true,
@@ -817,8 +835,8 @@
 
         $("#map-modal").modal("toggle");
         
-        var lat = $('input[name="lat"]').val();
-        var lng = $('input[name="lon"]').val();
+        var lat = $('#add-location-form input[name="lat"]').val();
+        var lng = $('#add-location-form input[name="lon"]').val();
         initMarker(lat,lng);
     }
     $(document).ready( function() {

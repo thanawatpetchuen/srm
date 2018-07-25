@@ -60,6 +60,7 @@
                         <th id="acc_status">Status</th>
                         <th id="acc_lock">Locked</th>
                         <th id="acc_login">Last Login</th>
+                        <th id="acc_ip">IP Address</th>
                         <th id="acc_action">Action</th>
                     </thead>
                     <tbody id="maintable">

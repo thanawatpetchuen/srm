@@ -60,16 +60,16 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
                         <legend>Contact Information</legend>
                         <div class="form-group">
                             <label>Contact Name</label>
-                            <input type="text" class="form-control" name="contact_name" placeholder="Customer Name" disabled required/>
+                            <input type="text" class="form-control" name="contact_name" placeholder="Customer Name" disabled/>
                         </div>
                         <div class="form-group">
                             <label>Phone Number</label>
-                            <input type="text" class="form-control" name="contact_number" placeholder="Phone Number" maxlength="10" size="10" id="contact-number-field" disabled required/>
+                            <input type="text" class="form-control" name="contact_number" placeholder="Phone Number" maxlength="10" size="10" id="contact-number-field" disabled/>
                             <small class="form-text text-muted" id="contact-number-warning">Mobile phone number only (10 digits)</small>
                         </div>
                         <div class="form-group">
                             <label>Alternate Number</label>
-                            <input type="text" class="form-control" name="alternate_number" placeholder="Phone Number" maxlength="10" size="10" id="alternate-number-field" disabled required/>
+                            <input type="text" class="form-control" name="alternate_number" placeholder="Phone Number" maxlength="10" size="10" id="alternate-number-field" disabled/>
                             <small class="form-text text-muted" id="alternate-number-warning">Mobile phone number only (10 digits)</small>
                         </div>
                     </fieldset>

@@ -40,12 +40,18 @@ $table = "(SELECT service_request.service_request_id,
             location.country,
             location.store_phone,
             service_request.due_date
-            FROM service_request, asset_tracker, fse, location, service_fse, service_asset
-            WHERE service_request.service_request_id = service_asset.service_request_id
-            AND service_request.service_request_id = service_fse.service_request_id
-            AND service_asset.sng_code = asset_tracker.sng_code
-            AND service_fse.fse_code = fse.fse_code
-            AND asset_tracker.location_code = location.location_code) AS sub_q";
+            FROM service_request
+            LEFT JOIN service_asset
+            ON service_request.service_request_id = service_asset.service_request_id
+            LEFT JOIN service_fse
+            ON service_request.service_request_id = service_fse.service_request_id
+            LEFT JOIN asset_tracker
+            ON service_asset.sng_code = asset_tracker.sng_code
+            LEFT JOIN fse
+            ON service_fse.fse_code = fse.fse_code
+            LEFT JOIN location
+            ON asset_tracker.location_code = location.location_code
+            ) AS sub_q";
 
 //Filter by URL attributes
 if (!empty($_GET['maintenance_plan_id'])) {
@@ -65,14 +71,14 @@ $primaryKey = 'title';
 // parameter represents the DataTables column identifier. In this case simple
 // indexes
 $columns = array(
-    array( 'db' => 'sub_q.service_request_id', 'dt' => 0),
+    array( 'db' => 'service_request_id', 'dt' => 0),
     array( 'db' => 'title', 'dt' => 1 ),
     array( 'db' => 'status', 'dt' => 2 ),
     array( 'db' => 'contact_name', 'dt' => 3 ),
     array( 'db' => 'contact_number', 'dt' => 4 ),
     array( 'db' => 'alternate_number', 'dt' => 5 ),
     array( 'db' => "GROUP_CONCAT(DISTINCT fse_engname ORDER BY fse_engname ASC SEPARATOR '<br>')", 'dt' => 6 ),
-    array( 'db' => "GROUP_CONCAT(DISTINCT fse_engname ORDER BY fse_engname ASC SEPARATOR '<br>')", 'dt' => 7 ),
+    array( 'db' => "fse_engname", 'dt' => 7 ),
     array( 'db' => 'work_class', 'dt' => 8 ),
     array( 'db' => 'sitename', 'dt' => 9 ),
     array( 'db' => 'location_code', 'dt' => 10 ),
@@ -97,9 +103,9 @@ $sql_details = array(
     'host' => 'localhost'
 );
 
-require( 'ssp.class.php' );
+require( 'ssp3.class.php' );
 
 echo json_encode(
-    SSP::complex( $_GET, $sql_details, $table, $primaryKey, $columns)
+    SSP::mod( $_GET, $sql_details, $table, $primaryKey, $columns)
 );
 ?>

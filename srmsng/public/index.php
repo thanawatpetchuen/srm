@@ -70,6 +70,7 @@ $app->post('/login', function (Request $request, Response $response) {
                         $_SESSION['account_no'] = $jsonArray['account_no'];
                         $_SESSION['username'] = $jsonArray['username'];
                         $_SESSION['username_unhash'] = $_POST["username"];
+                        $ip = $_SERVER['REMOTE_ADDR'];
                         if($remember == "on"){
                             $_SESSION['remember'] = "on";
                         }else{
@@ -78,12 +79,13 @@ $app->post('/login', function (Request $request, Response $response) {
 
                         // echo $remember;
                         $attempt = 10;
-                        $sql = "UPDATE account SET  attempt = :set_attempt, account_status = :set_status, session_id = :set_session WHERE username = '$username'";
+                        $sql = "UPDATE account SET  attempt = :set_attempt, account_status = :set_status, session_id = :set_session, ip = :set_ip WHERE username = '$username'";
                         $stmt = $db->prepare($sql);
                         $session_status = 'LOGIN';
                         $stmt->bindParam(':set_attempt', $attempt);
                         $stmt->bindParam(':set_status', $session_status);
                         $stmt->bindParam(':set_session', $session);
+                        $stmt->bindParam(':set_ip', $ip);
                         $stmt->execute();
                         if ($jsonArray['account_type'] == 'USER'){
                             $success_json = array('statuscode' => '111', 'description' => '/srmsng/public/customer_page');
@@ -195,7 +197,7 @@ $app->post('/logout', function (Request $request, Response $response) {
 });
 
 
-// Logout
+// Force Logout
 $app->post('/logout/forcelogout', function (Request $request, Response $response) {
     $token = $request->getParam('token');
     $username = $_SESSION['username_unhash'];
@@ -227,7 +229,9 @@ $app->post('/logout/forcelogout', function (Request $request, Response $response
                     $_SESSION = $tmp;
                     session_commit();
 
-                    $sql = "UPDATE account SET session_id = :set_session, last_login = :set_date, account_status = :set_status WHERE username_tag = '$username'";
+                    $ip = $_SERVER['REMOTE_ADDR'];
+
+                    $sql = "UPDATE account SET session_id = :set_session, last_login = :set_date, account_status = :set_status, ip = :set_ip WHERE username_tag = '$username'";
                     try{
 
                         $stmt = $db->prepare($sql);
@@ -235,6 +239,7 @@ $app->post('/logout/forcelogout', function (Request $request, Response $response
                         $stmt->bindParam(':set_session', $current_session);
                         $stmt->bindParam(':set_date', $date);
                         $stmt->bindParam(':set_status', $session_status);
+                        $stmt->bindParam(':set_ip', $ip);
 
                         $stmt->execute();
                         if ($_SESSION['account_type'] == 'USER'){
@@ -863,14 +868,18 @@ $app->post('/api/admin/addticket', function(Request $request, Response $response
     $complete_time = $request->getParam('complete_time');
     $job_type = $request->getParam('job_type');
     $work_class = 'CM';
-    
-    if ($complete_time != '' && $fse_code != '' && $cm_time != '' && $job_type != '') $job_status = 'Pending Approve'; 
-    elseif ($complete_time == '') $job_status = 'Assigned';
-    else $job_status = 'Pending';
-   
-    
     $request_time = date('Y-m-d H:i:s', time());
+    $start_time = $request->getParam('start_time');
+    $close_time = $request->getParam('close_time');
 
+
+    if ($job_type != 'Fixed by Phone') {
+        if ($complete_time != '' && $fse_code != '' && $cm_time != '' && $job_type != '') $job_status = 'Pending Approve';
+        elseif ($complete_time == '') $job_status = 'Assigned';
+        else $job_status = 'Pending';
+    } else {
+        $job_status = "Closed";
+    }
 
     $sql = "SELECT sng_code FROM asset_tracker WHERE sng_code = '$sng_code' LIMIT 1";
     try{
@@ -894,12 +903,13 @@ $app->post('/api/admin/addticket', function(Request $request, Response $response
     $sql = "INSERT INTO srm_request (cm_id, sng_code, name, email, phone_number, problem_type,
                 asset_problem, asset_detected, solution, suggestions, cause_id, correction_id,
                 cm_time, job_status, complete_time, request_time, cause_detail, correction_detail,
-                work_class, job_type)
+                work_class, job_type, close_time, start_time)
             VALUES
                 (:set_cm_id, :set_sngcode, :set_name, :set_email, :set_phone_number,
                 :set_problem_type, :set_asset_problem, :set_asset_detected, :set_solution,
                 :set_suggestions, :set_cause_id, :set_correction_id, :set_cm_time, :set_job_status,
-                :set_complete_time, :set_request_time, :set_cause_detail, :set_correction_detail, :set_work_class, :set_job_type)";
+                :set_complete_time, :set_request_time, :set_cause_detail, :set_correction_detail,
+                :set_work_class, :set_job_type, :set_close_time, :set_start_time)";
 
     try{
         // Get DB Object
@@ -928,7 +938,10 @@ $app->post('/api/admin/addticket', function(Request $request, Response $response
         $stmt->bindParam(':set_correction_detail', $correction_detail);
         $stmt->bindParam(':set_work_class', $work_class);
         $stmt->bindParam(':set_job_type', $job_type);
+        $stmt->bindParam(':set_close_time', $close_time);
+        $stmt->bindParam(':set_start_time', $start_time);
         $stmt->execute();
+
     }catch(PDOException $e){
         $db = null;
         return $e->getmessage();
@@ -1277,7 +1290,7 @@ $app->put('/api/fse/startwork', function(Request $request, Response $response){
 // Update ticket status to
 $app->put('/api/fse/notfinishwork', function(Request $request, Response $response){
     $job_status = 'Incomplete';
-    $engname = $request->getParam('engname');
+    $notes = $request->getParam('notes');
     $cm_id = $request->getParam('cm_id');
     $complete_time = date('Y-m-d H:i:s', time());
     $is_finish = false;
@@ -1301,14 +1314,15 @@ $app->put('/api/fse/notfinishwork', function(Request $request, Response $respons
         $db = null;
         echo '{"error": {"text": '.$e->getMessage().'}';
     }
-    
+
     $sql = "SELECT sng_code, name, phone_number, srm_request.email, problem_type,
                 asset_problem, asset_detected, solution, suggestions, cause_id,
-                correction_id, ups_status, cause_detail, correction_detail,
-                GROUP_CONCAT(DISTINCT job_fse.fse_code ORDER BY engname ASC SEPARATOR ','),
-                cm_time, close_time, job_status
+                correction_id, ups_status, cause_detail, correction_detail, job_status,
+                GROUP_CONCAT(DISTINCT job_fse.fse_code ORDER BY engname ASC SEPARATOR ',')
             FROM srm_request, job_fse, fse
-            WHERE srm_request.cm_id = '$cm_id' AND job_fse.job_id = '$cm_id' AND fse.fse_code = job_fse.fse_code
+            WHERE srm_request.cm_id = '$cm_id'
+                AND job_fse.job_id  = '$cm_id'
+                AND fse.fse_code    = job_fse.fse_code
             GROUP BY srm_request.cm_id";
     try{
         // Get DB Object
@@ -1325,12 +1339,13 @@ $app->put('/api/fse/notfinishwork', function(Request $request, Response $respons
         $db = null;
         return $e->getmessage();
     }
-    
+
     if ($result['job_status'] == 'Working in Progress'){
         $sql = "UPDATE srm_request SET
-                    job_status = :set_job_status,
+                    job_status    = :set_job_status,
                     complete_time = :set_complete_time,
-                    is_finish = :set_is_finish
+                    is_finish     = :set_is_finish,
+                    notes         = :set_notes
                 WHERE cm_id = '$cm_id'";
 
         try{
@@ -1342,9 +1357,9 @@ $app->put('/api/fse/notfinishwork', function(Request $request, Response $respons
             $stmt->bindParam(':set_job_status', $job_status);
             $stmt->bindParam(':set_complete_time', $complete_time);
             $stmt->bindParam(':set_is_finish', $is_finish);
+            $stmt->bindParam(':set_notes', $notes);
             $stmt->execute();
             $action = 'Work Incomplete CM id :';
-            system_log($engname . $action . $cm_id);
             $db = null;
         } catch(PDOException $e){
             $db = null;
@@ -1366,16 +1381,15 @@ $app->put('/api/fse/notfinishwork', function(Request $request, Response $respons
         $cause_detail = $result['cause_detail'];
         $correction_detail = $result['correction_detail'];
         $fse_code = explode(',', $result["GROUP_CONCAT(DISTINCT job_fse.fse_code ORDER BY engname ASC SEPARATOR ',')"]);
-        $cm_time = $result['cm_time'];
         $job_status = 'Acknowledged';
         $work_class = 'CM';
-        
+
         $sql = "INSERT INTO srm_request (cm_id, sng_code, name, email, phone_number, problem_type,
                             asset_problem, asset_detected, solution, suggestions, cause_id, correction_id,
-                            cm_time, job_status, request_time, cause_detail, correction_detail, work_class)
+                            job_status, request_time, cause_detail, correction_detail, work_class)
                 VALUES  (:set_new_cm_id, :set_sng_code, :set_name, :set_email, :set_phone_number,
                         :set_problem_type, :set_asset_problem, :set_asset_detected, :set_solution,
-                        :set_suggestions, :set_cause_id, :set_correction_id, :set_cm_time, :set_job_status,
+                        :set_suggestions, :set_cause_id, :set_correction_id, :set_job_status,
                         :set_request_time, :set_cause_detail, :set_correction_detail, :set_work_class)";
 
         try{
@@ -1396,16 +1410,15 @@ $app->put('/api/fse/notfinishwork', function(Request $request, Response $respons
             $stmt->bindParam(':set_suggestions', $suggestions);
             $stmt->bindParam(':set_cause_id', $cause_id);
             $stmt->bindParam(':set_correction_id', $correction_id);
-            $stmt->bindParam(':set_cm_time', $cm_time);
             $stmt->bindParam(':set_job_status', $job_status);
             $stmt->bindParam(':set_request_time', $complete_time);
             $stmt->bindParam(':set_cause_detail', $cause_detail);
             $stmt->bindParam(':set_correction_detail', $correction_detail);
             $stmt->bindParam(':set_work_class', $work_class);
+
             $stmt->execute();
-    
+
             $action = 'Work Incomplete CM id :';
-            // system_log($engname . $action . $cm_id_new);
             $db = null;
 
         } catch(PDOException $e){
@@ -1574,7 +1587,8 @@ $app->put('/api/admin/assignticket', function(Request $request, Response $respon
     $cause_id = $request->getParam('cause_id');
     $cm_time = $request->getParam('cm_time');
     $complete_time = $request->getParam('complete_time');
-
+    $start_time = $request->getParam('start_time');
+    $close_time = $request->getParam('close_time');
 
     $sql = "DELETE FROM job_fse WHERE job_id = '$cm_id'";
 
@@ -1619,9 +1633,14 @@ $app->put('/api/admin/assignticket', function(Request $request, Response $respon
         return $e->getmessage();
     }
 
-    if ($complete_time != '' && $fse_code != '' && $cm_time != '' && $job_type != '') $job_status = 'Pending Approve'; 
-    elseif ($complete_time == '') $job_status = 'Assigned';
-    else $job_status = 'Pending';
+    if ($job_type != 'Fixed by Phone')
+    {
+        if ($complete_time != '' && $fse_code != '' && $cm_time != '' && $job_type != '') $job_status = 'Pending Approve';
+        elseif ($complete_time == '') $job_status = 'Assigned';
+        else $job_status = 'Pending';
+    } else {
+        $job_status = "Closed";
+    }
 
     $sql = "UPDATE srm_request SET
                 name              = :set_name,
@@ -1640,7 +1659,9 @@ $app->put('/api/admin/assignticket', function(Request $request, Response $respon
                 ups_status        = :set_ups_status,
                 cm_time           = :set_cm_time,
                 job_type          = :set_job_type,
-                complete_time     = :set_complete_time 
+                complete_time     = :set_complete_time,
+                close_time        = :set_close_time,
+                start_time        = :set_start_time
             WHERE cm_id = '$cm_id'";
 
     try{
@@ -1666,6 +1687,8 @@ $app->put('/api/admin/assignticket', function(Request $request, Response $respon
         $stmt->bindParam(':set_cm_time', $cm_time);
         $stmt->bindParam(':set_complete_time', $complete_time);
         $stmt->bindParam(':set_job_type', $job_type);
+        $stmt->bindParam(':set_close_time', $close_time);
+        $stmt->bindParam(':set_start_time', $start_time);
         $stmt->execute();
 
         system_log('Assign ticket at JOBID: ' . $cm_id);
@@ -1949,29 +1972,9 @@ $app->post('/api/admin/updateservice', function(Request $request, Response $resp
         return $e->getmessage();
     }
 });
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // Add Maintenance Plan
 $app->post('/api/admin/addplan', function(Request $request, Response $response){
-
-    //Generate next maintenance_plan_id
-    $sql = "SELECT MAX(maintenance_plan_id) FROM maintenance_plan";
-    try{
-        $db = new db();
-        $db = $db->connect();
-        $stmt = $db->query($sql);
-        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
-        $db = null;
-        $result = json_encode($result);
-        $result = json_decode($result, true);
-        $current_number =  $result[0]['MAX(maintenance_plan_id)'];
-        if(substr($current_number,0,4)=='PLAN'){
-        	$current_number = substr($current_number,4);
-        }
-        $maintenance_plan_id = 'PLAN' . sprintf('%06d', $current_number + 1);
-    } catch(PDOException $e) {
-        $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
-    }
 
     //Prepare Required Parameters
     $title = $request->getParam('title');
@@ -1989,6 +1992,9 @@ $app->post('/api/admin/addplan', function(Request $request, Response $response){
     $year_count = $request->getParam('year_count');
     $times_per_year = $request->getParam('times_per_year');
     $plan_date = $request->getParam('plan_date');
+    $sale_order_no = $request->getParam('sale_order_no');
+
+    $location_code = $request->getParam('location_code');
 
     if($asset == ""){
         return 'error: no asset selected';
@@ -2024,9 +2030,36 @@ $app->post('/api/admin/addplan', function(Request $request, Response $response){
       }
     }
 
+    //Generate next maintenance_plan_id
+    $maintenance_plan_id = $location_code . '-PM-';
+    $sql = "SELECT MAX(maintenance_plan_id)
+            FROM maintenance_plan
+            WHERE maintenance_plan_id LIKE '$maintenance_plan_id%'
+            LIMIT 1";
+    try{
+        $db = new db();
+        $db = $db->connect();
+        $stmt = $db->query($sql);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $db = null;
+        $result = json_encode($result);
+        $result = json_decode($result, true);
+        if ($result[0]['MAX(maintenance_plan_id)'] != '') {
+            $current_number =  $result[0]['MAX(maintenance_plan_id)'];
+            $current_number = substr($current_number,-4);
+            $current_number = sprintf('%04d', $current_number + 1);
+            $maintenance_plan_id = $maintenance_plan_id.$current_number;
+        } else {
+            $maintenance_plan_id = $maintenance_plan_id.'0001';
+        }
+    } catch(PDOException $e) {
+        $db = null;
+        echo '{"error": {"text": '.$e->getMessage().'}';
+    }
+
     //Insert new row to maintenance_plan table
-    $sql = "INSERT INTO maintenance_plan (maintenance_plan_id, title, start_date, year_count, times_per_year)
-            VALUES (:set_maintenance_plan_id, :set_title, :set_start_date, :set_year_count, :set_times_per_year)";
+    $sql = "INSERT INTO maintenance_plan (maintenance_plan_id, title, start_date, year_count, times_per_year, sale_order_no)
+            VALUES (:set_maintenance_plan_id, :set_title, :set_start_date, :set_year_count, :set_times_per_year, :set_sale_order_no)";
     try{
         $db = new db();
         $db = $db->connect();
@@ -2036,6 +2069,7 @@ $app->post('/api/admin/addplan', function(Request $request, Response $response){
         $stmt->bindParam(':set_start_date', $start_date);
         $stmt->bindParam(':set_year_count', $year_count);
         $stmt->bindParam(':set_times_per_year', $times_per_year);
+        $stmt->bindParam(':set_sale_order_no', $sale_order_no);
         $stmt->execute();
     } catch(PDOException $e) {
         $db = null;
@@ -2360,7 +2394,8 @@ $app->get('/api/admin/request/single', function(Request $request, Response $resp
     $cm_id = $request->getParam('cm_id');
     $sql = "SELECT sng_code, name, email, phone_number, asset_problem, asset_detected,
         srm_request.cause_id, cause_description, srm_request.correction_id, correction_description,
-        GROUP_CONCAT(fse_code), cm_time, complete_time, job_status, correction_detail, cause_detail, problem_type, solution, suggestions
+        GROUP_CONCAT(fse_code), cm_time, complete_time, job_status, correction_detail, cause_detail,
+        problem_type, solution, suggestions, job_type, start_time, close_time
         FROM srm_request, root_cause, correction, job_fse
         WHERE cm_id = '$cm_id' AND srm_request.cause_id = root_cause.cause_id
         AND srm_request.correction_id = correction.correction_id
@@ -2382,6 +2417,83 @@ $app->get('/api/admin/request/single', function(Request $request, Response $resp
         }
 });
 
+
+
+// Get single customer request
+$app->get('/api/admin/workload', function(Request $request, Response $response){
+    $fse_code = $request->getParam('fse_code');
+    $month = $request->getParam('month');
+    $year = $request->getParam('year');
+
+    $sql = "SELECT * FROM (SELECT sub_q2.abbr, sub_q2.date_start,  sub_q2.cm_id, sub_q2.location_code, sub_q2.customer_name, sub_q2.sitename, sub_q2.work_class,
+    IF(sub_q2.complete_time  >= CAST('08:30:0' AS TIME) AND sub_q2.complete_time < CAST('17:30:00' AS TIME), 'YES', '') AS wh_time,
+    IF(sub_q2.complete_time  >= CAST('17:30:00' AS TIME) AND sub_q2.complete_time < CAST('24:00:00' AS TIME), 'YES', '') AS ot_evening,
+    IF(sub_q2.complete_time  <= CAST('24:00:00' AS TIME) AND sub_q2.complete_time  < CAST('08:30:00' AS TIME), 'YES', '') AS ot_midnight,
+    TIMEDIFF(sub_q2.arrived_time, sub_q2.start_travel_time) AS travel_time,
+    TIMEDIFF(sub_q2.complete_time, sub_q2.start_time) AS work_period,
+    TIMEDIFF(complete_time, start_travel_time) AS total_period,
+    IF(sub_q2.job_status != 'Closed', 'Incomplete', '') AS work_status,
+    sub_q2.notes,
+    IFNULL(sub_q2.holiday,  IF((sub_q2.dof = 1 OR sub_q2.dof=6), DAYNAME(sub_q2.start_time), '')) AS holiday
+FROM (SELECT fse.abbr, CAST(srm_request.start_time AS DATE) AS date_start,
+                       srm_request.cm_id, location.location_code, customers.customer_name, location.sitename,
+                       srm_request.work_class, srm_request.arrived_time, srm_request.start_travel_time, srm_request.complete_time,
+                       DAYOFWEEK(srm_request.start_time) AS dof, srm_request.holiday, srm_request.notes, srm_request.start_time,
+                       srm_request.job_status
+                   FROM srm_request, asset_tracker, location, material_master_record, fse,
+                    root_cause, correction, job_fse, customers
+                    WHERE asset_tracker.sng_code = srm_request.sng_code
+                        AND location.location_code = asset_tracker.location_code
+                        AND asset_tracker.itemnumber = material_master_record.itemnumber
+                        AND srm_request.cm_id = job_fse.job_id
+                        AND job_fse.fse_code = '$fse_code'
+                        AND fse.fse_code = '$fse_code'
+                        AND srm_request.cause_id = root_cause.cause_id
+                           AND asset_tracker.customer_no = customers.customer_no
+                        AND srm_request.correction_id = correction.correction_id
+                           AND asset_tracker.customer_no = customers.customer_no)
+                    AS sub_q2
+UNION SELECT sub_q.abbr, sub_q.date_start,  sub_q.service_request_id, sub_q.location_code, sub_q.customer_name, sub_q.sitename, sub_q.work_class,
+IF(sub_q.complete_time  >= CAST('08:30:00' AS TIME) AND sub_q.complete_time < CAST('17:30:00' AS TIME), 'YES', '') AS wh_time,
+IF(sub_q.complete_time  >= CAST('17:30:00' AS TIME) AND sub_q.complete_time < CAST('24:00:00' AS TIME), 'YES', '') AS ot_evening,
+IF(sub_q.complete_time  <= CAST('24:00:00' AS TIME) AND sub_q.complete_time  < CAST('08:30:00' AS TIME), 'YES', '') AS ot_modnight,
+TIMEDIFF(sub_q.arrived_time, sub_q.start_travel_time) AS travel_time,
+TIMEDIFF(sub_q.complete_time, sub_q.start_time) AS work_period,
+TIMEDIFF(complete_time, start_travel_time) AS total_period,
+IF(status != 'Closed', 'Incomplete', '') AS work_status,
+sub_q.notes,
+IFNULL(sub_q.holiday,  IF((sub_q.dof = 1 OR sub_q.dof=6), DAYNAME(sub_q.start_time), '')) AS holiday
+FROM
+(SELECT fse.abbr, CAST(service_request.start_time AS DATE) AS date_start, service_request.service_request_id,
+location.location_code, customers.customer_name, 		location.sitename, service_request.work_class, arrived_time,
+start_travel_time, service_request.complete_time, DAYOFWEEK(service_request.start_time) AS dof, service_request.holiday, service_request.notes,
+service_request.start_time,service_request.status
+          FROM service_request, service_fse, service_asset, asset_tracker, fse, location, customers
+        WHERE service_request.service_request_id = service_asset.service_request_id
+            AND service_request.service_request_id = service_fse.service_request_id
+            AND service_asset.sng_code = asset_tracker.sng_code
+            AND service_fse.fse_code = '$fse_code'
+            AND fse.fse_code = '$fse_code'
+            AND asset_tracker.location_code = location.location_code
+            AND asset_tracker.customer_no = customers.customer_no) as sub_q) AS sub_q3
+            WHERE YEAR(sub_q3.date_start) = '$year'
+                      AND MONTH(sub_q3.date_start) = '$month'";
+        try{
+            // Get DB Object
+            $db = new db();
+            // Connect
+            $db = $db->connect();
+
+            $stmt = $db->query($sql);
+            $request = $stmt->fetchAll(PDO::FETCH_OBJ);
+            $db = null;
+
+            return json_encode($request);
+        } catch(PDOException $e){
+            $db = null;
+            echo '{"error": {"text": '.$e->getMessage().'}';
+        }
+});
 
 // Get all customer request
 $app->get('/api/admin/request', function(Request $request, Response $response){
@@ -2451,7 +2563,7 @@ $app->get('/api/admin/get_asset_location_and_customer', function(Request $reques
 // Get lastest asset warranty
 $app->get('/api/admin/get_asset_warranty', function(Request $request, Response $response){
     $sng_code = $request->getParam('sng_code');
-    $sql = "SELECT start_date, end_date, year_count, times_per_year
+    $sql = "SELECT start_date, end_date, year_count, times_per_year, typeofcontract
             FROM asset_tracker, warranty
             WHERE warranty.sng_code = '$sng_code'
             AND warranty.sng_code = asset_tracker.sng_code";
@@ -2615,8 +2727,11 @@ $app->get('/api/admin/getsinglefse', function (Request $request, Response $respo
 // Get lat lon
 $app->get('/api/admin/getlatlon', function (Request $request, Response $response) {
     $sql = "SELECT DISTINCT location.location_code, sitename ,latitude, longitude, sitename, problem_type, asset_problem  FROM location, srm_request, asset_tracker
-    WHERE srm_request.job_status != 'Closed'
-    AND   srm_request.sng_code = asset_tracker.sng_code
+    WHERE srm_request.sng_code = asset_tracker.sng_code
+    AND (srm_request.job_status = 'Pending Approve' 
+                                OR srm_request.job_status = 'Completed'
+                                OR srm_request.job_status = 'Closed'
+                                )
     AND   asset_tracker.location_code = location.location_code GROUP BY location.location_code";
     try{
         // Get DB Object

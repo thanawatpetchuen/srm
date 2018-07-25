@@ -43,14 +43,8 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
                         <div class="form-group">
                             <label>Work Class</label>
                             <select name="work_class" class="form-control" required>
-                                <option value="">-- Select Work Class --</option>
                                 <option>Preventive Maintenance</option>
-                                <option>Preventive Building Maintenance - UOB</option>
-                                <option>Battery Replacement</option>
-                                <option>Install</option>
-                                <option>Standby</option>
-                                <option>Survey</option>
-                                <option>Others</option>
+                                <option>Building Preventive Maintenance - UOB</option>
                             </select>
                         </div>
                     </fieldset>
@@ -61,16 +55,16 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
                         <legend>Contact Information</legend>
                         <div class="form-group">
                             <label>Contact Name</label>
-                            <input type="text" class="form-control" name="contact_name" placeholder="Customer Name" required/>
+                            <input type="text" class="form-control" name="contact_name" placeholder="Customer Name"/>
                         </div>
                         <div class="form-group">
                             <label>Phone Number</label>
-                            <input type="text" class="form-control" name="contact_number" placeholder="Phone Number" maxlength="10" size="10" id="contact-number-field" required/>
+                            <input type="text" class="form-control" name="contact_number" placeholder="Phone Number" maxlength="10" size="10" id="contact-number-field"/>
                             <small class="form-text text-muted" id="contact-number-warning">Mobile phone number only (10 digits)</small>
                         </div>
                         <div class="form-group">
                             <label>Alternate Number</label>
-                            <input type="text" class="form-control" name="alternate_number" placeholder="Phone Number" maxlength="10" size="10" id="alternate-number-field" required/>
+                            <input type="text" class="form-control" name="alternate_number" placeholder="Phone Number" maxlength="10" size="10" id="alternate-number-field"/>
                             <small class="form-text text-muted" id="alternate-number-warning">Mobile phone number only (10 digits)</small>
                         </div>
                     </fieldset>
@@ -99,7 +93,7 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
                             </div>
                             <div class="form-group">
                                 <label>Location Code</label>
-                                <input type="text" class="form-control" name="location_code" placeholder="Location Code" disabled/>
+                                <input type="text" class="form-control" name="location_code" placeholder="Location Code" readonly=''/>
                             </div>
                         </div>
                     </fieldset>
@@ -120,7 +114,57 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
                     </fieldset>
                 </div>
             </div>
-
+            <div class="row">
+                <div class="col">
+                    <fieldset id="sale-order-choose">
+                        <legend>Sale Order</legend>
+                        <div class="form-group">
+                            <label>Sale Order</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="sale-order-search-field" name="sale_order_no" placeholder="Sale Order" autocomplete="off" required/>
+                                <div class="autofill-dropdown border" id="sale-order-dropdown">
+                                </div>
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="button" id="sale-order-search"><i class="fa fa-search"></i></span>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">Enter at least 3 characters and press enter to search.</small>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Year</label>
+                                    <input type="text" class="form-control sub-field" name="since" id="year-field" placeholder="Year" readonly/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Date Order</label>
+                                    <input type="text" class="form-control sub-field" name="date_order" id="date-order-field" placeholder="Date Order" readonly/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>PO Number</label>
+                                    <input type="text" class="form-control sub-field" name="po_number" id="po-number-field" placeholder="PO Number" readonly/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>PO Date</label>
+                                    <input type="text" class="form-control sub-field" name="po_date" id="po-date-field" placeholder="PO Date" readonly/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>D/O Number</label>
+                            <input type="text" class="form-control sub-field" name="do_number" id="do-no-field" placeholder="D/O No." readonly/>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
             <div class="row">
                 <!-- /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */ -->
                 <div class="col">
@@ -147,6 +191,10 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
                         <!-- start_date, end_date, year_count, times_per_year -->
                         <legend>Asset Warranty</legend>
                         <div class="form-group">
+                            <div class="form-group">
+                                <label>Type of Contract</label>
+                                <input type="text" class="form-control" name="warranty_typeofcontract" placeholder="Type of Contract" disabled/>
+                            </div>
                             <div class="form-group">
                                 <label>Start Date</label>
                                 <input type="text" class="form-control" name="warranty_start_date" placeholder="YYYY-MM-DD H:mm:ss" disabled/>
@@ -406,6 +454,68 @@ $("#add_date").on("click", function() {
     plan_date_form.appendChild(plan_date);
     document.getElementById('plan_date_array').appendChild(plan_date_form);
     init_daterangepicker('input[name="plan_date[]"]');
+});
+
+$(window).keydown(function(event) {
+  if (event.keyCode == 13) {
+    event.preventDefault();
+    return false;
+  }
+});
+
+/* ================================ Sale Order ================================ */
+// Search Sale Order
+$("#sale-order-search-field").on("keydown", function() {
+  // Press enter to search
+  if (event.keyCode == 13) {
+    $("#sale-order-search").trigger("click");
+  }
+  // Clear data when the user types
+  $("#sale-order-choose .sub-field").val("");
+  document.getElementById("sale-order-dropdown").innerHTML = "";
+  // disable edit button
+  $("#sale-order-edit-button").addClass("disabled");
+});
+
+$("#sale-order-search").on("click", function() {
+  if ($("#sale-order-search-field").val().length >= 3) {
+    // Add data to dropdown and display
+    fetch("/srmsng/public/index.php/api/admin/getsaleorder?sale_order_no=" + $("#sale-order-search-field").val())
+      .then(resp => {
+        return resp.json();
+      })
+      .then(data_json => {
+        // clear dropdown
+        document.getElementById("sale-order-dropdown").innerHTML =
+          '<span class="autofill-item-default">No Data Found</span>';
+
+        data_json.forEach(element => {
+          var item = document.createElement("span");
+          item.setAttribute("class", "autofill-item");
+          item.innerHTML = element["sale_order_no"];
+          item.onclick = function() {
+            $("#sale-order-search-field").val(element["sale_order_no"]);
+            $("#sale-order-dropdown")
+              .attr("tabindex", -1)
+              .focusout();
+            for (var value in data_json[0]) {
+              $("#sale-order-choose .sub-field[name='" + value + "']").val(data_json[0][value]);
+            }
+            // enable edit button
+            $("#sale-order-edit-button").removeClass("disabled");
+          };
+          document.getElementById("sale-order-dropdown").appendChild(item);
+        });
+      });
+
+    $("#sale-order-dropdown").addClass("show");
+    $("#itesale-orderm-dropdown")
+      .attr("tabindex", -1)
+      .focus();
+  }
+});
+$("#sale-order-dropdown").on("focusout", function() {
+  $(this).removeClass("show");
 });
 
 </script>

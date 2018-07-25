@@ -140,31 +140,43 @@
                         <option value="On site">On Site</option>
                     </select>
                 </div>
-                <div class="form-group checkbox">
-                    <input type="checkbox" name="assign-fse"/>
-                    <label class="checkbox">Assign Field Service Engineer</label>
-                </div>
-                <div class="form-group disabled" id="fse-fieldset">
-                    <div class="select-multiple" id="fse-dropdown"></div>
-                    <span>Assign Field Service Engineer <b>Leader</b></span>
-                    <div id="selected-fse">
-                        <span class="selected-fse-none">None</span>
+                <div class="hidden" id="job-details-site">
+                    <div class="form-group checkbox">
+                        <input type="checkbox" name="assign-fse"/>
+                        <label class="checkbox">Assign Field Service Engineer</label>
+                    </div>
+                    <div class="form-group disabled" id="fse-fieldset">
+                        <div class="select-multiple" id="fse-dropdown"></div>
+                        <span>Assign Field Service Engineer <b>Leader</b></span>
+                        <div id="selected-fse">
+                            <span class="selected-fse-none">None</span>
+                        </div>
+                    </div>
+                    <div class="form-group checkbox">
+                        <input type="checkbox" name="assign-cm-time"/>
+                        <label class="checkbox">Assign CM Time</label>
+                    </div>
+                    <div class="form-group disabled" id="cm-time-field">
+                        <input type="text" class="form-control" name="cm_time" placeholder="CM Time" id="cm_time" autocomplete="off" disabled/>
+                    </div>
+                    <div class="form-group checkbox disabled" id="close-time-check">
+                        <input type="checkbox" name="assign-close-time"/>
+                        <label class="checkbox">Completed</label>
+                    </div>
+                    <div class="form-group disabled" id="close-time-field">
+                        <label>Completion time</label>
+                        <input type="text" class="form-control" name="complete_time" placeholder="Completion Time" id="complete_time" autocomplete="off" disabled/>
                     </div>
                 </div>
-                <div class="form-group checkbox">
-                    <input type="checkbox" name="assign-cm-time"/>
-                    <label class="checkbox">Assign CM Time</label>
-                </div>
-                <div class="form-group disabled" id="cm-time-field">
-                    <input type="text" class="form-control" name="cm_time" placeholder="CM Time" id="cm_time" autocomplete="off" disabled/>
-                </div>
-                <div class="form-group checkbox disabled" id="close-time-check">
-                    <input type="checkbox" name="assign-close-time"/>
-                    <label class="checkbox">Completed</label>
-                </div>
-                <div class="form-group disabled" id="close-time-field">
-                    <label>Completion time</label>
-                    <input type="text" class="form-control" name="complete_time" placeholder="Completion Time" id="completed_time" autocomplete="off" disabled/>
+                <div class="hidden" id="job-details-phone">
+                    <div class="form-group">
+                        <label>Start time</label>
+                        <input type="text" class="form-control" name="start_time" placeholder="Start Time" id="start_time" autocomplete="off" disabled/>
+                    </div>
+                    <div class="form-group">
+                        <label>Completion time</label>
+                        <input type="text" class="form-control" name="close_time" placeholder="Close Time" id="close_time" autocomplete="off" disabled/>
+                    </div>
                 </div>
             </fieldset>
             <div class="form-group" style="margin-top:40px; display: flex; align-items: center; justify-content: flex-end; text-align:right ">
@@ -185,7 +197,7 @@
 <script>
     // Initialize Date Range Pickers
     $(function() {
-        $('input[name="cm_time"], input[name="completed_time"]').daterangepicker({
+        $('input[name="cm_time"], input[name="complete_time"], input[name="start_time"], input[name="close_time"]').daterangepicker({
             timePicker: true,
             "timePicker24Hour": true,
             singleDatePicker: true,
@@ -234,7 +246,7 @@
                     checkbox.setAttribute('value',element['fse_code']);
                     checkbox.setAttribute('name','fse_code[]');
 
-                    checkbox.onclick = function() {
+                    checkbox.onchange = function() {
                         var fselabel = document.createElement('span');
                         var radio_leader = document.createElement('input');
                         radio_leader.setAttribute("type", "radio");
@@ -245,7 +257,9 @@
                         fselabel.setAttribute('id',element['fse_code']);
                         fselabel.appendChild(document.createTextNode(element['engname']));
                         if (!checkbox.checked) {
-                            document.getElementById(element['fse_code']).outerHTML = '';
+                            if (document.getElementById(element['fse_code'])) {
+                                document.getElementById(element['fse_code']).outerHTML = '';
+                            }
                         } else {
                             document.getElementById('selected-fse').appendChild(fselabel);
                         }
@@ -271,43 +285,63 @@
             'correction-dropdown',
             '/srmsng/public/index.php/api/admin/getallcorrections');
         
-        // Tick to assign
+        // Tick to assign and lock completion time
+        var assigned_fse = $('input[name="assign-fse"]').is(':checked');
+        var assigned_cm_time = $('input[name="assign-cm-time"]').is(':checked');
+
+        $('select[name="job_type"]').on('change',function() {
+            if ($(this).val() === 'On site') {
+                $('#job-details-site').removeClass('hidden');
+                $('#job-details-phone').addClass('hidden');
+
+                $('#job-details-phone input').val("");
+                $('#job-details-phone input').prop('disabled',true);
+
+            } else if ($(this).val() === 'Fixed by phone') {
+                $('#job-details-site').addClass('hidden');
+                $('#job-details-phone').removeClass('hidden');
+
+                $('#job-details-site input').val("");
+                $('#job-details-site input[type="text"]').prop('disabled',true);
+
+                $('#job-details-site input[name="assign-close-time"]').prop('checked',false).change();
+                $('#job-details-site input[name="assign-fse"]').prop('checked',false).change();
+                $('#job-details-site input[name="assign-cm-time"]').prop('checked',false).change();
+
+                $('#job-details-phone input').prop('disabled',false);
+            } else {
+                $('#job-details-site').addClass('hidden');
+                $('#job-details-phone').addClass('hidden');
+
+                $('#job-details-phone input').val("");
+                $('#job-details-phone input').prop('disabled',true);
+                $('#job-details-site input').val("");
+                $('#job-details-site input[type="text"]').prop('disabled',true);
+
+                $('#job-details-site input[name="assign-close-time"]').prop('checked',false).change();
+                $('#job-details-site input[name="assign-fse"]').prop('checked',false).change();
+                $('#job-details-site input[name="assign-cm-time"]').prop('checked',false).change();
+            }
+        });
         $('input[name="assign-fse"]').on('change', function() {
             if ($(this).is(':checked')) {
                 $('#fse-fieldset').removeClass('disabled');
-                
-                if ($('input[name="assign-cm-time"]').is(':checked')) {
-                    $('#close-time-check').removeClass('disabled');
-                }
-
+                assigned_fse = true;
             } else {
                 $('#fse-fieldset').addClass('disabled');
-
-                // Cannot assign completion time
-                $('#close-time-check').addClass('disabled');
-                $('#close-time-check input').prop('checked',false);
-                $('#close-time-field').addClass('disabled');
-                $('#close-time-field input').prop('disabled',true);
+                $('#fse-fieldset input[type="checkbox"]').prop('checked',false).change();
+                assigned_fse = false;
             }
         });
         $('input[name="assign-cm-time"]').on('change', function() {
             if ($(this).is(':checked')) {
                 $('#cm-time-field input').prop('disabled', false);
                 $('#cm-time-field').removeClass('disabled');
-                
-                if ($('input[name="assign-fse"]').is(':checked')) {
-                    $('#close-time-check').removeClass('disabled');
-                }
-
+                assigned_cm_time = true
             } else {
                 $('#cm-time-field input').prop('disabled', true);
                 $('#cm-time-field').addClass('disabled');
-
-                // Cannot assign completion time
-                $('#close-time-check').addClass('disabled');
-                $('#close-time-check input').prop('checked',false);
-                $('#close-time-field').addClass('disabled');
-                $('#close-time-field input').prop('disabled',true);
+                assigned_cm_time = false
             }
         });
         $('input[name="assign-close-time"]').on('change', function() {
@@ -317,6 +351,18 @@
             } else {
                 $('#close-time-field input').prop('disabled', true);
                 $('#close-time-field').addClass('disabled');
+            }
+        });
+
+        $('input[name="assign-fse"], input[name="assign-cm-time"]').on('change',function() {
+            if (assigned_cm_time && assigned_fse) {
+                $('#close-time-check').removeClass('disabled');
+            } else {
+                // Cannot assign completion time
+                $('#close-time-check').addClass('disabled');
+                $('#close-time-check input').prop('checked',false);
+                $('#close-time-field').addClass('disabled');
+                $('#close-time-field input').prop('disabled',true);
             }
         });
 

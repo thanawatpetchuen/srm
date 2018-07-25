@@ -132,7 +132,7 @@
             $("#cm_add").attr('href','../ticket/add_ticket?sng_code=' + sng_code)
             $('#view-asset').attr('href','view_asset?sng_code=' + sng_code);
             $('#sng-title').text('SNG Code: ' + sng_code);
-            // $("#pm_add").attr('href','../service/add_service?sng_code=' + sng_code)
+            $("#pm_add").attr('href','../service/add_service?sng_code=' + sng_code)
 
             $('#scheduled-work-tab').on('click',function() {
                 $('#scheduled-work').addClass('active');

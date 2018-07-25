@@ -56,7 +56,7 @@
                 </a>
             </div>
 
-            <table id="supertable">
+            <table id="supertable-ticket">
                 <thead>
                     <th>CM ID</th>
                     <th>SNG-CODE</th>
@@ -174,7 +174,10 @@
             }
            
             console.log(<?php echo json_encode($_SESSION)?>);
+            
+            // Tabs
 
+            var setUpSecondTab = false
             $('#ticket-view-tab').on('click',function() {
                 $('#ticket-view').addClass('active');
                 $('#ticket-view-tab').addClass('active');
@@ -187,6 +190,10 @@
                 $('#ticket-view-tab').removeClass('active');
                 $('#approve-view').addClass('active');
                 $('#approve-view-tab').addClass('active');
+                if (setUpSecondTab === false) {
+                    setUpFixed("supertable-approve");
+                }
+                setUpSecondTab = true;
             });
 
         });

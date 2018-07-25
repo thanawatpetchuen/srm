@@ -204,200 +204,208 @@ $("#update-ticket-form").submit(function(e) {
 
 // Add Service
 $("#add-service-form").submit(function(e) {
-    $("#loader").css("display", "block");
-    if ($("#contact-number-field").val().length == 10 || !$("#contact-number-field").val()) {
-        if ($("#alternate-number-field").val().length == 10 || !$("#alternate-number-field").val()) {
-            e.preventDefault();
-            var serialData = $("#add-service-form").serializeArray();
-            console.log(serialData);
-            var chk_fse = false;
-            serialData.forEach((data) => {
-                if(data.name == "fse_code[]"){
-                    chk_fse = true;
-                }
-            })
-            if(chk_fse){
-                $.ajax({
-                    type: "POST",
-                    data: $("#add-service-form").serialize(),
-                    url: "/srmsng/public/index.php/api/admin/addservice",
-                    success: function(result){
-                        if (result == 'SUCCESS') {
-                            window.location = "/srmsng/public/service?add_success=true";
-                        } else {
-                            alert(result);
-                        }
-                    },
-                    error: err => {
-                        console.log(err);
-                    }
-                });
+  $("#loader").css("display", "block");
+  if ($("#contact-number-field").val().length == 10 || !$("#contact-number-field").val()) {
+    if ($("#alternate-number-field").val().length == 10 || !$("#alternate-number-field").val()) {
+      e.preventDefault();
+      var serialData = $("#add-service-form").serializeArray();
+      console.log(serialData);
+      var chk_fse = false;
+      serialData.forEach(data => {
+        if (data.name == "fse_code[]") {
+          chk_fse = true;
+        }
+      });
+      if (chk_fse) {
+        $.ajax({
+          type: "POST",
+          data: $("#add-service-form").serialize(),
+          url: "/srmsng/public/index.php/api/admin/addservice",
+          success: function(result) {
+            if (result == "SUCCESS") {
+              if ($("#add-service-form").data("type") === "work") {
+                window.location = "/srmsng/public/asset/work?add_success=true&sng_code=" + serialData[6]["value"];
+              } else {
+                window.location = "/srmsng/public/service?add_success=true";
+              }
             } else {
-                alert("Atleast, You must assign this service to a FSE!");
+              alert(result);
             }
-        } else {
-            $("#alternate-number-warning").attr("class", "form-text text-danger");
-            $("#alternate-number-field").focus();
-            return false;
-        }
+          },
+          error: err => {
+            console.log(err);
+          }
+        });
+      } else {
+        alert("You must assign at least 1 FSE to this service.");
+      }
     } else {
-        if ($("#alternate-number-field").val().length != 10) {
-            $("#alternate-number-warning").attr("class", "form-text text-danger");
-        }
-        $("#contact-number-warning").attr("class", "form-text text-danger");
-        $("#contact-number-field").focus();
-        return false;
+      $("#alternate-number-warning").attr("class", "form-text text-danger");
+      $("#alternate-number-field").focus();
+      return false;
     }
+  } else {
+    if ($("#alternate-number-field").val().length != 10) {
+      $("#alternate-number-warning").attr("class", "form-text text-danger");
+    }
+    $("#contact-number-warning").attr("class", "form-text text-danger");
+    $("#contact-number-field").focus();
     return false;
+  }
+  return false;
 });
 
 // Update Service
 $("#update-service-form").submit(function(e) {
-    $("#loader").css("display", "block");
-    if ($("#contact-number-field").val().length == 10 || !$("#contact-number-field").val()) {
-        if ($("#alternate-number-field").val().length == 10 || !$("#alternate-number-field").val()) {
-            e.preventDefault();
-            var serialData = $("#update-service-form").serializeArray();
-            console.log(serialData);
-            var chk_fse = false;
-            serialData.forEach((data) => {
-                if(data.name == "fse_code[]"){
-                    chk_fse = true;
-                }
-            })
-            if(chk_fse){
-                $.ajax({
-                    type: "POST",
-                    data: $("#update-service-form").serialize(),
-                    url: "/srmsng/public/index.php/api/admin/updateservice",
-                    success: function(result){
-                        if (result == 'SUCCESS') {
-                            window.location = "/srmsng/public/service?update_success=true";
-                        } else {
-                            alert(result);
-                        }
-                    },
-                    error: err => {
-                        alert(err);
-                        console.log(err);
-                    }
-                });
+  $("#loader").css("display", "block");
+  if ($("#contact-number-field").val().length == 10 || !$("#contact-number-field").val()) {
+    if ($("#alternate-number-field").val().length == 10 || !$("#alternate-number-field").val()) {
+      e.preventDefault();
+      var serialData = $("#update-service-form").serializeArray();
+      console.log(serialData);
+      var chk_fse = false;
+      serialData.forEach(data => {
+        if (data.name == "fse_code[]") {
+          chk_fse = true;
+        }
+      });
+      if (chk_fse) {
+        $.ajax({
+          type: "POST",
+          data: $("#update-service-form").serialize(),
+          url: "/srmsng/public/index.php/api/admin/updateservice",
+          success: function(result) {
+            if (result == "SUCCESS") {
+              if ($("#update-service-form").data("type") === "work") {
+                window.location = "/srmsng/public/asset/work?edit_success=true&sng_code=" + serialData[7]["value"];
+              } else {
+                window.location = "/srmsng/public/service?update_success=true";
+              }
             } else {
-                alert("Atleast, You must assign this service to a FSE!");
+              alert(result);
             }
-        } else {
-            $("#alternate-number-warning").attr("class", "form-text text-danger");
-            $("#alternate-number-field").focus();
-            return false;
-        }
+          },
+          error: err => {
+            alert(err);
+            console.log(err);
+          }
+        });
+      } else {
+        alert("Atleast, You must assign this service to a FSE!");
+      }
     } else {
-        if ($("#alternate-number-field").val().length != 10) {
-            $("#alternate-number-warning").attr("class", "form-text text-danger");
-        }
-        $("#contact-number-warning").attr("class", "form-text text-danger");
-        $("#contact-number-field").focus();
-        return false;
+      $("#alternate-number-warning").attr("class", "form-text text-danger");
+      $("#alternate-number-field").focus();
+      return false;
     }
+  } else {
+    if ($("#alternate-number-field").val().length != 10) {
+      $("#alternate-number-warning").attr("class", "form-text text-danger");
+    }
+    $("#contact-number-warning").attr("class", "form-text text-danger");
+    $("#contact-number-field").focus();
     return false;
+  }
+  return false;
 });
 
 // Add Maintenanace Plan
 $("#add-maintenance-plan-form").submit(function(e) {
-    $("#loader").css("display", "block");
-    if ($("#contact-number-field").val().length == 10 || !$("#contact-number-field").val()) {
-        if ($("#alternate-number-field").val().length == 10 || !$("#alternate-number-field").val()) {
-            e.preventDefault();
-            var serialData = $("#add-maintenance-plan-form").serializeArray();
-            console.log(serialData);
-            var chk_fse = false;
-            serialData.forEach((data) => {
-                if(data.name == "fse_code[]"){
-                    chk_fse = true;
-                }
-            })
-            if(chk_fse){
-                $.ajax({
-                    type: "POST",
-                    data: $("#add-maintenance-plan-form").serialize(),
-                    url: "/srmsng/public/index.php/api/admin/addplan",
-                    success: function(result){
-                        if (result == 'SUCCESS') {
-                            window.location = "/srmsng/public/plan?add_success=true";
-                        } else {
-                            alert(result);
-                        }
-                    },
-                    error: err => {
-                        console.log(err);
-                    }
-                });
+  $("#loader").css("display", "block");
+  if ($("#contact-number-field").val().length == 10 || !$("#contact-number-field").val()) {
+    if ($("#alternate-number-field").val().length == 10 || !$("#alternate-number-field").val()) {
+      e.preventDefault();
+      var serialData = $("#add-maintenance-plan-form").serializeArray();
+      console.log(serialData);
+      var chk_fse = false;
+      serialData.forEach(data => {
+        if (data.name == "fse_code[]") {
+          chk_fse = true;
+        }
+      });
+      if (chk_fse) {
+        $.ajax({
+          type: "POST",
+          data: $("#add-maintenance-plan-form").serialize(),
+          url: "/srmsng/public/index.php/api/admin/addplan",
+          success: function(result) {
+            if (result == "SUCCESS") {
+              window.location = "/srmsng/public/plan?add_success=true";
             } else {
-                alert("Atleast, You must assign this maintenance plan to a FSE!");
+              alert(result);
             }
-        } else {
-            $("#alternate-number-warning").attr("class", "form-text text-danger");
-            $("#alternate-number-field").focus();
-            return false;
-        }
+          },
+          error: err => {
+            console.log(err);
+          }
+        });
+      } else {
+        alert("Atleast, You must assign this maintenance plan to a FSE!");
+      }
     } else {
-        if ($("#alternate-number-field").val().length != 10) {
-            $("#alternate-number-warning").attr("class", "form-text text-danger");
-        }
-        $("#contact-number-warning").attr("class", "form-text text-danger");
-        $("#contact-number-field").focus();
-        return false;
+      $("#alternate-number-warning").attr("class", "form-text text-danger");
+      $("#alternate-number-field").focus();
+      return false;
     }
+  } else {
+    if ($("#alternate-number-field").val().length != 10) {
+      $("#alternate-number-warning").attr("class", "form-text text-danger");
+    }
+    $("#contact-number-warning").attr("class", "form-text text-danger");
+    $("#contact-number-field").focus();
     return false;
+  }
+  return false;
 });
 
 // Update Maintenanace Plan
 $("#update-maintenance-plan-form").submit(function(e) {
-    $("#loader").css("display", "block");
-    if ($("#contact-number-field").val().length == 10 || !$("#contact-number-field").val()) {
-        if ($("#alternate-number-field").val().length == 10 || !$("#alternate-number-field").val()) {
-            e.preventDefault();
-            var serialData = $("#update-maintenance-plan-form").serializeArray();
-            console.log(serialData);
-            var chk_fse = false;
-            serialData.forEach((data) => {
-                if(data.name == "fse_code[]"){
-                    chk_fse = true;
-                }
-            })
-            if(chk_fse){
-                $.ajax({
-                    type: "POST",
-                    data: $("#update-maintenance-plan-form").serialize(),
-                    url: "/srmsng/public/index.php/api/admin/updateplan",
-                    success: function(result){
-                        if (result == 'SUCCESS') {
-                            window.location = "/srmsng/public/plan?update_success=true";
-                        } else {
-                            alert(result);
-                        }
-                    },
-                    error: err => {
-                        alert(err);
-                        console.log(err);
-                    }
-                });
+  $("#loader").css("display", "block");
+  if ($("#contact-number-field").val().length == 10 || !$("#contact-number-field").val()) {
+    if ($("#alternate-number-field").val().length == 10 || !$("#alternate-number-field").val()) {
+      e.preventDefault();
+      var serialData = $("#update-maintenance-plan-form").serializeArray();
+      console.log(serialData);
+      var chk_fse = false;
+      serialData.forEach(data => {
+        if (data.name == "fse_code[]") {
+          chk_fse = true;
+        }
+      });
+      if (chk_fse) {
+        $.ajax({
+          type: "POST",
+          data: $("#update-maintenance-plan-form").serialize(),
+          url: "/srmsng/public/index.php/api/admin/updateplan",
+          success: function(result) {
+            if (result == "SUCCESS") {
+              window.location = "/srmsng/public/plan?update_success=true";
             } else {
-                alert("Atleast, You must assign this maintenance plan to a FSE!");
+              alert(result);
             }
-        } else {
-            $("#alternate-number-warning").attr("class", "form-text text-danger");
-            $("#alternate-number-field").focus();
-            return false;
-        }
+          },
+          error: err => {
+            alert(err);
+            console.log(err);
+          }
+        });
+      } else {
+        alert("Atleast, You must assign this maintenance plan to a FSE!");
+      }
     } else {
-        if ($("#alternate-number-field").val().length != 10) {
-            $("#alternate-number-warning").attr("class", "form-text text-danger");
-        }
-        $("#contact-number-warning").attr("class", "form-text text-danger");
-        $("#contact-number-field").focus();
-        return false;
+      $("#alternate-number-warning").attr("class", "form-text text-danger");
+      $("#alternate-number-field").focus();
+      return false;
     }
+  } else {
+    if ($("#alternate-number-field").val().length != 10) {
+      $("#alternate-number-warning").attr("class", "form-text text-danger");
+    }
+    $("#contact-number-warning").attr("class", "form-text text-danger");
+    $("#contact-number-field").focus();
     return false;
+  }
+  return false;
 });
 
 // Add User
@@ -484,4 +492,15 @@ $("#reset-password-form").submit(function(e) {
     $("#new-password-warning").css("display", "block");
     return false;
   }
+});
+
+$("#add-news-form").submit(function(e) {
+  // e.preventDefault();
+
+  console.log($("#add-news-form").serialize());
+
+  // $.ajax({
+  //   type: "POST",
+
+  // })
 });

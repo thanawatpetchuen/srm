@@ -47,6 +47,7 @@ function fetchTable() {
             }
           },
           { data: 6 },
+          { data: 7 },
         {
           data: function(row) {
             return [row[1], row[3]];

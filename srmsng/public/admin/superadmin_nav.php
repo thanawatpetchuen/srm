@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
-    <a class="navbar-brand">
+    <a class="navbar-brand" href="/srmsng/public/announcement">
         <img src="/srmsng/public/image/logo/logo.png" class="nav-logo" height="50" alt="">
     </a>
     <span class="nav-item" id="nav-logo-title">Service Request Management <i class="fa fa-crown" style="font-size: 1.5em; color:gold"></i></span>
