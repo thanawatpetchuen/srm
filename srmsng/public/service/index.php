@@ -1,10 +1,10 @@
-<?php 
+<?php
     require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
 ?>
 <html>
 <head>
-<meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="icon" href="/favicon.ico">
@@ -35,9 +35,15 @@
         </div>
         <div class="input-group page-title">
             <h1 style="margin-bottom:0;">Service</h1>
-            <a href="add_service" class="btn btn-primary">
-                <i class="fa fa-plus"></i> Add Service
-            </a>
+            <div>
+                <a href="add_service" class="btn btn-primary">
+                    <i class="fa fa-plus"></i> Add Service
+                </a>
+                &nbsp;
+                <a href="add_service_without_sngcode" class="btn btn-primary">
+                    <i class="fa fa-plus"></i> Add Service (without sng-code)
+                </a>
+            </div>
         </div>
         <table id="supertable">
             <thead>
@@ -52,7 +58,7 @@
                 <th>Action</th>
             </thead>
             <tbody id="maintable">
-         
+
             </tbody>
         </table>
     </main>
@@ -70,7 +76,6 @@
     <script src="/srmsng/public/js/submit.js"></script>
     <script src="/srmsng/public/js/onclose.js"></script>
     <script>
-        console.log("READY");
         $(document).ready( function () {
             var url_string = window.location.href;
             var url = new URL(url_string);
@@ -82,19 +87,17 @@
             if (update_success == 'true') {
                 $('#update-success').css('display','block');
             }
-           
-            console.log(<?php echo json_encode($_SESSION)?>);
         });
-        window.addEventListener("beforeunload", function (e) {       
-            
+        window.addEventListener("beforeunload", function (e) {
+
             let remember = "<?php echo $_SESSION['remember']?>";
-    
+
             if(remember == "off"){
                 console.log("UNDLOAD");
                 $.ajax({
                     type: "POST",
                     url: '/srmsng/public/index.php/logout',
-                    // async: false,/         
+                    // async: false,/
                     success: data => {
                         console.log(data);
                     },
@@ -104,6 +107,6 @@
                 });
                 return;
             }
-        }); 
+        });
     </script>
 </html>

@@ -56,7 +56,7 @@ $primaryKey = 'cm_id';
 // The `db` parameter represents the column name in the database, while the `dt`
 // parameter represents the DataTables column identifier.
 
-// These array elements are selected columns that appear after SELECT in the SQL statement.
+// Selected columns
 $columns = array(
     array( 'db' => "cm_id", 'dt' => 0),
     array( 'db' => 'sng_code', 'dt' => 1 ),

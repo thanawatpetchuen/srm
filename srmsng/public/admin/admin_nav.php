@@ -27,7 +27,10 @@
                         <a class="dropdown-item" href="/srmsng/public/plan">Maintenance Plan</a>
                         <a class="dropdown-item" href="/srmsng/public/tracking">Tracking</a>
                         <a class="dropdown-item" href="/srmsng/public/account/fse">FSE</a>
-                        <a class="dropdown-item" href="/srmsng/public/report">Service Report</a>
+                        <div class="dropdown-divider"></div>
+                        <h6 class="dropdown-header">Report</h6>
+                        <a class="dropdown-item" href="/srmsng/public/report/workload">Workload</a>
+                        <a class="dropdown-item" href="/srmsng/public/report/kpi">KPI</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="/srmsng/public/asset">Assets</a>
                         <a class="dropdown-item" href="/srmsng/public/account/item">Items</a>

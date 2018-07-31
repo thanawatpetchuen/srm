@@ -1,3 +1,8 @@
+// This file is loaded in the add and edit asset pages. It handles
+// searches, the flow when adding/editing assets, and form submissions
+// for adding/editing a customer, location, sale order, and item.
+
+// Check required fields in a div
 function checkFilled(id) {
   var filled = true;
   $(id + " input:required").each(function() {
@@ -9,6 +14,10 @@ function checkFilled(id) {
   return filled;
 }
 
+// Front-end search
+// inputid = id of the input field
+// dropdownid = id of the dropdown with content to search from (the content
+// of the dropdown comes from the server)
 function filterFunction(inputid, dropdownid) {
   var input, filter, span, i;
   input = document.getElementById(inputid);
@@ -32,6 +41,7 @@ function filterFunction(inputid, dropdownid) {
 }
 
 // 0 = add; 1 = edit
+// Tells the add/edit forms to submit the form correctly
 var isEdit = 0;
 
 $(document).ready(function() {
@@ -49,14 +59,14 @@ $(document).ready(function() {
     if (event.keyCode == 13) {
       $("#customer-search").trigger("click");
     }
-    // Clear data when the user types
+    // Clear data when the user starts typing
     $("#customer-choose .sub-field, #customer-code-search-field").val("");
     document.getElementById("customer-dropdown").innerHTML = "";
 
     // Disable edit button
     $("#customer-edit-button").addClass("disabled");
 
-    // Disable location
+    // Disable location fieldset
     $("#location-choose").addClass("disabled");
   });
   // Search Customer Code
@@ -72,7 +82,7 @@ $(document).ready(function() {
     // Disable edit button
     $("#customer-edit-button").addClass("disabled");
 
-    // Disable location
+    // Disable location fieldset
     $("#location-choose").addClass("disabled");
   });
 
@@ -85,16 +95,19 @@ $(document).ready(function() {
           return resp.json();
         })
         .then(data_json => {
-          // clear dropdown
+          // clear previous data from dropdown
           document.getElementById("customer-dropdown").innerHTML =
             '<span class="autofill-item-default">No Data Found</span>';
 
+          // Add item to dropdown
           data_json.forEach(element => {
             var item = document.createElement("span");
             item.setAttribute("class", "autofill-item");
             item.innerHTML = element["customer_name"];
             item.onclick = function() {
+              // Fills in data to the corresponding fields when a dropdown item is clicked
               $("input[name='customer_name']").val(element["customer_name"]);
+              // Hide dropdown
               $("#customer-dropdown")
                 .attr("tabindex", -1)
                 .focusout();
@@ -108,6 +121,7 @@ $(document).ready(function() {
           });
         });
 
+      // Show the dropdown
       $("#customer-dropdown").addClass("show");
       $("#customer-dropdown")
         .attr("tabindex", -1)
@@ -132,7 +146,9 @@ $(document).ready(function() {
             item.setAttribute("class", "autofill-item");
             item.innerHTML = element["customer_name"];
             item.onclick = function() {
+              // Fills in data to the corresponding fields when a dropdown item is clicked
               $("input[name='customer_no']").val(element["customer_no"]);
+              // Hide dropdown
               $("#customer-code-dropdown")
                 .attr("tabindex", -1)
                 .focusout();
@@ -145,21 +161,25 @@ $(document).ready(function() {
           });
         });
 
+      // Show the dropdown
       $("#customer-code-dropdown").addClass("show");
       $("#customer-code-dropdown")
         .attr("tabindex", -1)
         .focus();
     }
   });
+
+  // Hide dropdown on focusout (when the user clicks outside of the dropdown area)
   $("#customer-dropdown, #customer-code-dropdown").on("focusout", function() {
     $(this).removeClass("show");
   });
 
-  // When user chooses a customer
+  // Choose customer button
   $("#customer-choose-button").on("click", function() {
     // clear location and fill with new info
     $("#location-choose input, #location-choose select").val("");
 
+    // if both customer name and code in #customer-choose are filled, begin querying location
     if (checkFilled("#customer-choose")) {
       // fetch location and sale order for that customer
       fetch("/srmsng/public/index.php/api/admin/location?customer_no=" + $('input[name="customer_no"]').val())
@@ -214,13 +234,19 @@ $(document).ready(function() {
               // enable edit button
               $("#location-edit-button").removeClass("disabled");
             };
+
+            // The name and code of the locations are added to #location-dropdown.
+            // Location searches are done front-end
             document.getElementById("location-dropdown").appendChild(item);
             document.getElementById("location-code-dropdown").appendChild(codeitem);
           });
         });
+      // Enabled location fieldset
       $("#location-choose").removeClass("disabled");
       $("#customer-warning").addClass("hidden");
     } else {
+      // If the customer name and customer code fields aren't both filled in,
+      // the location fieldset is disabled
       $("#location-choose").addClass("disabled");
       $("#customer-warning").removeClass("hidden");
     }
@@ -228,7 +254,9 @@ $(document).ready(function() {
 
   /* ================================ Location ================================ */
   // Search Location
+  // Location searches are done front-end
   $("#location-search-field").on("keydown", function() {
+    // Hit enter to search
     if (event.keyCode == 13) {
       $("#location-search").trigger("click");
     }
@@ -237,7 +265,7 @@ $(document).ready(function() {
     // disable edit button
     $("#location-edit-button").addClass("disabled");
   });
-  // Search Location Code
+  // Search location code
   $("#location-code-search-field").on("keydown", function() {
     if (event.keyCode == 13) {
       $("#location-code-search").trigger("click");
@@ -248,9 +276,10 @@ $(document).ready(function() {
     $("#location-edit-button").addClass("disabled");
   });
 
+  // search and show dropdown with filtered results
   $("#location-search").on("click", function() {
     if ($("#location-search-field").val().length >= 3) {
-      // show dropdown with filtered results
+      // Searching begins here
       filterFunction("location-search-field", "location-dropdown");
       $("#location-dropdown").addClass("show");
       $("#location-dropdown")
@@ -258,9 +287,10 @@ $(document).ready(function() {
         .focus();
     }
   });
+  // search show dropdown with filtered results
   $("#location-code-search").on("click", function() {
     if ($("#location-code-search-field").val().length >= 3) {
-      // show dropdown with filtered results
+      // Searching begins here
       filterFunction("location-code-search-field", "location-code-dropdown");
       $("#location-code-dropdown").addClass("show");
       $("#location-code-dropdown")
@@ -268,6 +298,8 @@ $(document).ready(function() {
         .focus();
     }
   });
+
+  // hide dropdowns on focusout (when the user clicks outside of the dropdown area)
   $("#location-dropdown").on("focusout", function() {
     $(this).removeClass("show");
   });
@@ -292,6 +324,7 @@ $(document).ready(function() {
   $("#sale-order-search").on("click", function() {
     if ($("#sale-order-search-field").val().length >= 3) {
       // Add data to dropdown and display
+      // Begin querying
       fetch("/srmsng/public/index.php/api/admin/getsaleorder?sale_order_no=" + $("#sale-order-search-field").val())
         .then(resp => {
           return resp.json();
@@ -320,12 +353,14 @@ $(document).ready(function() {
           });
         });
 
+      // Display dropdown
       $("#sale-order-dropdown").addClass("show");
-      $("#itesale-orderm-dropdown")
+      $("#sale-order-dropdown")
         .attr("tabindex", -1)
         .focus();
     }
   });
+  // hide dropdown on focusout (when the user clicks outside of the dropdown)
   $("#sale-order-dropdown").on("focusout", function() {
     $(this).removeClass("show");
   });
@@ -359,6 +394,7 @@ $(document).ready(function() {
   $("#item-search").on("click", function() {
     if ($("#item-search-field").val().length >= 3) {
       // Add data to dropdown and display
+      // Begin querying
       fetch("/srmsng/public/index.php/api/admin/item?model=" + $("#item-search-field").val())
         .then(resp => {
           return resp.json();
@@ -388,19 +424,24 @@ $(document).ready(function() {
           });
         });
 
+      // Display dropdown
       $("#item-dropdown").addClass("show");
       $("#item-dropdown")
         .attr("tabindex", -1)
         .focus();
     }
   });
+
+  // Hide dropdown on focus out (when the user clicks outside of the dropdown area)
   $("#item-dropdown").on("focusout", function() {
     $(this).removeClass("show");
   });
 
+  // Search for item using item number
   $("#item-number-search").on("click", function() {
     if ($("#item-number-search-field").val().length >= 3) {
       // Add data to dropdown and display
+      // Begin querying
       fetch("/srmsng/public/index.php/api/admin/itemnumber?itemnumber=" + $("#item-number-search-field").val())
         .then(resp => {
           return resp.json();
@@ -432,17 +473,21 @@ $(document).ready(function() {
           });
         });
 
+      // Show dropdown
       $("#item-number-dropdown").addClass("show");
       $("#item-number-dropdown")
         .attr("tabindex", -1)
         .focus();
     }
   });
+
+  // Hide dropdown on focusout (when the user clicks outside of the dropdown area)
   $("#item-number-dropdown").on("focusout", function() {
     $(this).removeClass("show");
   });
 
   /* ================================ FSE ================================ */
+  // Fetch FSE and put their names into <select>
   fetch("/srmsng/public/index.php/api/admin/getfse")
     .then(resp => {
       return resp.json();
@@ -458,6 +503,7 @@ $(document).ready(function() {
       });
     });
   /* ================================ Batteries ================================ */
+  // Fetch battery specifications and put into <select>
   fetch("/srmsng/public/index.php/api/admin/batterytype")
     .then(resp => {
       return resp.json();
@@ -474,7 +520,8 @@ $(document).ready(function() {
   /* ============================================================================== */
   /* ================================ EDIT BUTTONS ================================ */
 
-  // Bind add actions
+  // Bind add and edit submit actions
+  // Submission behavior depends if the user is adding or editing
   $("#add-customer-form").on("submit", function(e) {
     e.preventDefault();
     addEditCustomer();
@@ -493,14 +540,20 @@ $(document).ready(function() {
   });
 
   // ================== Add/Edit Customer ================= //
+  // Add button
   $("#add_customer").on("click", function() {
+    // Set up the modal
     $("#add-customer-popup .modal-title").text("Add New Customer");
     $("#add-customer-form input").val("");
     isEdit = 0;
   });
+  // Edit button
   $("#customer-edit-button").on("click", function() {
+    // Set up the modal
     $("#add-customer-popup .modal-title").text("Edit Customer");
     $("#add-customer-popup input[name='customer_no']").prop("readonly", true);
+
+    // Get information from the customer being edited
     fetch("/srmsng/public/index.php/api/admin/getsinglecustomer?customer_no=" + $('input[name="customer_no"]').val())
       .then(resp => {
         return resp.json();
@@ -515,18 +568,26 @@ $(document).ready(function() {
   });
 
   // ================== Add/Edit Location ================= //
+  // Add Button
   $("#add_location").on("click", function() {
+    // Set up the modal
     $("#add-location-popup .modal-title").text("Add New Location");
     $("#add-location-form input.clear").val("");
     $("#add-location-form input[name='country']").val("Thailand");
     $("#add-location-popup input[name='location_code']").prop("readonly", false);
     isEdit = 0;
+
+    // Lat Lng
     $("#add-location-form input[name='lat']").val("");
     $("#add-location-form input[name='lon']").val("");
   });
+  // Edit button
   $("#location-edit-button").on("click", function() {
+    // Set up the modal
     $("#add-location-popup .modal-title").text("Edit Location");
     $("#add-location-popup input[name='location_code']").prop("readonly", true);
+
+    // Get information of the location the user is editing
     fetch(
       "/srmsng/public/index.php/api/admin/getsinglelocation?location_code=" + $('input[name="location_code"]').val()
     )
@@ -545,15 +606,21 @@ $(document).ready(function() {
   });
 
   // ================== Add/Edit Sale Order ================= //
+  // Add button
   $("#add_sale_order").on("click", function() {
+    // Set up the modal
     $("#add-sale-order-popup .modal-title").text("Add New Sale Order");
     $("#add-sale-order-form input").val("");
     $("#add-sale-order-popup input[name='sale_order_no']").prop("readonly", false);
     isEdit = 0;
   });
+  // Edit button
   $("#sale-order-edit-button").on("click", function() {
+    // Set up the modal
     $("#add-sale-order-popup .modal-title").text("Edit Sale Order");
     $("#add-sale-order-popup input[name='sale_order_no']").prop("readonly", true);
+
+    // Get the information of the sale order the user is editing
     fetch("/srmsng/public/index.php/api/admin/getsaleorder?sale_order_no=" + $('input[name="sale_order_no"]').val())
       .then(resp => {
         return resp.json();
@@ -568,15 +635,21 @@ $(document).ready(function() {
   });
 
   // ================== Add/Edit Item ================= //
+  // Add Button
   $("#add_item").on("click", function() {
+    // Set up the modal
     $("#add-item-popup .modal-title").text("Add New Item");
     $("#add-item-form input").val("");
     $("#add-item-popup input[name='itemnumber']").prop("readonly", false);
     isEdit = 0;
   });
+  // Edit button
   $("#item-edit-button").on("click", function() {
+    // Set up the modal
     $("#add-item-popup .modal-title").text("Edit Item");
     $("#add-item-popup input[name='itemnumber']").prop("readonly", true);
+
+    // Get the information of the item the user is editing
     fetch("/srmsng/public/index.php/api/admin/getsingleitem?itemnumber=" + $('input[name="itemnumber"]').val())
       .then(resp => {
         return resp.json();
@@ -591,7 +664,7 @@ $(document).ready(function() {
 });
 
 /* ========================================================================== */
-/* ================================ ADD/EDIT ================================ */
+/* ========================== ADD/EDIT SUBMISSION =========================== */
 //update fields after editing or adding
 function updateFields(fieldnames, serializedData) {
   for (i = 0; i < fieldnames.length; i++) {
@@ -603,6 +676,7 @@ function updateFields(fieldnames, serializedData) {
 function addEditCustomer() {
   let serialData = $("#add-customer-form").serializeArray();
   if (isEdit) {
+    // Editing customer
     $.ajax({
       type: "PUT",
       url: "/srmsng/public/index.php/api/admin/updatecustomer",
@@ -618,6 +692,7 @@ function addEditCustomer() {
       }
     });
   } else {
+    // Adding customer
     $.ajax({
       type: "POST",
       url: "/srmsng/public/index.php/api/admin/addcustomer",
@@ -642,7 +717,7 @@ function addEditCustomer() {
 function addEditLocation() {
   let serialData = $("#add-location-form").serializeArray();
   if (isEdit) {
-    console.log(serialData);
+    // Adding location
     $.ajax({
       type: "PUT",
       url: "/srmsng/public/index.php/api/admin/updatelocation",
@@ -675,12 +750,12 @@ function addEditLocation() {
       }
     });
   } else {
+    // Adding location
     $.ajax({
       type: "POST",
       url: "/srmsng/public/index.php/api/admin/addlocation",
       data: $("#add-location-form").serialize(),
       success: data => {
-        //console.log(data);
         // enable edit button
         $("#location-edit-button").removeClass("disabled");
         updateFields(
@@ -715,11 +790,10 @@ function addEditLocation() {
 }
 
 // Add/edit sale order
-
 function addEditSaleOrder() {
   let serialData = $("#add-sale-order-form").serializeArray();
-
   if (isEdit) {
+    // Edit sale order
     $.ajax({
       type: "PUT",
       url: "/srmsng/public/index.php/api/admin/updatesaleorder",
@@ -735,6 +809,7 @@ function addEditSaleOrder() {
       }
     });
   } else {
+    // Add sale order
     $.ajax({
       type: "POST",
       url: "/srmsng/public/index.php/api/admin/addsaleorder",
@@ -760,6 +835,7 @@ function addEditSaleOrder() {
 function addEditItem() {
   let serialData = $("#add-item-form").serializeArray();
   if (isEdit) {
+    // Edit item
     $.ajax({
       type: "PUT",
       url: "/srmsng/public/index.php/api/admin/updateitem",
@@ -775,6 +851,7 @@ function addEditItem() {
       }
     });
   } else {
+    // Add item
     $.ajax({
       type: "POST",
       url: "/srmsng/public/index.php/api/admin/additem",

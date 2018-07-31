@@ -1,3 +1,6 @@
+// Fetch maintenance plan
+// at /plan
+
 function fetchTable() {
   $("#supertable").DataTable({
     stateSave: true,
@@ -88,7 +91,9 @@ function fetchTable() {
         data: 0,
         className: "fixed-col",
         render: function(data) {
-          return "<a class='btn btn-primary' href='details?maintenance_plan_id=" + data + "' target='_blank'>Update</a>";
+          return (
+            "<a class='btn btn-primary' href='details?maintenance_plan_id=" + data + "' target='_blank'>Update</a>"
+          );
         }
       }
     ],

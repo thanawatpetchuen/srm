@@ -261,7 +261,6 @@
     <script src="/srmsng/public/js/submit.js"></script>
     <script src="/srmsng/public/js/onclose.js"></script>
     <script>
-        console.log("READY");
         $(document).ready( function () {
             var url_string = window.location.href;
             var url = new URL(url_string);
@@ -279,14 +278,12 @@
                 $('#add-customer-popup').modal('show');
             }
 
-            console.log(<?php echo json_encode($_SESSION)?>);
         });
         window.addEventListener("beforeunload", function (e) {       
             
             let remember = "<?php echo $_SESSION['remember']?>";
     
             if(remember == "off"){
-                console.log("UNDLOAD");
                 $.ajax({
                     type: "POST",
                     url: '/srmsng/public/index.php/logout',

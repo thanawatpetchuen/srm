@@ -70,7 +70,6 @@ $app->post('/login', function (Request $request, Response $response) {
                         $_SESSION['account_no'] = $jsonArray['account_no'];
                         $_SESSION['username'] = $jsonArray['username'];
                         $_SESSION['username_unhash'] = $_POST["username"];
-                        $ip = $_SERVER['REMOTE_ADDR'];
                         if($remember == "on"){
                             $_SESSION['remember'] = "on";
                         }else{
@@ -79,13 +78,12 @@ $app->post('/login', function (Request $request, Response $response) {
 
                         // echo $remember;
                         $attempt = 10;
-                        $sql = "UPDATE account SET  attempt = :set_attempt, account_status = :set_status, session_id = :set_session, ip = :set_ip WHERE username = '$username'";
+                        $sql = "UPDATE account SET  attempt = :set_attempt, account_status = :set_status, session_id = :set_session WHERE username = '$username'";
                         $stmt = $db->prepare($sql);
                         $session_status = 'LOGIN';
                         $stmt->bindParam(':set_attempt', $attempt);
                         $stmt->bindParam(':set_status', $session_status);
                         $stmt->bindParam(':set_session', $session);
-                        $stmt->bindParam(':set_ip', $ip);
                         $stmt->execute();
                         if ($jsonArray['account_type'] == 'USER'){
                             $success_json = array('statuscode' => '111', 'description' => '/srmsng/public/customer_page');
@@ -203,7 +201,7 @@ $app->post('/logout/forcelogout', function (Request $request, Response $response
     $username = $_SESSION['username_unhash'];
     $current_session = session_id();
     $tmp = $_SESSION;
-    // return $token;
+
     if (isset($_SESSION['token'])){
             if($token == $_SESSION['token']){
                 $date = date('Y-m-d H:i:s', time());
@@ -229,9 +227,7 @@ $app->post('/logout/forcelogout', function (Request $request, Response $response
                     $_SESSION = $tmp;
                     session_commit();
 
-                    $ip = $_SERVER['REMOTE_ADDR'];
-
-                    $sql = "UPDATE account SET session_id = :set_session, last_login = :set_date, account_status = :set_status, ip = :set_ip WHERE username_tag = '$username'";
+                    $sql = "UPDATE account SET session_id = :set_session, last_login = :set_date, account_status = :set_status WHERE username_tag = '$username'";
                     try{
 
                         $stmt = $db->prepare($sql);
@@ -239,7 +235,6 @@ $app->post('/logout/forcelogout', function (Request $request, Response $response
                         $stmt->bindParam(':set_session', $current_session);
                         $stmt->bindParam(':set_date', $date);
                         $stmt->bindParam(':set_status', $session_status);
-                        $stmt->bindParam(':set_ip', $ip);
 
                         $stmt->execute();
                         if ($_SESSION['account_type'] == 'USER'){
@@ -313,10 +308,7 @@ $app->post('/login/recover', function (Request $request, Response $response) {
 
 // Get all customers
 $app->get('/api/customers', function(Request $request, Response $response){
-    // $acc_no = $_SESSION['account_no'];
     $sql = "SELECT * FROM asset_tracker";
-
-        // if ($_SESSION['account_type'] == 'ADMIN'){
             try{
                 // Get DB Object
                 $db = new db();
@@ -327,14 +319,13 @@ $app->get('/api/customers', function(Request $request, Response $response){
                 $customers = $stmt->fetchAll(PDO::FETCH_OBJ);
                 $db = null;
                 echo json_encode($customers);
-            } catch(PDOException $e){
+            } catch(PDOException $e) {
                 $db = null;
                 echo '{"error": {"text": '.$e->getMessage().'}';
             }
-        // }
 });
 
-// Get single customer information
+// Get single customer information.
 $app->get('/api/admin/getsinglecustomer', function(Request $request, Response $response){
     $customer_no = $request->getParam('customer_no');
 
@@ -346,8 +337,10 @@ $app->get('/api/admin/getsinglecustomer', function(Request $request, Response $r
         $db = $db->connect();
 
         $stmt = $db->query($sql);
+
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
+
         echo json_encode($result);
     } catch(PDOException $e){
         $db = null;
@@ -361,7 +354,8 @@ $app->get('/api/admin/getsinglelocation', function(Request $request, Response $r
     $location_code = $request->getParam('location_code');
 
     $sql = "SELECT * FROM location WHERE location_code = '$location_code'";
-    try{
+    try {
+        
         // Get DB ObjectS
         $db = new db();
         // Connect
@@ -370,8 +364,10 @@ $app->get('/api/admin/getsinglelocation', function(Request $request, Response $r
         $stmt = $db->query($sql);
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
+
         echo json_encode($result);
-    } catch(PDOException $e){
+
+    } catch(PDOException $e) {
         $db = null;
         echo '{"error": {"text": '.$e->getMessage().'}';
     }
@@ -697,7 +693,7 @@ $app->post('/api/customer/request', function(Request $request, Response $respons
     }
 
     $sql = "INSERT INTO job_fse (job_id, fse_code) VALUES ('$cm_id', '0')";
-    try{
+    try {
         // Get DB Object
         $db = new db();
         // Connect
@@ -705,11 +701,10 @@ $app->post('/api/customer/request', function(Request $request, Response $respons
         $stmt = $db->prepare($sql);
         $stmt->execute();
 
-    }catch(PDOException $e){
+    } catch(PDOException $e) {
         $db = null;
         return $e->getmessage();
     }
-
     system_log('Send SRM request with JOBID: ' . $cm_id);
     return "SUCCESS";
 });
@@ -720,42 +715,35 @@ $app->post('/api/admin/addasset', function(Request $request, Response $response)
     $customer_no = $request->getParam('customer_no');
     $location_code = $request->getParam('location_code');
     $sale_order_no = $request->getParam('sale_order_no');
-
     $contactname = $request->getParam('contactname');
     $contactnumber = $request->getParam('contactnumber');
-
     $pmyear = $request->getParam('pmyear');
     $nextpm = $request->getParam('nextpm');
-
     $itemnumber = $request->getParam('itemnumber');
-
     $serial = $request->getParam('serial');
-
     $fse_code = $request->getParam('fse_code');
-
     $battery = $request->getParam('battery');
     $quantity = $request->getParam('quantity');
     $battery_date = $request->getParam('battery_date');
-
     $startwarranty = $request->getParam('startwarranty');
     $endwarranty = $request->getParam('endwarranty');
-
     $ups_status = $request->getParam('ups_status');
-
     $sla_conditon = $request->getParam('sla_condition');
     $sla_response = $request->getParam('sla_response');
     $sla_recovery = $request->getParam('sla_recovery');
     $typeofcontract = $request->getParam('toc');
 
-    $sql = "INSERT INTO asset_tracker (sng_code, customer_no, contactname, contactnumber, pmyear, nextpm,itemnumber, serial, fse_code,
-                                     battery, quantity, battery_date, location_code,
-                                    startwarranty, endwarranty, ups_status, sale_order_no,
-                                    sla_condition, sla_response, sla_recovery, typeofcontract)
-                                    VALUES (:set_sngcode, :set_customer_no, :set_contactname, :set_contactnumber, :set_pmyear, :set_nextpm, :set_itemnumber,
-                                    :set_serial, :set_fse_code, :set_battery, :set_quantity,
-                                    :set_battery_date, :set_location_code, :set_startwarranty,
-                                    :set_endwarranty, :set_ups_status, :set_sale_order_no,
-                                    :set_sla_condition, :set_sla_response, :set_sla_recovery, :set_typeofcontract)";
+    $sql = "INSERT INTO asset_tracker (sng_code, customer_no, contactname, contactnumber, 
+                        pmyear, nextpm,itemnumber, serial, fse_code,
+                        battery, quantity, battery_date, location_code,
+                        startwarranty, endwarranty, ups_status, sale_order_no,
+                        sla_condition, sla_response, sla_recovery, typeofcontract)
+                VALUES (:set_sngcode, :set_customer_no, :set_contactname, :set_contactnumber, 
+                        :set_pmyear, :set_nextpm, :set_itemnumber,
+                        :set_serial, :set_fse_code, :set_battery, :set_quantity,
+                        :set_battery_date, :set_location_code, :set_startwarranty,
+                        :set_endwarranty, :set_ups_status, :set_sale_order_no,
+                        :set_sla_condition, :set_sla_response, :set_sla_recovery, :set_typeofcontract)";
 
     try{
         // Get DB Object
@@ -786,11 +774,12 @@ $app->post('/api/admin/addasset', function(Request $request, Response $response)
         $stmt->bindParam(':set_sla_recovery', $sla_recovery);
         $stmt->bindParam(':set_typeofcontract', $typeofcontract);
         $stmt->execute();
+
         $db = null;
         system_log('Add asset with SNGCODE: ' . $sngcode);
         return "Success";
 
-    }catch(PDOException $e){
+    } catch(PDOException $e ){
         $db = null;
         return $e->getmessage();
     }
@@ -843,7 +832,8 @@ $app->post('/api/admin/addticket', function(Request $request, Response $response
         $result = json_decode($result, true);
         $current_number =  $result[0]['COUNT(cm_id)'] + 1;
         $current_number = str_pad($current_number, 4, "0", STR_PAD_LEFT);
-        $cm_id = 'CM-' . date("Y") . '-' . $current_number;
+        $cm_id = 'CM-' . date("Y") . '-' . $current_number . '-' . '0';
+        
     } catch(PDOException $e){
         $db = null;
         echo '{"error": {"text": '.$e->getMessage().'}';
@@ -871,8 +861,10 @@ $app->post('/api/admin/addticket', function(Request $request, Response $response
     $request_time = date('Y-m-d H:i:s', time());
     $start_time = $request->getParam('start_time');
     $close_time = $request->getParam('close_time');
+    $request_id = $_SESSION['account_no'];
+    $request_user = $_SESSION['username_unhash'];
 
-
+    
     if ($job_type != 'Fixed by Phone') {
         if ($complete_time != '' && $fse_code != '' && $cm_time != '' && $job_type != '') $job_status = 'Pending Approve';
         elseif ($complete_time == '') $job_status = 'Assigned';
@@ -899,17 +891,18 @@ $app->post('/api/admin/addticket', function(Request $request, Response $response
         echo '{"error": {"text": '.$e->getMessage().'}';
     }
 
-
+    
     $sql = "INSERT INTO srm_request (cm_id, sng_code, name, email, phone_number, problem_type,
                 asset_problem, asset_detected, solution, suggestions, cause_id, correction_id,
                 cm_time, job_status, complete_time, request_time, cause_detail, correction_detail,
-                work_class, job_type, close_time, start_time)
+                work_class, job_type, close_time, start_time, request_id, request_user)
             VALUES
                 (:set_cm_id, :set_sngcode, :set_name, :set_email, :set_phone_number,
                 :set_problem_type, :set_asset_problem, :set_asset_detected, :set_solution,
                 :set_suggestions, :set_cause_id, :set_correction_id, :set_cm_time, :set_job_status,
                 :set_complete_time, :set_request_time, :set_cause_detail, :set_correction_detail,
-                :set_work_class, :set_job_type, :set_close_time, :set_start_time)";
+                :set_work_class, :set_job_type, :set_close_time, :set_start_time, :set_request_id,
+                :set_request_user";
 
     try{
         // Get DB Object
@@ -940,6 +933,8 @@ $app->post('/api/admin/addticket', function(Request $request, Response $response
         $stmt->bindParam(':set_job_type', $job_type);
         $stmt->bindParam(':set_close_time', $close_time);
         $stmt->bindParam(':set_start_time', $start_time);
+        $stmt->bindParam(':set_request_id', $request_id);
+        $stmt->bindParam(':set_request_user', $request_user);
         $stmt->execute();
 
     }catch(PDOException $e){
@@ -947,6 +942,7 @@ $app->post('/api/admin/addticket', function(Request $request, Response $response
         return $e->getmessage();
     }
 
+    return $cm_id;
     if ($fse_code != ''){
         $sql = "INSERT INTO job_fse (job_id, fse_code) VALUES ";
 
@@ -2728,9 +2724,9 @@ $app->get('/api/admin/getsinglefse', function (Request $request, Response $respo
 $app->get('/api/admin/getlatlon', function (Request $request, Response $response) {
     $sql = "SELECT DISTINCT location.location_code, sitename ,latitude, longitude, sitename, problem_type, asset_problem  FROM location, srm_request, asset_tracker
     WHERE srm_request.sng_code = asset_tracker.sng_code
-    AND (srm_request.job_status = 'Pending Approve' 
-                                OR srm_request.job_status = 'Completed'
-                                OR srm_request.job_status = 'Closed'
+    AND (srm_request.job_status != 'Pending Approve' 
+                                OR srm_request.job_status != 'Completed'
+                                OR srm_request.job_status != 'Closed'
                                 )
     AND   asset_tracker.location_code = location.location_code GROUP BY location.location_code";
     try{
@@ -3238,7 +3234,7 @@ $app->post('/api/admin/addcustomer', function(Request $request, Response $respon
     $product_sale = $request->getParam('product_sale');
     $service_sale = $request->getParam('service_sale');
     $taxid = $request->getParam('taxid');
-
+    
     $sql = "INSERT INTO customers (customer_no, customer_name, customer_eng_name, sale_team, account_group, primary_contact, product_sale, service_sale, taxid )
     VALUES (:set_customer_no, :set_customer_name, :set_customer_eng_name, :set_sale_team, :set_account_group, :set_primary_contact, :set_product_sale, :set_service_sale, :set_taxid)";
 
@@ -3551,6 +3547,7 @@ $app->delete('/api/admin/delete', function(Request $request, Response $response)
         echo '{"error": {"text": '.$e->getMessage().'}';
     }
 });
+
 
 
 function check_pass($password) {

@@ -20,10 +20,10 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
   <link rel="stylesheet" href="/srmsng/public/css/style.css">
 </head>
 <body>
-    <?php include_once('../admin/admin_nav.php'); ?>
+    <?php include_once('../../admin/admin_nav.php'); ?>
     <main class="container narrow">
         <div class="input-group page-title">
-            <h1 style="margin-bottom:0;">Service Report</h1>
+            <h1 style="margin-bottom:0;">Workload</h1>
         </div>
         <form id="gen-report-form">
             <div class="form-group">
@@ -84,6 +84,7 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script src="../fetch_data.js"></script>
 <script src="../../src/js/pdfmake.min.js"></script>
 <script src="../../src/js/vfs_fonts.js"></script>
 <script src="gen_report.js"></script>
@@ -102,27 +103,6 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
 
     
     $(document).ready(function(){
-        // FSE
-        fetch('/srmsng/public/index.php/api/admin/getfse')
-            .then(resp => {
-                return resp.json();
-            })
-            .then(data_json => {
-            data_json.forEach(element => {
-                if (element['fse_code'] != 0) {
-                    var option = document.createElement('option');
-                    option.setAttribute('value',element['fse_code'] + "_" + element['engname']);
-                    option.innerHTML = element['engname'];
-                    document.getElementById('fse-code-dropdown').appendChild(option);
-                }
-            })
-        });
-
-        // Get current month
-        var d = new Date();
-        var m = d.getMonth();
-        $('select[name="month"]').val(m+1);
-        
         // Generate Report
         $('#gen-report-form').submit(function() {
             if ($('select[name="format"]').val() === 'pdf') {
@@ -132,5 +112,11 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
             }
             return false
         });
+
+        // Get Data
+        initFSE();
+
+        // Get Current Month
+        getCurrentMonth();
     })
 </script>

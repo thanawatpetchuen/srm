@@ -1,3 +1,6 @@
+// Fetch Customer List
+// at /account/customer
+
 var data = null;
 function fetchTable() {
   $("#supertable").DataTable({
@@ -13,9 +16,7 @@ function fetchTable() {
     }),
     columnDefs: [
       {
-        searchable: true
-      },
-      {
+        // Create link to view the location and details of the customer
         targets: 2,
         data: function(row) {
           return [row[0], row[2]];
@@ -25,11 +26,11 @@ function fetchTable() {
         }
       },
       {
+        // Edit button
         targets: -1,
         data: function(row) {
           return row;
         },
-        searchable: false,
         render: function(data) {
           var button = document.createElement("button");
           button.setAttribute("class", "btn btn-primary");
@@ -38,36 +39,36 @@ function fetchTable() {
           button.setAttribute("onClick", "fillField(" + JSON.stringify(data) + ")");
           button.appendChild(document.createTextNode("Edit"));
           return button.outerHTML;
-          // console.log(data);
-          // data = data;
-
-          // return "<button class='btn btn-primary' data-target='#edit-customer-popup' data-toggle='modal' onClick='fillField()'>Edit</button>";
         },
         className: "fixed-col"
       }
     ],
     initComplete: function() {
+      // Set up table styling
       setUpFixed();
       $("#supertable").addClass("display");
     },
     drawCallback: function() {
+      // Set up table styling
       setUpFixed();
     }
   });
 }
 
+// Add customer submit
 $("#add-customer-form").on("submit", () => {
+  // Check for the length of Tax ID (13 digits only)
   if ($("#add-taxid").val().length != 13) {
     $("#add-taxid-warning").attr("class", "form-text text-danger");
     $("#add-taxid").addClass("is-invalid");
     return false;
   }
+  // Add Customer
   $.ajax({
     type: "POST",
     url: "/srmsng/public/index.php/api/admin/addcustomer",
     data: $("#add-customer-form").serialize(),
     success: data => {
-      //console.log(data);
       $("#add-customer-popup").modal("hide");
       document.getElementById("add-customer-form").reset();
       window.location = "/srmsng/public/account/customer?add_success=true";
@@ -78,19 +79,20 @@ $("#add-customer-form").on("submit", () => {
   });
 });
 
+// Edit customer submit
 $("#edit-customer-form").on("submit", () => {
+  // Check for the length of Tax ID (13 digits only)
   if ($('input[name="taxid"]').val().length != 13) {
     $("#edit-taxid-warning").attr("class", "form-text text-danger");
     $("#edit-taxid").addClass("is-invalid");
     return false;
   }
+  // Edit Customer
   $.ajax({
     type: "PUT",
     url: "/srmsng/public/index.php/api/admin/updatecustomer",
     data: $("#edit-customer-form").serialize(),
     success: data => {
-      //console.log(data);
-      //console.log($("#edit-customer-form").serialize());
       $("#edit-customer-popup").modal("hide");
       document.getElementById("edit-customer-form").reset();
       window.location = "/srmsng/public/account/customer?update_success=true";
@@ -101,6 +103,7 @@ $("#edit-customer-form").on("submit", () => {
   });
 });
 
+// Fill fields in the edit modal with the data in the row of the table
 function fillField(data) {
   $('#edit-customer-form input[name="customer_no"]').val(data[0]);
   $('#edit-customer-form input[name="customer_name"]').val(data[1]);

@@ -177,6 +177,12 @@
                         <label>Completion time</label>
                         <input type="text" class="form-control" name="close_time" placeholder="Close Time" id="close_time" autocomplete="off" disabled/>
                     </div>
+                    <div class="form-group">
+                        <label>FSE</label>
+                        <select class="form-control" id="fse-dropdown-single" id="fse-field" name="fse_code">
+                            <option value="0">-- Select Field Service Engineer --</option>
+                        </select>
+                    </div>
                 </div>
             </fieldset>
             <div class="form-group" style="margin-top:40px; display: flex; align-items: center; justify-content: flex-end; text-align:right ">
@@ -209,8 +215,8 @@
         });
     });
 
+    // Fetch dropdown (e.g.FSE, causes)
     function fetchDropdowns(codeParam, valueParam, dropdownID, url) {
-        // fetch dropdowns
         $(dropdownID).val(0);
         fetch(url)
         .then(resp => {
@@ -219,6 +225,7 @@
         .then(data_json => {
           data_json.forEach(element => {
             if (element[codeParam] != 0) {
+                // Add option to select
                 var option = document.createElement('option');
                 option.setAttribute('value',element[codeParam]);
                 option.innerHTML = element[valueParam];
@@ -238,6 +245,13 @@
             .then(data_json => {
             data_json.forEach(element => {
                 if (element['fse_code'] != 0) {
+                    // Fixed by phone (one FSE only)
+                    var option = document.createElement("option");
+                    option.setAttribute("value", element["fse_code"]);
+                    option.innerHTML = element["engname"];
+                    document.getElementById("fse-dropdown-single").appendChild(option);
+
+                    // On Site (Multiple FSEs)
                     var item = document.createElement('span');
                     item.setAttribute('class','select-multiple-item');
 
@@ -304,9 +318,9 @@
                 $('#job-details-site input').val("");
                 $('#job-details-site input[type="text"]').prop('disabled',true);
 
-                $('#job-details-site input[name="assign-close-time"]').prop('checked',false).change();
-                $('#job-details-site input[name="assign-fse"]').prop('checked',false).change();
-                $('#job-details-site input[name="assign-cm-time"]').prop('checked',false).change();
+                $('#job-details-site input[name="assign-close-time"], \
+                #job-details-site input[name="assign-fse"],\
+                #job-details-site input[name="assign-cm-time"]').prop('checked',false).change();
 
                 $('#job-details-phone input').prop('disabled',false);
             } else {
@@ -318,9 +332,9 @@
                 $('#job-details-site input').val("");
                 $('#job-details-site input[type="text"]').prop('disabled',true);
 
-                $('#job-details-site input[name="assign-close-time"]').prop('checked',false).change();
-                $('#job-details-site input[name="assign-fse"]').prop('checked',false).change();
-                $('#job-details-site input[name="assign-cm-time"]').prop('checked',false).change();
+                $('#job-details-site input[name="assign-close-time"], \
+                #job-details-site input[name="assign-fse"],\
+                #job-details-site input[name="assign-cm-time"]').prop('checked',false).change();
             }
         });
         $('input[name="assign-fse"]').on('change', function() {
@@ -354,11 +368,11 @@
             }
         });
 
+        // COmpletion time cannot be assgiend if the FSE and CM Time aren't specified
         $('input[name="assign-fse"], input[name="assign-cm-time"]').on('change',function() {
             if (assigned_cm_time && assigned_fse) {
                 $('#close-time-check').removeClass('disabled');
             } else {
-                // Cannot assign completion time
                 $('#close-time-check').addClass('disabled');
                 $('#close-time-check input').prop('checked',false);
                 $('#close-time-field').addClass('disabled');
@@ -383,13 +397,11 @@
                 $("#loader").css("display", "block");
                 if ($("#phone-number-field").val().length == 10) {
                     e.preventDefault();
-                    console.log($("#add-ticket-form").serializeArray());
                     $.ajax({
                     type: "POST",
                     data: $("#add-ticket-form").serialize(),
                     url: "/srmsng/public/index.php/api/admin/addticket",
                     success: data => {
-                        console.log(data);
                         if (data == 1) {
                         $("#sng-code-ticket-field small").removeClass("hidden");
                         window.scrollTo(0, 0);

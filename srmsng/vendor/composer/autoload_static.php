@@ -19,6 +19,7 @@ class ComposerStaticInitc82ab0d08062be0c2bb39513349a1b8b
         'S' => 
         array (
             'Slim\\Views\\' => 11,
+            'Slim\\Middleware\\' => 16,
             'Slim\\' => 5,
         ),
         'P' => 
@@ -65,6 +66,10 @@ class ComposerStaticInitc82ab0d08062be0c2bb39513349a1b8b
         'Slim\\Views\\' => 
         array (
             0 => __DIR__ . '/..' . '/slim/php-view/src',
+        ),
+        'Slim\\Middleware\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/dyorg/slim-token-authentication/src',
         ),
         'Slim\\' => 
         array (

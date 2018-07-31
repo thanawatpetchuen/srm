@@ -220,7 +220,7 @@ function genReportCSV(form_data) {
     "Job Status",
     "Remarks"
   ];
-
+  // Put data string into tableData
   for (var i in columnNames) {
     tableData += columnNames[i] + ",";
   }
@@ -246,8 +246,10 @@ function genReportCSV(form_data) {
       });
     })
     .then(() => {
+      // Encode tableData and download file as .csv
       var uri = "data:text/plain;charset=utf-8,\uFEFF" + encodeURI(tableData);
 
+      // Create an invisible link on the page
       var element = document.createElement("a");
       element.setAttribute("href", uri);
       element.setAttribute("download", filename + ".csv");
@@ -255,8 +257,10 @@ function genReportCSV(form_data) {
       element.style.display = "none";
       document.body.appendChild(element);
 
+      // Trigger link click to download the file
       element.click();
 
+      // Remove the link from the page
       document.body.removeChild(element);
     });
 }

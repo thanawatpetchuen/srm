@@ -1,3 +1,6 @@
+// Fetch account for admins
+// at /account
+
 function fetchTable() {
   var online = 0;
   $("#supertable").DataTable({
@@ -21,6 +24,7 @@ function fetchTable() {
       { data: 2 },
       { data: 3 },
       {
+        // Shows if the account is locked or unlock
         data: 4,
         render: function(data) {
           if (data == "0") {
@@ -31,6 +35,7 @@ function fetchTable() {
       },
       { data: 5 },
       {
+        // Lock/Unlock button depending on lock status of the account
         data: function(row) {
           return [row[2], row[4]];
         },
@@ -54,17 +59,20 @@ function fetchTable() {
       }
     ],
     initComplete: function() {
+      // Set up table styling
       $("#supertable").addClass("display");
       setUpFixed();
     },
     drawCallback: function() {
+      // Set up table styling
       setUpFixed();
     }
   });
-  console.log("ONLINE: " + online);
+  // console.log("ONLINE: " + online);
 }
 
 function toggleLock(locked, user) {
+  // Show different alerts when a user is locked or unlocked
   var lockConfirm = false;
   var url = "";
 
@@ -77,6 +85,7 @@ function toggleLock(locked, user) {
   }
 
   if (lockConfirm) {
+    // Request lock/unlock account
     $.ajax({
       type: "PUT",
       url: "/srmsng/public/index.php/api/admin/account",
@@ -89,6 +98,7 @@ function toggleLock(locked, user) {
 }
 
 function getOnlineUser() {
+  // Get amount of online users
   var len = document.getElementById("supertable_length");
   $.ajax({
     type: "GET",

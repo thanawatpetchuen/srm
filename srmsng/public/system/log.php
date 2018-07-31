@@ -60,7 +60,6 @@
  
     <!-- <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.16/b-1.5.1/datatables.min.js"></script> -->
  
-    <script src="/srmsng/public/js/update.js"></script>
     <script src="/srmsng/public/js/table_setup.js"></script>
     <script src="/srmsng/public/js/fetch_ajax.js"></script>
     <script src="/srmsng/public/js/fetch_log.js"></script>
@@ -71,7 +70,6 @@
             let remember = "<?php echo $_SESSION['remember']?>";
     
             if(remember == "off"){
-                console.log("UNDLOAD");
                 $.ajax({
                     type: "POST",
                     url: '/srmsng/public/index.php/logout',

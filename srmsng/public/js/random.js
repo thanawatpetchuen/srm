@@ -9,7 +9,6 @@ function randomPassword(length) {
 }
 
 function generate() {
-    console.log("CKIJC");
     var newp = document.getElementById("new-password-field");
     newp.value = randomPassword(8);
     console.log(randomPassword(8));

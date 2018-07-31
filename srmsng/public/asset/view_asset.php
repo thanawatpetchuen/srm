@@ -148,7 +148,6 @@
 
         fetch("/srmsng/public/index.php/api/admin/singleasset?sng_code=" + sng_code)
         .then(res => {
-            // console.log(res);
             return res.json();
         })
         .then(data => {
@@ -194,7 +193,6 @@
         let remember = "<?php echo $_SESSION['remember']?>";
 
         if(remember == "off"){
-            console.log("UNDLOAD");
             $.ajax({
                 type: "POST",
                 url: '/srmsng/public/index.php/logout',

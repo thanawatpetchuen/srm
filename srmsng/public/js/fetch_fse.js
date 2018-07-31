@@ -1,7 +1,9 @@
+// Fetch FSE table
+// At /account/fse
+
 var data = null;
 function fetchTable() {
   $("#supertable").DataTable({
-    //columnDefs: [{ orderable: false, targets: [6, 7, 9] }],
     stateSave: true,
     deferRender: true,
     processing: true,
@@ -12,21 +14,9 @@ function fetchTable() {
       pages: 5 // number of pages to cache,
     }),
     columnDefs: [
-      //   {
-      //     targets: 2,
-      //     data: function(row) {
-      //       return row.slice(1, 3);
-      //     },
-      //     render: function(data) {
-      //       return "<a href='/srmsng/public/account/customer/view?id=" + data[0] + "'>" + data[1] + "</a>";
-      //     }
-      //   },
       {
-        searchable: true
-      },
-      {
+        // Edit button
         targets: -1,
-        searchable: false,
         data: function(row) {
           return row;
         },
@@ -38,31 +28,30 @@ function fetchTable() {
           button.setAttribute("onClick", "fillField(" + JSON.stringify(data) + ")");
           button.appendChild(document.createTextNode("Edit"));
           return button.outerHTML;
-          // console.log(data);
-          // data = data;
-
-          // return "<button class='btn btn-primary' data-target='#edit-customer-popup' data-toggle='modal' onClick='fillField()'>Edit</button>";
         },
         className: "fixed-col"
       }
     ],
     initComplete: function() {
+      // Set up table styling
       setUpFixed();
       $("#supertable").addClass("display");
     },
     drawCallback: function() {
+      // Set up table styling
       setUpFixed();
     }
   });
 }
 
+// Form submissions
 $("#add-fse-form").on("submit", () => {
+  // Add FSE
   $.ajax({
     type: "POST",
     url: "/srmsng/public/index.php/api/admin/addfse",
     data: $("#add-fse-form").serialize(),
     success: data => {
-      console.log(data);
       $("#add-fse-popup").modal("hide");
       document.getElementById("add-fse-form").reset();
       window.location = "/srmsng/public/account/fse?add_success=true";
@@ -74,6 +63,7 @@ $("#add-fse-form").on("submit", () => {
 });
 
 $("#edit-fse-form").on("submit", () => {
+  // Edit FSE
   $.ajax({
     type: "PUT",
     url: "/srmsng/public/index.php/api/admin/updatefse",

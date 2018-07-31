@@ -33,6 +33,60 @@
         "homepage": "https://github.com/container-interop/container-interop"
     },
     {
+        "name": "dyorg/slim-token-authentication",
+        "version": "0.3.3",
+        "version_normalized": "0.3.3.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/dyorg/slim-token-authentication.git",
+            "reference": "08847d3ce38e47c422d46389886d0bd8bf4a9cb2"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/dyorg/slim-token-authentication/zipball/08847d3ce38e47c422d46389886d0bd8bf4a9cb2",
+            "reference": "08847d3ce38e47c422d46389886d0bd8bf4a9cb2",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.4.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~4.6",
+            "squizlabs/php_codesniffer": "~2.3",
+            "zendframework/zend-diactoros": "^1.3"
+        },
+        "time": "2016-12-23T21:14:24+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Slim\\Middleware\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Dyorg Almeida",
+                "email": "dyorg@rabbiit.com",
+                "homepage": "https://rabbiit.com/",
+                "role": "Developer"
+            }
+        ],
+        "description": "Slim 3.0+ Token Authentication Middleware",
+        "homepage": "https://github.com/dyorg/slim-token-authentication",
+        "keywords": [
+            "Authentication",
+            "auth",
+            "authorization",
+            "middleware",
+            "slim",
+            "token"
+        ]
+    },
+    {
         "name": "fig/http-message-util",
         "version": "1.1.2",
         "version_normalized": "1.1.2.0",

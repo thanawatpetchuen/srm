@@ -1,6 +1,8 @@
+// Fetch ticket for FSE
+// This table is in the first page in the CM tab when logged in as an FSE
+
 function fetchTable(fse_code) {
   $("#supertable-cm").DataTable({
-    //columnDefs: [{ orderable: false, targets: [6, 7, 9] }],
     stateSave: true,
     deferRender: true,
     dom: '<lf<"table-wrapper"t>ip>',
@@ -12,13 +14,11 @@ function fetchTable(fse_code) {
     }),
     columnDefs: [
       {
-        searchable: true
-      },
-      {
         targets: 1,
         data: 0
       },
       {
+        // Link to view details of an asset
         targets: 2,
         data: 1,
         render: function(data) {
@@ -111,6 +111,7 @@ function fetchTable(fse_code) {
           return [row[0], row[21], row[20]];
         },
         render: function(data) {
+          // Job Status
           var status = "";
           var type = "";
           if (data[1] == "Assigned") {
@@ -148,13 +149,10 @@ function fetchTable(fse_code) {
             let btt = `<a href='#' class='btn btn-primary btn-block disabled'">Done</a>`;
             return btt;
           }
-          // return data[2];
-          // return "<a href='#' class='btn btn-primary'"+ "onClick=action"+data[2]+">"+status+"</a>";
           var btt = `<a href='#' class='btn btn-primary btn-block' onClick="action${type}('${data[0]}', '${
             data[2]
           }')"> ${status} </a>`;
           return btt;
-          // return "<a href='#' class='btn btn-primary'"+ "onClick=action"+type+"("+"'"+data[2]+"'"+")"+">"+status+"</a>";
         }
       }
     ],
@@ -171,11 +169,11 @@ $(document).ready(function() {
       return data.json();
     })
     .then(data2 => {
-      console.log(data2[0].fse_code);
       fetchTable(data2[0].fse_code);
     });
 });
 
+// Show dropdown
 function showCollapse() {
   var collapse = this.parentElement.getElementsByClassName("asset-collapse")[0];
   if (collapse.classList.contains("show")) {
@@ -187,6 +185,7 @@ function showCollapse() {
   }
 }
 
+// Create dropdown from data in the row
 function makeCollapse(keys, values) {
   var collapse = document.createElement("div");
   collapse.setAttribute("class", "asset-collapse border rounded");
@@ -207,6 +206,7 @@ function makeCollapse(keys, values) {
   return collapse;
 }
 
+// Create button that shows the dropdown
 function makeDropArrow() {
   var wrapper = document.createElement("div");
   wrapper.setAttribute("class", "drop-arrow");
@@ -221,15 +221,11 @@ function makeDropArrow() {
 }
 
 function actionAck(cm_id, name) {
-  console.log("Ack");
-  console.log(cm_id);
-
   $.ajax({
     type: "PUT",
     url: "/srmsng/public/index.php/api/fse/acknowledge",
     data: "cm_id=" + cm_id + "&engname=" + name,
     success: data => {
-      console.log(data);
       toastr.options = {
         positionClass: "toast-bottom-center"
       };
@@ -245,14 +241,11 @@ function actionAck(cm_id, name) {
 }
 
 function actionTravel(cm_id, name) {
-  console.log("Travel");
-  console.log(cm_id + name);
   $.ajax({
     type: "PUT",
     url: "/srmsng/public/index.php/api/fse/starttravel",
     data: "cm_id=" + cm_id + "&engname=" + name,
     success: data => {
-      console.log(data);
       toastr.options = {
         positionClass: "toast-bottom-center"
       };
@@ -268,14 +261,11 @@ function actionTravel(cm_id, name) {
 }
 
 function actionArrived(cm_id, name) {
-  console.log("Arrived");
-  console.log(cm_id);
   $.ajax({
     type: "PUT",
     url: "/srmsng/public/index.php/api/fse/arrivedsite",
     data: "cm_id=" + cm_id + "&engname=" + name,
     success: data => {
-      console.log(data);
       toastr.options = {
         positionClass: "toast-bottom-center"
       };
@@ -291,14 +281,11 @@ function actionArrived(cm_id, name) {
 }
 
 function actionStart(cm_id, name) {
-  console.log("Start");
-  console.log(cm_id);
   $.ajax({
     type: "PUT",
     url: "/srmsng/public/index.php/api/fse/startwork",
     data: "cm_id=" + cm_id + "&engname=" + name,
     success: data => {
-      console.log(data);
       toastr.options = {
         positionClass: "toast-bottom-center"
       };
@@ -314,14 +301,11 @@ function actionStart(cm_id, name) {
 }
 
 function actionComplete(cm_id, name) {
-  console.log("Complete");
-  console.log(cm_id);
   $.ajax({
     type: "PUT",
     url: "/srmsng/public/index.php/api/fse/finishwork",
     data: "cm_id=" + cm_id + "&engname=" + name,
     success: data => {
-      console.log(data);
       toastr.options = {
         positionClass: "toast-bottom-center"
       };

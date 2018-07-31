@@ -1,6 +1,8 @@
+// Fetch PM for FSEs
+// This table is on the first page in the PM tab when logged in as an FSE
+
 function fetchTablePM(fse_code) {
   $("#supertable-pm").DataTable({
-    //columnDefs: [{ orderable: false, targets: [6, 7, 9] }],
     stateSave: true,
     deferRender: true,
     dom: '<lf<"table-wrapper"t>ip>',
@@ -12,6 +14,7 @@ function fetchTablePM(fse_code) {
     }),
     columnDefs: [
       {
+        // Link to view the details of the service request
         targets: 1,
         data: function(row) {
           return [row[0]];
@@ -27,6 +30,7 @@ function fetchTablePM(fse_code) {
         }
       },
       {
+        // Allow text to be on multiple lines
         targets: 2,
         data: 1,
         render: function(data) {
@@ -38,6 +42,7 @@ function fetchTablePM(fse_code) {
         data: 2
       },
       {
+        // Dropdown for contact
         targets: 4,
         className: "td-with-details",
         data: function(row) {
@@ -60,6 +65,7 @@ function fetchTablePM(fse_code) {
         data: 7
       },
       {
+        // Location Dropdown
         targets: 7,
         className: "td-with-details",
         data: function(row) {
@@ -79,6 +85,7 @@ function fetchTablePM(fse_code) {
           ];
         },
         render: function(data) {
+          // Generate Address
           var village = "";
           var road = "";
           var subdistrict = "";
@@ -121,6 +128,7 @@ function fetchTablePM(fse_code) {
         data: 20
       },
       {
+        // Job Status
         targets: 0,
         data: function(row) {
           return [row[0], row[2], row[6]];
@@ -163,13 +171,10 @@ function fetchTablePM(fse_code) {
             let btt = `<a href='#' class='btn btn-block btn-primary disabled'">Done</a>`;
             return btt;
           }
-          // return data[2];
-          // return "<a href='#' class='btn btn-primary'"+ "onClick=action"+data[2]+">"+status+"</a>";
           var btt = `<a href='#' class='btn btn-block btn-primary' onClick="action${type}('${data[0]}', '${
             data[2]
           }')"> ${status} </a>`;
           return btt;
-          // return "<a href='#' class='btn btn-primary'"+ "onClick=action"+type+"("+"'"+data[2]+"'"+")"+">"+status+"</a>";
         }
       }
     ],
@@ -186,11 +191,11 @@ $(document).ready(function() {
       return data.json();
     })
     .then(data2 => {
-      console.log(data2[0].fse_code);
       fetchTablePM(data2[0].fse_code);
     });
 });
 
+// Show dropdown
 function showCollapse() {
   var collapse = this.parentElement.getElementsByClassName("asset-collapse")[0];
   if (collapse.classList.contains("show")) {
@@ -202,6 +207,7 @@ function showCollapse() {
   }
 }
 
+// Create dropdown from data in the row
 function makeCollapse(keys, values) {
   var collapse = document.createElement("div");
   collapse.setAttribute("class", "asset-collapse border rounded");
@@ -222,6 +228,7 @@ function makeCollapse(keys, values) {
   return collapse;
 }
 
+// Create a button that shows the dropdown
 function makeDropArrow() {
   var wrapper = document.createElement("div");
   wrapper.setAttribute("class", "drop-arrow");
@@ -236,15 +243,11 @@ function makeDropArrow() {
 }
 
 function actionAck(cm_id, name) {
-  console.log("Ack");
-  console.log(cm_id);
-
   $.ajax({
     type: "PUT",
     url: "/srmsng/public/index.php/api/fse/acknowledge",
     data: "cm_id=" + cm_id + "&engname=" + name,
     success: data => {
-      console.log(data);
       toastr.options = {
         positionClass: "toast-bottom-center"
       };
@@ -260,14 +263,11 @@ function actionAck(cm_id, name) {
 }
 
 function actionTravel(cm_id, name) {
-  console.log("Travel");
-  console.log(cm_id + name);
   $.ajax({
     type: "PUT",
     url: "/srmsng/public/index.php/api/fse/starttravel",
     data: "cm_id=" + cm_id + "&engname=" + name,
     success: data => {
-      console.log(data);
       toastr.options = {
         positionClass: "toast-bottom-center"
       };
@@ -283,14 +283,11 @@ function actionTravel(cm_id, name) {
 }
 
 function actionArrived(cm_id, name) {
-  console.log("Arrived");
-  console.log(cm_id);
   $.ajax({
     type: "PUT",
     url: "/srmsng/public/index.php/api/fse/arrivedsite",
     data: "cm_id=" + cm_id + "&engname=" + name,
     success: data => {
-      console.log(data);
       toastr.options = {
         positionClass: "toast-bottom-center"
       };
@@ -306,14 +303,11 @@ function actionArrived(cm_id, name) {
 }
 
 function actionStart(cm_id, name) {
-  console.log("Start");
-  console.log(cm_id);
   $.ajax({
     type: "PUT",
     url: "/srmsng/public/index.php/api/fse/startwork",
     data: "cm_id=" + cm_id + "&engname=" + name,
     success: data => {
-      console.log(data);
       toastr.options = {
         positionClass: "toast-bottom-center"
       };
@@ -329,14 +323,11 @@ function actionStart(cm_id, name) {
 }
 
 function actionComplete(cm_id, name) {
-  console.log("Complete");
-  console.log(cm_id);
   $.ajax({
     type: "PUT",
     url: "/srmsng/public/index.php/api/fse/finishwork",
     data: "cm_id=" + cm_id + "&engname=" + name,
     success: data => {
-      console.log(data);
       toastr.options = {
         positionClass: "toast-bottom-center"
       };

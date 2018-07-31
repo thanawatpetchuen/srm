@@ -38,10 +38,10 @@ UNION SELECT service_request_id, request_time, title, work_class, job_type, regi
 */
 
 session_start();
-// DB table to use
+
 $sng_code = $_GET['sng_code'];
 
-$table = "srm_request, asset_tracker, location, material_master_record, fse, root_cause, correction, job_fse 
+$statement_after_from = "srm_request, asset_tracker, location, material_master_record, fse, root_cause, correction, job_fse 
         WHERE srm_request.sng_code = '$sng_code'  
             AND srm_request.job_status = 'Closed'
             AND location.location_code = asset_tracker.location_code
@@ -70,7 +70,9 @@ $table = "srm_request, asset_tracker, location, material_master_record, fse, roo
                     AND service_asset.sng_code = asset_tracker.sng_code
                     AND service_fse.fse_code = fse.fse_code
                     AND asset_tracker.location_code = location.location_code) AS sub_q 
-        WHERE sng_code = '$sng_code' GROUP BY sub_q.service_request_id";
+        WHERE sng_code = '$sng_code' 
+        GROUP BY sub_q.service_request_id";
+
 // Table's primary key
 $primaryKey = 'cm_id';
  
@@ -106,6 +108,6 @@ $sql_details = array(
  
 require( 'ssp2.class.php' );
 echo json_encode(
-    SSP::complex( $_GET, $sql_details, $table, $primaryKey, $columns)
+    SSP::complex( $_GET, $sql_details, $statement_after_from, $primaryKey, $columns)
 );
 ?>

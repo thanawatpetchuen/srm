@@ -6,8 +6,8 @@
 ?>
 <html>
 <head>
-<meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="icon" href="/favicon.ico">
@@ -135,19 +135,14 @@
     <!-- /srmsng/bower_components/remarkable-bootstrap-notify -->
     <script src="/srmsng/public/js/table_setup.js"></script>
     <script src="/srmsng/public/js/fetch_ajax.js"></script>
-    <script src="/srmsng/public/js/fetch_ticket_fse.js"></script>
+    
     <script src="/srmsng/public/js/fetch_pm_fse.js"></script>
     <script src="/srmsng/public/js/submit.js"></script>
     <script src="/srmsng/public/js/onclose.js"></script>
 
     <script>
-        console.log("READY");
-        // console.log(String()+"<= This is String");
-
-        //     console.log("NULL");
-        // }else{
-        //     console.log("NOT NULL");
-        // }
+        sessionStorage.setItem("username_unhash", "<?php echo $_SESSION["username_unhash"] ?>");
+      
         function setModal(cm_id) {
             $('#incomplete-submit input[name="cm_id"]').val(cm_id);
         }
@@ -161,10 +156,7 @@
             var update_success = url.searchParams.get("update_success")
             if (update_success == 'true') {
                 $('#update-success').css('display','block');
-            }
-           
-            console.log(<?php echo json_encode($_SESSION)?>);
-            sessionStorage.setItem("username_unhash", "<?php echo $_SESSION["username_unhash"] ?>");
+            }  
             
             // Incomplete Work Submit
             $('#incomplete-submit').submit(function() {
@@ -182,7 +174,6 @@
                         setTimeout(() => {
                             window.location.reload();
                         }, 2000);
-                        // window.location.reload();
                     },
                     error: data => {
                         console.log(data);
@@ -232,5 +223,6 @@
             }
         }); 
     </script>
+    <script src="/srmsng/public/js/fetch_ticket_fse.js"></script>
     
 </html>

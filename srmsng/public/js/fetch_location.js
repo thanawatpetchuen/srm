@@ -1,6 +1,5 @@
 function fetchTable() {
   $("#supertable").DataTable({
-    //columnDefs: [{ orderable: false, targets: [6, 7, 9] }],
     stateSave: true,
     deferRender: true,
     processing: true,
@@ -13,11 +12,8 @@ function fetchTable() {
     }),
     columnDefs: [
       {
-        searchable: true
-      },
-      {
+        // Edit button
         targets: -1,
-        searchable: false,
         data: 1,
         render: function(data) {
           return "<a class='btn btn-primary' href='view?id=" + data + "'>Edit</a>";
@@ -26,10 +22,12 @@ function fetchTable() {
       }
     ],
     initComplete: function() {
+      // Set up table styling
       setUpFixed();
       $("#supertable").addClass("display");
     },
     drawCallback: function() {
+      // Set up table styling
       setUpFixed();
     }
   });

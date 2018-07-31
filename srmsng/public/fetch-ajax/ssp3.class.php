@@ -34,11 +34,31 @@ class SSP {
 			for ( $j=0, $jen=count($columns) ; $j<$jen ; $j++ ) {
 				$column = $columns[$j];
 				// Is there a formatter?
+				// if ( isset( $column['formatter'] ) ) {
+				// 	$row[ $column['dt'] ] = $column['formatter']( $data[$i][ $column['db'] ], $data[$i] );
+				// }
+				// else {
+				// 	$row[ $column['dt'] ] = $data[$i][ $columns[$j]['db'] ];
+				// }
 				if ( isset( $column['formatter'] ) ) {
 					$row[ $column['dt'] ] = $column['formatter']( $data[$i][ $column['db'] ], $data[$i] );
 				}
 				else {
-					$row[ $column['dt'] ] = $data[$i][ $columns[$j]['db'] ];
+					$index = explode('.',$columns[$j]['db']);
+
+					if (count($index) > 1 ) {
+						$has_group = strpos($index[1],'AS');
+
+						if ($has_group !== false) {
+							$column_expl = explode(' AS ',$index[1]);
+							$row[ $column['dt'] ] = $data[$i][$column_expl[1]];
+						} else {
+							$row[ $column['dt'] ] = $data[$i][$index[1]];
+						}
+					} else {
+						$row[ $column['dt'] ] = $data[$i][ $columns[$j]['db'] ] ;
+					}
+
 				}
 			}
 			$out[] = $row;
@@ -322,9 +342,30 @@ class SSP {
 		$limit = self::limit( $request, $columns );
 		$order = self::order( $request, $columns );
 
+		// Build where cause SQL query
+		$where = self::filter( $request, $columns, $bindings );
+		$whereResult = self::_flatten( $whereResult );
+		$whereAll = self::_flatten( $whereAll );
+		if ( $whereResult ) {
+			$where = $where ?
+				$where .' AND '.$whereResult :
+				'WHERE '.$whereResult;
+		}
+		if ( $whereAll ) {
+			$where = $where ?
+				$where .' AND '.$whereAll :
+				'WHERE '.$whereAll;
+			$whereAllSql = 'WHERE '.$whereAll;
+		}
+
 		// Main query to actually get the data
-		$sql = "SELECT ".implode(", ", self::pluck($columns, 'db'))."
+		$sql_all = "SELECT ".implode(", ", self::pluck($columns, 'db'))."
 					FROM $table";
+		if ($where !== '') {
+			$sql = "SELECT * FROM ($sql_all) AS temp $where ";
+		} else {
+			$sql = $sql_all;
+		}
 		$data = self::sql_exec( $db, $bindings, "$sql $order $limit" );
 		// Data set length after filtering
 		$resFilterLength = self::sql_exec( $db, $bindings,
@@ -335,7 +376,7 @@ class SSP {
 		// Total data set length
 		$resTotalLength = self::sql_exec( $db, $bindings,
 			"SELECT COUNT(*)
-			 FROM ($sql) AS temp"
+			 FROM ($sql_all) AS temp"
 		);
 		$recordsTotal = $resTotalLength[0][0];
 

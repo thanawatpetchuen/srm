@@ -1,3 +1,7 @@
+// This file is loaded at /account/customer/view?id=
+
+// Submissions for location
+// Edit location
 $("#edit-location-form").on("submit", () => {
   $.ajax({
     type: "PUT",
@@ -14,7 +18,7 @@ $("#edit-location-form").on("submit", () => {
     }
   });
 });
-
+// Add location
 $("#add-location-form").on("submit", () => {
   $.ajax({
     type: "POST",
@@ -38,13 +42,14 @@ $(document).ready(() => {
   var myVar = myElement.dataset.myVar;
 
   $.ajax({
+    // Get details of the customer
     type: "GET",
     url: "/srmsng/public/index.php/api/admin/getsinglecustomer",
     data: "customer_no=" + myVar,
     dataType: "JSON",
     success: data => {
+      // Display data
       if (data.length != 0) {
-        //console.log(data);
         document.getElementById("customer_number").innerHTML = data[0].customer_no;
         document.getElementById("customer_name").innerHTML = data[0].customer_name;
         document.getElementById("account_group").innerHTML = data[0].account_group;
@@ -54,8 +59,9 @@ $(document).ready(() => {
       } else {
         $(".view").attr("style", "display: none");
       }
+
+      // Fetch location for the customer
       $("#supertable").DataTable({
-        //columnDefs: [{ orderable: false, targets: [6, 7, 9] }],
         stateSave: true,
         deferRender: true,
         dom: '<lf<"table-wrapper"t>ip>',
@@ -67,11 +73,8 @@ $(document).ready(() => {
         }),
         columnDefs: [
           {
-            searchable: true
-          },
-          {
+            // Edit location button
             targets: -1,
-            searchable: false,
             data: function(row) {
               return row;
             },
@@ -88,10 +91,12 @@ $(document).ready(() => {
           }
         ],
         initComplete: function() {
+          // Set up table styling
           setUpFixed();
           $("#supertable").addClass("display");
         },
         drawCallback: function() {
+          // Set up table styling
           setUpFixed();
         }
       });
@@ -99,6 +104,7 @@ $(document).ready(() => {
   });
 });
 
+// Fill the fields when the user clicks the edit button
 function fillField(data) {
   document.getElementById("location_code").value = data[0];
   document.getElementById("customer_no").value = data[1];

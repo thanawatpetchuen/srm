@@ -1,3 +1,6 @@
+// Fetch Service
+// at /service
+
 function fetchTable() {
   $("#supertable").DataTable({
     stateSave: true,
@@ -11,6 +14,7 @@ function fetchTable() {
     }),
     columnDefs: [
       {
+        // Link to view the details of the service request
         targets: 0,
         data: function(row) {
           return [row[0]];
@@ -26,38 +30,62 @@ function fetchTable() {
         }
       },
       {
+        // Title
         targets: 1,
         data: 1
       },
       {
+        // Status
         targets: 2,
         data: 2
       },
       {
+        // Contact (with dropdown)
         targets: 3,
         className: "td-with-details",
         data: function(row) {
           return [row[3], row[4], row[5]];
         },
         render: function(data) {
-          return data[0] + makeDropArrow().outerHTML + makeCollapse(["Contact Number","Alternate Number"], [data[1],data[2]]).outerHTML;
+          return (
+            data[0] +
+            makeDropArrow().outerHTML +
+            makeCollapse(["Contact Number", "Alternate Number"], [data[1], data[2]]).outerHTML
+          );
         }
       },
       {
+        // FSE
         targets: 4,
         data: 7
       },
       {
+        // Work Class
         targets: 5,
         data: 8
       },
       {
+        // Location (with dropdown)
         targets: 6,
         className: "td-with-details",
         data: function(row) {
-          return [row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18], row[19], row[20]];
+          return [
+            row[9],
+            row[10],
+            row[11],
+            row[12],
+            row[13],
+            row[14],
+            row[15],
+            row[16],
+            row[17],
+            row[18],
+            row[19],
+            row[20]
+          ];
         },
         render: function(data) {
+          // Generate address
           var village = "";
           var road = "";
           var subdistrict = "";
@@ -96,23 +124,36 @@ function fetchTable() {
         }
       },
       {
+        // Due date
         targets: 7,
         data: 21
       },
       {
+        // Update button
         targets: -1,
-        data: 0,
+        data: function(row) {
+          return [
+            row[0],
+            row[22]
+          ];
+        },
         className: "fixed-col",
         render: function(data) {
-          return "<a class='btn btn-primary' href='update?service_request_id=" + data + "' target='_blank'>Update</a>";
+            if (data[1] === "1") {
+                return "<a class='btn btn-primary' href='update?service_request_id=" + data[0] + "' target='_blank'>Update</a>";
+            } else {
+                return "<a class='btn btn-primary' href='update_without_sngcode?service_request_id=" + data[0] + "' target='_blank'>Update</a>";
+            }
         }
       }
     ],
     initComplete: function() {
+      // set up table styling
       setUpFixed();
       $("#supertable").addClass("display");
     },
     drawCallback: function() {
+      // set up table styling
       setUpFixed();
     }
   });
@@ -122,6 +163,7 @@ $(document).ready(function() {
   fetchTable();
 });
 
+// Show dropdown
 function showCollapse() {
   var collapse = this.parentElement.getElementsByClassName("asset-collapse")[0];
   if (collapse.classList.contains("show")) {
@@ -133,6 +175,7 @@ function showCollapse() {
   }
 }
 
+// Create dropdown from data in the row
 function makeCollapse(keys, values) {
   var collapse = document.createElement("div");
   collapse.setAttribute("class", "asset-collapse border rounded");
@@ -153,6 +196,7 @@ function makeCollapse(keys, values) {
   return collapse;
 }
 
+// Create button to show the dropdown
 function makeDropArrow() {
   var wrapper = document.createElement("div");
   wrapper.setAttribute("class", "drop-arrow");

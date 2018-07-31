@@ -33,7 +33,7 @@ session_start(); // Start session for using session variable.
 
 $account = $_GET["fse_code"];
 
-$table = "(
+$statement_after_from = "(
     SELECT sub_q.service_request_id, title, status, contact_name, contact_number, alternate_number,
                 GROUP_CONCAT(DISTINCT fse_engname ORDER BY fse_engname ASC SEPARATOR '<br>') AS groupFSE,
     			GROUP_CONCAT(DISTINCT fse_code ORDER BY fse_code ASC SEPARATOR ',') AS groupFSECODE,
@@ -65,6 +65,8 @@ $primaryKey = 'service_request_id';
 // The `db` parameter represents the column name in the database, while the `dt`
 // parameter represents the DataTables column identifier. In this case simple
 // indexes
+
+// Selected columns
 $columns = array(
     array( 'db' => 'service_request_id', 'dt' => 0),
     array( 'db' => 'title', 'dt' => 1 ),
@@ -100,6 +102,6 @@ $sql_details = array(
 require( 'ssp2.class.php' );
 
 echo json_encode(
-    SSP::complex( $_GET, $sql_details, $table, $primaryKey, $columns)
+    SSP::complex( $_GET, $sql_details, $statement_after_from, $primaryKey, $columns)
 );
 ?>

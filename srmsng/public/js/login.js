@@ -6,20 +6,15 @@ $("#loginForm").submit(function(e) {
 });
 
 function ajaxCall(token = null){
-  // alert(token);
-  // console.log(token);
   if(token != null){
-    console.log("THIS IS TOKEN "+token);
-    // console.log($("#loginForm").serialize()+"&token="+token);
+    // Second time of calling ajax (Login) after get a token 
     $.ajax({
       type: "POST",
       data: "token="+token,
       url: "/srmsng/public/index.php/logout/forcelogout",
       dataType: "JSON",
       success: data => {
-        console.log("SUCCESS  with TOKEN");
-        console.log(data);
-        // dataj = data.json();
+        // Successfully forge logout
         if (data.statuscode == "111" || data.statuscode == "112") {
           window.location.href = data.description;
         } else {
@@ -33,7 +28,7 @@ function ajaxCall(token = null){
             // alert(data.token);
             if(token != null || data.token != undefined){
               // ajax
-              console.log("HERE");
+              // console.log("HERE");
               // ajaxCall(data.token);
             }
             
@@ -53,18 +48,14 @@ function ajaxCall(token = null){
       }
     });
   }else{
-    // console.log($("#loginForm").serialize());
+    // First time calling login
     $.ajax({
       type: "POST",
       data: $("#loginForm").serialize(),
       url: "/srmsng/public/index.php/login",
       dataType: "JSON",
       success: data => {
-        // console.log("SUCCESS");
-        // console.log(data);
-        // dataj = data.json();
         if (data.statuscode == "111" || data.statuscode == "112") {
-          console.log("PASS");
           window.location.href = data.description;
         } else {
           $(".login-window").addClass("animated shake");
@@ -73,13 +64,11 @@ function ajaxCall(token = null){
           }, 1000);
           if (data.attempt == undefined) {
             
-            // alert(data.token);
             if(token != null || data.token != undefined){
               // ajax
-              // console.log("FROM FIRST");
-              // console.log(data.token);
+          
               if(confirm(data.description)){
-                // console.log(document.cookie);
+                // Confirm to force logout
                 ajaxCall(data.token);
               }
             }else{

@@ -31,7 +31,9 @@ function initMap() {
     }
 
     // Clear out the old markers.
-    marker.setMap(null);
+    if (marker) {
+      marker.setMap(null);
+    }
 
     // For each place, get the icon, name and location.
     var bounds = new google.maps.LatLngBounds();

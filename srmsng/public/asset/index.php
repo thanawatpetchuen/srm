@@ -77,14 +77,7 @@
 
     <script>
         $(document).ready( function () {
-            // $(".edit-field").on("change", function() {
-            // if ($(this).val() != $(this).attr("value")) {
-            //     $(this).addClass("is-valid");
-            // } else {
-            //     $(this).removeClass("is-valid");
-            // }
-            // });
-
+  
             var url_string = window.location.href;
             var url = new URL(url_string);
             var addsuccess = url.searchParams.get("add_success");
@@ -103,7 +96,6 @@
             let remember = "<?php echo $_SESSION['remember']?>";
     
             if(remember == "off"){
-                console.log("UNDLOAD");
                 $.ajax({
                     type: "POST",
                     url: '/srmsng/public/index.php/logout',

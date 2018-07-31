@@ -45,7 +45,7 @@ require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
               <select name="work_class" class="form-control" required>
                 <option value="">-- Select Work Class --</option>
                 <option>Preventive Maintenance</option>
-                <option>Preventive Building Maintenance - UOB</option>
+                <option>Building Preventive Maintenance - UOB</option>
                 <option>Battery Replacement</option>
                 <option>Install</option>
                 <option>Standby</option>

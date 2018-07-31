@@ -1,6 +1,6 @@
-function fetchData() {
-  //  /srmsng/public/index.php/api/customer/asset?account_no=22
+// Fetch request history for the user
 
+function fetchData() {
   $("#supertable").DataTable({
     stateSave: true,
     dom: '<lf<"table-wrapper"t>ip>',
@@ -14,6 +14,7 @@ function fetchData() {
       { data: 0 },
       { data: 1 },
       {
+        // Allows the text to be on multple lines
         data: 2,
         render: function(data) {
           return '<span class="span-message">' + data + "</span>";
@@ -25,11 +26,9 @@ function fetchData() {
       { data: 6 }
     ],
     initComplete: function() {
+      // Set up table styling
       $("#supertable").addClass("display");
     }
-    //   url: "/srmsng/public/index.php/api/customer/asset?account_no=22",
-    //   pages: 5 // number of pages to cache,
-    // })
   });
 }
 

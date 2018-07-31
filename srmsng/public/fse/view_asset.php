@@ -3,8 +3,8 @@
 ?>
 <html>
 <head>
-<meta charset="utf-8">
-    <meta id="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta id="description" content="">
     <meta id="author" content="">
     <link rel="icon" href="/favicon.ico">
@@ -192,7 +192,6 @@
         let remember = "<?php echo $_SESSION['remember']?>";
 
         if(remember == "off"){
-            console.log("UNDLOAD");
             $.ajax({
                 type: "POST",
                 url: '/srmsng/public/index.php/logout',

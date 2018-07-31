@@ -251,7 +251,6 @@ $(document).ready(function() {
             return res.json();
         })
         .then(data => {
-            console.log(data);
             for (var value in data[0]) {
                 $(".form-control[name='" + value + "']").val(data[0][value]);
             }

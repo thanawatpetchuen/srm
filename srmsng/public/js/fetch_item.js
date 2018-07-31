@@ -1,7 +1,9 @@
+// Fetch Item from Material Master Record
+// at /account/item
+
 var data = null;
 function fetchTable() {
   $("#supertable").DataTable({
-    //columnDefs: [{ orderable: false, targets: [6, 7, 9] }],
     stateSave: true,
     deferRender: true,
     processing: true,
@@ -12,19 +14,8 @@ function fetchTable() {
       pages: 5 // number of pages to cache,
     }),
     columnDefs: [
-      //   {
-      //     targets: 2,
-      //     data: function(row) {
-      //       return row.slice(1, 3);
-      //     },
-      //     render: function(data) {
-      //       return "<a href='/srmsng/public/account/customer/view?id=" + data[0] + "'>" + data[1] + "</a>";
-      //     }
-      //   },
       {
-        searchable: true
-      },
-      {
+        // Edit button
         targets: -1,
         data: function(row) {
           return row;
@@ -37,27 +28,25 @@ function fetchTable() {
           button.setAttribute("onClick", "fillField(" + JSON.stringify(data) + ")");
           button.appendChild(document.createTextNode("Edit"));
           return button.outerHTML;
-          // console.log(data);
-          // data = data;
-
-          // return "<button class='btn btn-primary' data-target='#edit-customer-popup' data-toggle='modal' onClick='fillField()'>Edit</button>";
         },
         className: "fixed-col"
       }
     ],
     initComplete: function() {
+      // Set up table styling
       setUpFixed();
       $("#supertable").addClass("display");
     },
     drawCallback: function() {
+      // Set up table styling
       setUpFixed();
     }
   });
 }
 
-// Add/Edit
+// Add/Edit form Submission
 $("#add-item-form").on("submit", () => {
-  console.log("ADD");
+  // Add Item
   $.ajax({
     type: "POST",
     url: "/srmsng/public/index.php/api/admin/additem",
@@ -75,14 +64,13 @@ $("#add-item-form").on("submit", () => {
 });
 
 $("#edit-item-form").on("submit", () => {
-  console.log($("#edit-item-form").serialize());
+  // Edit Item
   $.ajax({
     type: "PUT",
     url: "/srmsng/public/index.php/api/admin/updateitem",
     data: $("#edit-item-form").serialize(),
     success: data => {
       console.log(data);
-      //console.log($("#edit-item-form").serialize());
       $("#edit-item-popup").modal("hide");
       document.getElementById("edit-item-form").reset();
       window.location = "/srmsng/public/account/item?update_success=true";
@@ -93,12 +81,15 @@ $("#edit-item-form").on("submit", () => {
   });
 });
 
+// Fill fields when the edit button is clicked
 function fillField(data) {
   document.getElementById("item_no").value = data[0];
   document.getElementById("model").value = data[1];
   document.getElementById("power").value = data[2];
   document.getElementById("item_class").value = data[3];
   document.getElementById("category").value = data[4];
+
+  // Check the correct radio input
   if (data[5] == "Y") {
     document.getElementById("is_lot_yes").checked = true;
   } else {

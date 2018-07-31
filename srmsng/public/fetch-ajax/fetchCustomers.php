@@ -1,30 +1,7 @@
 <?php
  
-/*
- * DataTables example server-side processing script.
- *
- * Please note that this script is intentionally extremely simply to show how
- * server-side processing can be implemented, and probably shouldn't be used as
- * the basis for a large complex system. It is suitable for simple use cases as
- * for learning.
- *
- * See http://datatables.net/usage/server-side for full details on the server-
- * side processing requirements of DataTables.
- *
- * @license MIT - http://datatables.net/license_mit
- */
- 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Easy set variables
- */
+$statement_after_from = 'customers ORDER BY customer_eng_name ASC'; 
 
-// SELECT cm_id, srm_request.sng_code, model, sitename, name, phone_number, email, asset_problem, fse,
-// job_status, fixed_by, asset_detected, solution, ups_status, cause, cm_time,
-// record_time, close_time, request_time, date_cm
- 
-//DB table to use
-// $table = 'srm_request, asset_tracker, location, material_master_record, fse';
-$table = 'customers'; 
 // Table's primary key
 $primaryKey = 'customer_no';
  
@@ -32,6 +9,8 @@ $primaryKey = 'customer_no';
 // The `db` parameter represents the column name in the database, while the `dt`
 // parameter represents the DataTables column identifier. In this case simple
 // indexes
+
+// Selected columns
 $columns = array(
     array( 'db' => 'customers.customer_no', 'dt' => 0 ),
     array( 'db' => 'customer_name', 'dt' => 1 ),
@@ -55,6 +34,6 @@ $sql_details = array(
 require( 'ssp2.class.php' );
  
 echo json_encode(
-    SSP::complex( $_GET, $sql_details, $table, $primaryKey, $columns)
+    SSP::complex( $_GET, $sql_details, $statement_after_from, $primaryKey, $columns)
 );
 ?>

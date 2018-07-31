@@ -21,7 +21,6 @@ $("#usrform").submit(function(e) {
 
 // RESET PASSWORD
 $("#reset-form").submit(function(e) {
-  //console.log($("#reset-form").serialize());
   $("#loader").css("display", "block");
   e.preventDefault();
   $.ajax({
@@ -276,11 +275,7 @@ $("#update-service-form").submit(function(e) {
           url: "/srmsng/public/index.php/api/admin/updateservice",
           success: function(result) {
             if (result == "SUCCESS") {
-              if ($("#update-service-form").data("type") === "work") {
-                window.location = "/srmsng/public/asset/work?edit_success=true&sng_code=" + serialData[7]["value"];
-              } else {
                 window.location = "/srmsng/public/service?update_success=true";
-              }
             } else {
               alert(result);
             }

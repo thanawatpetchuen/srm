@@ -39,7 +39,6 @@
             <table id="supertable-news">
                     <thead>
                         <th id="select">Select</th>
-                        <!-- <th id="acc_no">Account No.</th> -->
                         <th id="id">ID</th>
                         <th id="title">Title</th>
                         <th id="content">Content</th>
@@ -66,7 +65,6 @@
             <table id="supertable-notices">
                     <thead>
                         <th id="select">Select</th>
-                        <!-- <th id="acc_no">Account No.</th> -->
                         <th id="id">ID</th>
                         <th id="title">Title</th>
                         <th id="date">Date</th>
@@ -83,9 +81,6 @@
         </div>
         
 
-        <!-- <div class="form-container">
-            
-        </div> -->
     </main>
 </body>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -96,30 +91,11 @@
     <script src="/srmsng/public/js/fetch_ajax.js"></script>
     <script src="/srmsng/public/js/fetch_news.js"></script>
     <script src="/srmsng/public/js/submit.js"></script>
-    <!-- <script src="/srmsng/public/js/superadmin.js"></script> -->
+
     <script>
         $(document).ready( function () {
-            var url_string = window.location.href;
-            var url = new URL(url_string);
-            var unlock_success = url.searchParams.get("unlock_success");
-            var lock_success = url.searchParams.get("lock_success")
-            var add_success = url.searchParams.get("add_success")
-            var delete_success = url.searchParams.get("delete_success")
-
-            if (unlock_success == 'true') {
-                $('#unlock-success').css('display','block');
-            }
-            if (lock_success == 'true') {
-                $('#lock-success').css('display','block');
-            }
-            if (add_success == 'true') {
-                $('#add-success').css('display','block');
-            }
-            if (delete_success == 'true') {
-                $('#delete-success').css('display','block');
-            }
             
-            // Tabs
+            // Tabs config
             var setUpSecondTab = false
             $('#news-tab').on('click',function() {
                 $('#notice-table').removeClass('active');
@@ -146,7 +122,6 @@
             let remember = "<?php echo $_SESSION['remember']?>";
     
             if(remember == "off"){
-                console.log("UNDLOAD");
                 $.ajax({
                     type: "POST",
                     url: '/srmsng/public/index.php/logout',

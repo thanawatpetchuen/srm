@@ -1,8 +1,10 @@
+// Fetch work plan for an asset for customers
+
 var data = null;
 
 function fetchTable(sng_code) {
+  // Plan
   $("#supertable-plan").DataTable({
-    //columnDefs: [{ orderable: false, targets: [6, 7, 9] }],
     stateSave: true,
     deferRender: true,
     processing: true,
@@ -17,8 +19,8 @@ function fetchTable(sng_code) {
     }
   });
 
+  // History
   $("#supertable-history").DataTable({
-    //columnDefs: [{ orderable: false, targets: [6, 7, 9] }],
     stateSave: true,
     deferRender: true,
     processing: true,

@@ -301,13 +301,6 @@
     <script src="/srmsng/public/js/submit.js"></script>
     <script src="/srmsng/public/js/onclose.js"></script>
     <script>
-        console.log("READY");
-        // console.log(String()+"<= This is String");
-
-        //     console.log("NULL");
-        // }else{
-        //     console.log("NOT NULL");
-        // }
         $(document).ready( function () {
             var url_string = window.location.href;
             var url = new URL(url_string);
@@ -320,14 +313,12 @@
                 $('#update-success').css('display','block');
             }
         });
-
          
         window.addEventListener("beforeunload", function (e) {       
             
             let remember = "<?php echo $_SESSION['remember']?>";
     
             if(remember == "off"){
-                console.log("UNDLOAD");
                 $.ajax({
                     type: "POST",
                     url: '/srmsng/public/index.php/logout',

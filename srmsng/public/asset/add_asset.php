@@ -1,4 +1,4 @@
-<?php 
+<?php
     require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
 ?>
 <html>
@@ -23,7 +23,7 @@
     <main class="container">
         <div class="input-group page-title">
             <h1 style="margin-bottom:0;">Add Asset</h1>
-            <a class="btn btn-outline-secondary" href="./"> 
+            <a class="btn btn-outline-secondary" href="./">
                 Cancel
             </a>
         </div>
@@ -48,7 +48,7 @@
                                     <div class="input-group-append">
                                         <button class="btn btn-primary" type="button" id="customer-search"><i class="fa fa-search"></i></span>
                                     </div>
-                                </div> 
+                                </div>
                                 <small class="form-text text-muted">Enter at least 3 characters and press enter to search.</small>
                             </div>
                             <div class="form-group">
@@ -60,7 +60,7 @@
                                     <div class="input-group-append">
                                         <button class="btn btn-primary" type="button" id="customer-code-search"><i class="fa fa-search"></i></span>
                                     </div>
-                                </div> 
+                                </div>
                                 <small class="form-text text-muted">Enter at least 3 characters and press enter to search.</small>
                             </div>
                             <div class="form-group">
@@ -97,7 +97,7 @@
                                 <div class="input-group-append">
                                     <button class="btn btn-primary" type="button" id="location-code-search"><i class="fa fa-search"></i></span>
                                 </div>
-                            </div> 
+                            </div>
                             <small class="form-text text-muted">Enter at least 3 characters and press enter to search.</small>
                         </div>
                         <div class="row">
@@ -196,7 +196,7 @@
                             <i class="fa fa-plus"></i> Add New Sale Order
                         </a>
                         <div class="form-group">
-                            <label class="required">Sale Order</label>     
+                            <label class="required">Sale Order</label>
                             <div class="input-group">
                                 <input type="text" class="form-control" id="sale-order-search-field" name="sale_order_no" placeholder="Sale Order" autocomplete="off" required/>
                                 <div class="autofill-dropdown border" id="sale-order-dropdown">
@@ -210,7 +210,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Year</label> 
+                                    <label>Year</label>
                                     <input type="text" class="form-control sub-field" name="since" id="year-field" placeholder="Year" readonly/>
                                 </div>
                             </div>
@@ -224,7 +224,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>PO Number</label> 
+                                    <label>PO Number</label>
                                     <input type="text" class="form-control sub-field" name="po_number" id="po-number-field" placeholder="PO Number" readonly/>
                                 </div>
                             </div>
@@ -270,10 +270,10 @@
                                 <div class="input-group-append">
                                     <button class="btn btn-primary" type="button" id="item-number-search"><i class="fa fa-search"></i></span>
                                 </div>
-                            </div> 
+                            </div>
                             <small class="form-text text-muted">Enter at least 3 characters and press enter to search.</small>
                         </div>
-                        
+
                         <div class="form-group">
                             <label>Rate (kVA)</label>
                             <input type="text" class="form-control sub-field" name="power" id="power-field" placeholder="Rate" readonly/>
@@ -412,17 +412,17 @@
                         </select>
                     </div>
                     <div class="form-group" style="margin-top:40px; text-align:right">
-                        <a class="btn btn-outline-secondary" href="./"> 
+                        <a class="btn btn-outline-secondary" href="./">
                             Cancel
                         </a>
                         <button type="submit" class="btn btn-primary">Add Asset</button>
-                    </div> 
+                    </div>
                 </div>
-            </div>    
+            </div>
         </form>
 
 
-    <!--================== Modal ==================-->
+        <!--================== Modal ==================-->
         <div class="modal" tabindex="-1" role="dialog" id="add-customer-popup">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -435,19 +435,19 @@
                         <div class="modal-body">
                             <div class="form-group">
                                 <label>Customer Number</label>
-                                <input type="text" class="form-control" id="customer-no-field" name="customer_no" placeholder="Customer No."/>
+                                <input type="text" class="form-control" id="customer-no-field" name="customer_no" placeholder="Customer No." required/>
                             </div>
                             <div class="form-group">
                                 <label>Customer Name</label>
-                                <input type="text" class="form-control" name="customer_name" placeholder="Customer Thai Name"/>
+                                <input type="text" class="form-control" name="customer_name" placeholder="Customer Thai Name" required/>
                             </div>
                             <div class="form-group">
                                 <label>Customer English Name</label>
-                                <input type="text" class="form-control" name="customer_eng_name" placeholder="Customer English Name"/>
+                                <input type="text" class="form-control" name="customer_eng_name" placeholder="Customer English Name" required/>
                             </div>
                             <div class="form-group">
                                 <label>Tax ID</label>
-                                <input type="text" class="form-control" id="tax-id-field" name="taxid" placeholder="Tax ID"/>
+                                <input type="text" class="form-control" id="tax-id-field" name="taxid" placeholder="Tax ID" required/>
                             </div>
                             <div class="form-group">
                                 <label>Account Group</label>
@@ -510,11 +510,11 @@
                         <div class="modal-body">
                             <div class="form-group">
                                 <label>Location Code</label>
-                                <input type="text" class="form-control clear" id="location-code-field" name="location_code" placeholder="Location Code"/>
+                                <input type="text" class="form-control clear" id="location-code-field" name="location_code" placeholder="Location Code" required/>
                             </div>
                             <div class="form-group">
                                 <label>Site Name</label>
-                                <input type="text" class="form-control clear" id="site-name-field" name="sitename" placeholder="Site Name"/>
+                                <input type="text" class="form-control clear" id="site-name-field" name="sitename" placeholder="Site Name" required/>
                             </div>
                             <div class="form-group">
                                 <label>House Number</label>
@@ -540,7 +540,7 @@
                                         <span class="input-group-text">ซอย</span>
                                     </div>
                                     <input type="text" placeholder="Soi" name="soi" id="soi" class="form-control clear">
-                                </div>  
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="account_owner">
@@ -551,7 +551,7 @@
                                         <span class="input-group-text">ถนน</span>
                                     </div>
                                     <input type="text" placeholder="Enter Road" name="road" id="road" class="form-control clear">
-                                </div>  
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="sub_district">
@@ -583,12 +583,12 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">จังหวัด</span>
                                     </div>
-                                    <input type="text" placeholder="Enter Province" name="province" id="province" class="form-control clear">
+                                    <input type="text" placeholder="Enter Province" name="province" id="province" class="form-control clear" required>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label>Postal code</label>
-                                <input type="text" class="form-control clear" id="postal-code-field" name="postal_code" placeholder="Postal Code"/>
+                                <input type="text" class="form-control clear" id="postal-code-field" name="postal_code" placeholder="Postal Code" required/>
                             </div>
                             <div class="form-group">
                                 <label>Region</label>
@@ -605,7 +605,7 @@
                             </div>
                             <div class="form-group">
                                 <label>Country</label>
-                                <input type="text" class="form-control clear" id="country-field" name="country" placeholder="Country" value="ไทย"/>
+                                <input type="text" class="form-control clear" id="country-field" name="country" placeholder="Country" value="ไทย" required/>
                             </div>
                             <div class="form-group">
                                 <label>Store Phone</label>
@@ -652,7 +652,7 @@
                         <div class="modal-body">
                             <div class="form-group">
                                 <label>Sale Order Number</label>
-                                <input type="text" class="form-control" id="sale-order-no-field" name="sale_order_no" placeholder="Sale Order No."/>
+                                <input type="text" class="form-control" id="sale-order-no-field" name="sale_order_no" placeholder="Sale Order No." required/>
                             </div>
                             <div class="form-group">
                                 <label>Date Order</label>
@@ -662,7 +662,7 @@
                                 <label>Since</label>
                                 <select list="birth_year"  class="form-control" id="since-field" name="since" autocomplete="off">
                                     <datalist id="birth_year">
-                                        <?php 
+                                        <?php
                                         $right_now = getdate();
                                         $this_year = $right_now['year'];
                                         $start_year = 2008;
@@ -709,11 +709,11 @@
                         <div class="modal-body">
                             <div class="form-group">
                                 <label>Item Number</label>
-                                <input type="text" class="form-control" id="item-no-field" name="itemnumber" placeholder="Item Number"/>
+                                <input type="text" class="form-control" id="item-no-field" name="itemnumber" placeholder="Item Number" required/>
                             </div>
                             <div class="form-group">
                                 <label>Model</label>
-                                <input type="text" class="form-control" id="model-field" name="model" placeholder="Item Name"/>
+                                <input type="text" class="form-control" id="model-field" name="model" placeholder="Item Name" required/>
                             </div>
                             <div class="form-group">
                                 <label>Rate</label>
@@ -747,7 +747,6 @@
                 </div>
             </div>
         </div>
-
         <!-- End Modal -->
 
     </main>
@@ -783,20 +782,18 @@
             var val = $('input[name="startwarranty"]').val();
             var mm = moment(val, "DD/M/Y H:mm").add(2, 'years');
             // mm.add(2, "year");
-            console.log(mm);
             $('input[name="endwarranty"]').data('daterangepicker').setStartDate(mm);
         })
     });
     // Remember Me
-    window.addEventListener("beforeunload", function (e) {        
+    window.addEventListener("beforeunload", function (e) {
         let remember = "<?php echo $_SESSION['remember']?>";
 
         if(remember == "off"){
-            console.log("UNDLOAD");
             $.ajax({
                 type: "POST",
                 url: '/srmsng/public/index.php/logout',
-                // async: false,/         
+                // async: false,/
                 success: data => {
                     console.log(data);
                 },
@@ -806,14 +803,14 @@
             });
             return;
         }
-    }); 
+    });
 
      // Map
      function openMap() {
         $('#add-location-popup .close').trigger('click');
 
         $("#map-modal").modal("toggle");
-        
+
         var lat = $('#add-location-form input[name="lat"]').val();
         var lng = $('#add-location-form input[name="lon"]').val();
         initMarker(lat,lng);

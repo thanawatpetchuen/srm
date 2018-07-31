@@ -1,25 +1,6 @@
 <?php
- 
-/*
- * DataTables example server-side processing script.
- *
- * Please note that this script is intentionally extremely simply to show how
- * server-side processing can be implemented, and probably shouldn't be used as
- * the basis for a large complex system. It is suitable for simple use cases as
- * for learning.
- *
- * See http://datatables.net/usage/server-side for full details on the server-
- * side processing requirements of DataTables.
- *
- * @license MIT - http://datatables.net/license_mit
- */
- 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Easy set variables
- */
- 
-// DB table to use
-$table = "news ORDER BY id DESC";
+
+$statement_after_from = "news ORDER BY id DESC";
  
 // Table's primary key
 $primaryKey = 'id';
@@ -56,6 +37,6 @@ $sql_details = array(
 require( 'ssp2.class.php' );
  
 echo json_encode(
-    SSP::complex( $_GET, $sql_details, $table, $primaryKey, $columns )
+    SSP::complex( $_GET, $sql_details, $statement_after_from, $primaryKey, $columns )
 );
 ?>

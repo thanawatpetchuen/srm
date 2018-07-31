@@ -7,6 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Slim\\Views\\' => array($vendorDir . '/slim/php-view/src'),
+    'Slim\\Middleware\\' => array($vendorDir . '/dyorg/slim-token-authentication/src'),
     'Slim\\' => array($vendorDir . '/slim/slim/Slim'),
     'Psr\\SimpleCache\\' => array($vendorDir . '/psr/simple-cache/src'),
     'Psr\\Http\\Message\\' => array($vendorDir . '/psr/http-message/src'),

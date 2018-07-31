@@ -1,6 +1,8 @@
+// Fetch Asset for admin
+// at /asset
+
 function fetchData() {
   $("#supertable").DataTable({
-    // columnDefs: [{ orderable: false, targets: [20] }],
     stateSave: true,
     dom: '<lf<"table-wrapper"t>ip>',
     processing: true,
@@ -11,6 +13,7 @@ function fetchData() {
     }),
     columnDefs: [
       {
+        // Edit button
         targets: -1,
         data: 0,
         className: "fixed-col",
@@ -20,6 +23,7 @@ function fetchData() {
         }
       },
       {
+        // Link to view scheduled work of the asset
         targets: 0,
         data: 0,
         render: function(data) {
@@ -27,8 +31,8 @@ function fetchData() {
         }
       },
       {
+        // Sale order dropdown
         targets: 1,
-        searchable: true,
         className: "td-with-details",
         data: function(row) {
           return row.slice(1, 7);
@@ -42,8 +46,8 @@ function fetchData() {
         }
       },
       {
+        // Customer dropdown
         targets: 2,
-        searchable: true,
         className: "td-with-details",
         data: function(row) {
           return row.slice(7, 11);
@@ -57,8 +61,8 @@ function fetchData() {
         }
       },
       {
+        // Item dropdown
         targets: 3,
-        searchable: true,
         className: "td-with-details",
         data: function(row) {
           return row.slice(11, 13);
@@ -68,18 +72,18 @@ function fetchData() {
         }
       },
       {
+        // Rate
         targets: 4,
-        searchable: true,
         data: 13
       },
       {
+        // Installed by
         targets: 5,
-        searchable: true,
         data: 14
       },
       {
+        // Battery dropdown
         targets: 6,
-        searchable: true,
         className: "td-with-details",
         data: function(row) {
           return row.slice(15, 18);
@@ -91,13 +95,14 @@ function fetchData() {
         }
       },
       {
+        // Location dropdown
         targets: 7,
-        searchable: true,
         className: "td-with-details",
         data: function(row) {
           return row.slice(18, 29);
         },
         render: function(data) {
+          // Generate Address
           var village = "";
           var road = "";
           var subdistrict = "";
@@ -136,8 +141,8 @@ function fetchData() {
         }
       },
       {
+        // Contact dropdown
         targets: 8,
-        searchable: true,
         className: "td-with-details",
         data: function(row) {
           return row.slice(29, 31);
@@ -147,13 +152,13 @@ function fetchData() {
         }
       },
       {
+        // Type of Warranty
         targets: 9,
-        searchable: true,
         data: 31
       },
       {
+        // Start/End warranty
         targets: 10,
-        searchable: true,
         className: "td-with-details",
         data: function(row) {
           return row.slice(32, 34);
@@ -163,8 +168,8 @@ function fetchData() {
         }
       },
       {
+        // SLA
         targets: 11,
-        searchable: true,
         className: "td-with-details",
         data: function(row) {
           return row.slice(37, 40);
@@ -178,26 +183,28 @@ function fetchData() {
         }
       },
       {
+        // UPS Status
         targets: 12,
-        searchable: true,
         data: 34
       },
       {
+        // PM per year
         targets: 13,
-        searchable: true,
         data: 35
       },
       {
+        // Next PM
         targets: 14,
-        searchable: true,
         data: 36
       }
     ],
     initComplete: function() {
+      // Set up table styling
       $("#supertable").addClass("display");
       setUpFixed();
     },
     drawCallback: function() {
+      // Set up table styling
       setUpFixed();
       //bindCollapse();
     }
@@ -208,6 +215,7 @@ $(document).ready(function() {
   fetchData();
 });
 
+// Show the dropdown
 function showCollapse() {
   var collapse = this.parentElement.getElementsByClassName("asset-collapse")[0];
   if (collapse.classList.contains("show")) {
@@ -219,6 +227,7 @@ function showCollapse() {
   }
 }
 
+// Create the dropdown from the data in the row
 function makeCollapse(keys, values) {
   var collapse = document.createElement("div");
   collapse.setAttribute("class", "asset-collapse border rounded");
@@ -239,6 +248,7 @@ function makeCollapse(keys, values) {
   return collapse;
 }
 
+// Create the button in order to show the dropdown when clicked
 function makeDropArrow() {
   var wrapper = document.createElement("div");
   wrapper.setAttribute("class", "drop-arrow");

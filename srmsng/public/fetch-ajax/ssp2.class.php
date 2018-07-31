@@ -41,18 +41,26 @@ class SSP {
 					$row[ $column['dt'] ] = $column['formatter']( $data[$i][ $column['db'] ], $data[$i] );
 				}
 				else {
+					// Check if the column name has a dot e.g. asset_tracker.sale_order_no
 					$index = explode('.',$columns[$j]['db']);
 					
 					if (count($index) > 1 ) {
+						// Check for AS
 						$has_group = strpos($index[1],'AS');
 	
 						if ($has_group !== false) {
+							// If AS exists in the column name, the alias name will be used
+							// e.g. GROUP_CONCAT(....) AS groupFSE
+							// uses groupFSE
 							$column_expl = explode(' AS ',$index[1]);
 							$row[ $column['dt'] ] = $data[$i][$column_expl[1]];
 						} else {
+							// If AS doesn't exist, the name after the dot will be used
+							// e.g. asset_tracker.sale_order_no uses sale_order_no
 							$row[ $column['dt'] ] = $data[$i][$index[1]];
 						}
 					} else {
+						// If the dot doesn't exist, the name of the column will be used
 						$row[ $column['dt'] ] = $data[$i][ $columns[$j]['db'] ] ;
 					}
 
@@ -127,16 +135,24 @@ class SSP {
 						'ASC' :
 						'DESC';
 
+					// Get the correct column name for ordering
 					$column_name = $column['db'];
+					// Check for dot in the column name e.g. asset_tracker.sale_order_no
 					$expl = explode('.',$column_name);
 					
 					if (count($expl) > 1 ) {
+						// Check for AS
 						$has_group = strpos($column_name,'AS');
 
 						if ($has_group !== false) {
+							// If AS exists in the column name, the alias name will be used
+							// e.g. GROUP_CONCAT(....) AS groupFSE
+							// uses groupFSE
 							$column_expl = explode(' AS ',$column_name);
 							$column_name = $column_expl[1];
 						} else {
+							// If AS doesn't exist, the name after the dot will be used
+							// e.g. asset_tracker.sale_order_no uses sale_order_no
 							$column_name = $expl[1];
 						}
 					}
@@ -170,28 +186,27 @@ class SSP {
 		$dtColumns = self::pluck( $columns, 'dt' );
 		if ( isset($request['search']) && $request['search']['value'] != '' ) {
 			$str = $request['search']['value'];
-			// for ( $i=0, $ien=count($request['columns']) ; $i<$ien ; $i++ ) {
-			// 	$requestColumn = $request['columns'][$i];
-			// 	$columnIdx = array_search( $requestColumn['data'], $dtColumns );
-			// 	$column = $columns[ $columnIdx ];
-			// 	if ( $requestColumn['searchable'] == 'true' ) {
-			// 		$binding = self::bind( $bindings, '%'.$str.'%', PDO::PARAM_STR );
-			// 		$globalSearch[] = "`".$column['db']."` LIKE ".$binding;
-			// 	}
-			// }
 			for ($i = 0, $ien = count($columns) ; $i < $ien; $i++) {
 				$column = $columns[$i];
-				$column_name = $column['db'];
 
+				// Get the correct column name for ordering
+				$column_name = $column['db'];
+				// Check for dot in the column name e.g. asset_tracker.sale_order_no
 				$expl = explode('.',$column_name);
 					
 				if (count($expl) > 1 ) {
+					// Check for AS
 					$has_group = strpos($column_name,'AS');
 
 					if ($has_group !== false) {
+						// If AS exists in the column name, the alias name will be used
+						// e.g. GROUP_CONCAT(....) AS groupFSE
+						// uses groupFSE
 						$column_expl = explode(' AS ',$column_name);
 						$column_name = $column_expl[1];
 					} else {
+						// If AS doesn't exist, the name after the dot will be used
+						// e.g. asset_tracker.sale_order_no uses sale_order_no
 						$column_name = $expl[1];
 					}
 				}
@@ -200,19 +215,6 @@ class SSP {
 				$globalSearch[] = $column_name." LIKE ".$binding;
 			}
 		}
-		// Individual column filtering
-		// if ( isset( $request['columns'] ) ) {
-		// 	for ( $i=0, $ien=count($request['columns']) ; $i<$ien ; $i++ ) {
-		// 		$requestColumn = $request['columns'][$i];
-		// 		$columnIdx = array_search( $requestColumn['data'], $dtColumns );
-		// 		$column = $columns[ $columnIdx ];
-		// 		$str = $requestColumn['search']['value'];
-		// 		if ( $requestColumn['searchable'] == 'true' && $str != '' ) {
-		// 			$binding = self::bind( $bindings, '%'.$str.'%', PDO::PARAM_STR );
-		// 			$columnSearch[] = "`".$column['db']."` LIKE ".$binding;
-		// 		}
-		// 	}
-		// }
 		// Combine the filters into a single string
 		// EDIT: Removed parenthesis
 		$where = '';
@@ -224,11 +226,6 @@ class SSP {
 				implode(' AND ', $columnSearch) :
 				$where .' AND '. implode(' AND ', $columnSearch);
 		}
-
-		// EDIT: Changed WHERE to OR
-		// if ( $where !== '' ) {
-		// 	$where = 'AND '.$where;
-		// }
 		return $where;
 	}
 	/**
@@ -335,16 +332,17 @@ class SSP {
 		}
 		
 		// Main query to actually get the data
-		// EDIT: Back ticks are removed from $table to be able to select multiple tables
-
+		
+		// Construct the request
 		if ($where !== '') {
+			// If $where is not empty, add WHERE $where
 			$clause = "FROM (SELECT " . implode(", ", self::pluck($columns, 'db')) . " FROM $table ) AS temp WHERE $where ";
 		} else {
 			$clause = "FROM (SELECT " . implode(", ", self::pluck($columns, 'db')) . " FROM $table ) AS temp $where";
 		}
 		$all_clause = "FROM (SELECT " . implode(", ", self::pluck($columns, 'db')) . " FROM $table ) AS temp";
 
-
+		// Execute SQL command
 		$data = self::sql_exec( $db, $bindings, "SELECT * $clause $order $limit");
 
 		// Data set length after filtering
@@ -374,24 +372,6 @@ class SSP {
 			"recordsTotal"    => intval( $recordsTotal ),
 			"recordsFiltered" => intval( $recordsFiltered ),
 			"data"            => self::data_output( $columns, $data )
-		);
-
-		// return array(
-		// 	"draw"            => isset ( $request['draw'] ) ?
-		// 		intval( $request['draw'] ) :
-		// 		0,
-		// 	"clause"		=> "SELECT * $clause $limit",
-		// 	"recordsTotal"    => 0,
-		// 	"recordsFiltered" => 0,
-		// 	"data"            => self::data_output( $columns, $data )
-		// );
-
-		return array(
-			"draw"            => 0,
-			"clause"		=> "SELECT * $clause $order $limit",
-			"recordsTotal"    => 0,
-			"recordsFiltered" => 0,
-			"data"            => 0
 		);
 	}
 	/**
@@ -440,7 +420,7 @@ class SSP {
 			$sql = $bindings;
 		}
 		$stmt = $db->prepare( $sql );
-		//echo $sql;
+
 		// Bind parameters
 		if ( is_array( $bindings ) ) {
 			for ( $i=0, $ien=count($bindings) ; $i<$ien ; $i++ ) {

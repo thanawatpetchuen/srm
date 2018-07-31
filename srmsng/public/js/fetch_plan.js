@@ -1,5 +1,9 @@
+// Fetch Plan
+// at /asset/work?sng_code=
+
 var data = null;
 
+// Scheduled Work Tab
 function fetchTable(sng_code) {
   $("#supertable-plan").DataTable({
     //columnDefs: [{ orderable: false, targets: [6, 7, 9] }],
@@ -14,6 +18,7 @@ function fetchTable(sng_code) {
     }),
     columnDefs: [
       {
+        // edit Button
         targets: -1,
         data: function(row) {
           return row[0];
@@ -35,16 +40,18 @@ function fetchTable(sng_code) {
       }
     ],
     initComplete: function() {
+      // Set up table styling
       setUpFixed("supertable-plan");
       $("#supertable-plan").addClass("display");
     },
     drawCallback: function() {
+      // Set up table styling
       setUpFixed("supertable-plan");
     }
   });
 
+  // History Tab
   $("#supertable-history").DataTable({
-    //columnDefs: [{ orderable: false, targets: [6, 7, 9] }],
     stateSave: true,
     deferRender: true,
     processing: true,
@@ -61,6 +68,7 @@ function fetchTable(sng_code) {
 }
 
 $(document).ready(function() {
+  // Get SNG code to fetch
   var myElement = document.getElementById("main-container");
   var sng = myElement.dataset.sngCode;
   fetchTable(sng);

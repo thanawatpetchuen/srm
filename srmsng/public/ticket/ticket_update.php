@@ -181,6 +181,12 @@
                         <label>Completion time</label>
                         <input type="text" class="form-control" name="close_time" placeholder="Close Time" id="close_time" autocomplete="off" disabled/>
                     </div>
+                    <div class="form-group">
+                        <label>FSE</label>
+                        <select class="form-control" id="fse-dropdown-single" id="fse-field" name="fse_code">
+                            <option value="0">-- Select Field Service Engineer --</option>
+                        </select>
+                    </div>
                 </div>
             </fieldset>
             <div class="form-group" style="margin-top:40px; display: flex; align-items: center; justify-content: flex-end; ">
@@ -216,8 +222,8 @@
         });
     });
 
+    // Fetch dropdowns (e.g. FSE, Causes)
     function fetchDropdowns(codeParam, valueParam, dropdownID, url) {
-        // fetch dropdowns
         $(dropdownID).val(0);
         fetch(url)
         .then(resp => {
@@ -226,6 +232,7 @@
         .then(data_json => {
           data_json.forEach(element => {
             if (element[codeParam] != 0) {
+                // Add option to select
                 var option = document.createElement('option');
                 option.setAttribute('value',element[codeParam]);
                 option.innerHTML = element[valueParam];
@@ -238,9 +245,85 @@
     $(document).ready( function() {
 
         // Tick to assign and lock completion time
-        var assigned_job_type = false;
-        var assigned_fse = false;
-        var assigned_cm_time = false;
+        var assigned_fse = $('input[name="assign-fse"]').is(':checked');
+        var assigned_cm_time = $('input[name="assign-cm-time"]').is(':checked');
+
+        $('select[name="job_type"]').on('change',function() {
+            if ($(this).val() === 'On site') {
+                $('#job-details-site').removeClass('hidden');
+                $('#job-details-phone').addClass('hidden');
+
+                $('#job-details-phone input').val("");
+                $('#job-details-phone input').prop('disabled',true);
+
+            } else if ($(this).val() === 'Fixed by phone') {
+                $('#job-details-site').addClass('hidden');
+                $('#job-details-phone').removeClass('hidden');
+
+                $('#job-details-site input').val("");
+                $('#job-details-site input[type="text"]').prop('disabled',true);
+
+                $('#job-details-site input[name="assign-close-time"], \
+                #job-details-site input[name="assign-fse"],\
+                #job-details-site input[name="assign-cm-time"]').prop('checked',false).change();
+
+                $('#job-details-phone input').prop('disabled',false);
+            } else {
+                $('#job-details-site').addClass('hidden');
+                $('#job-details-phone').addClass('hidden');
+
+                $('#job-details-phone input').val("");
+                $('#job-details-phone input').prop('disabled',true);
+                $('#job-details-site input').val("");
+                $('#job-details-site input[type="text"]').prop('disabled',true);
+
+                $('#job-details-site input[name="assign-close-time"], \
+                #job-details-site input[name="assign-fse"],\
+                #job-details-site input[name="assign-cm-time"]').prop('checked',false).change();
+            }
+        });
+        $('input[name="assign-fse"]').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#fse-fieldset').removeClass('disabled');
+                assigned_fse = true;
+            } else {
+                $('#fse-fieldset').addClass('disabled');
+                $('#fse-fieldset input[type="checkbox"]').prop('checked',false).change();
+                assigned_fse = false;
+            }
+        });
+        $('input[name="assign-cm-time"]').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#cm-time-field input').prop('disabled', false);
+                $('#cm-time-field').removeClass('disabled');
+                assigned_cm_time = true
+            } else {
+                $('#cm-time-field input').prop('disabled', true);
+                $('#cm-time-field').addClass('disabled');
+                assigned_cm_time = false
+            }
+        });
+        $('input[name="assign-close-time"]').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#close-time-field input').prop('disabled', false);
+                $('#close-time-field').removeClass('disabled');
+            } else {
+                $('#close-time-field input').prop('disabled', true);
+                $('#close-time-field').addClass('disabled');
+            }
+        });
+        // Completion time cannot be assigned if FSE and CM Time are not specified
+        $('input[name="assign-fse"], input[name="assign-cm-time"]').on('change',function() {
+            if (assigned_cm_time && assigned_fse) {
+                $('#close-time-check').removeClass('disabled');
+            } else {
+                // Cannot assign completion time
+                $('#close-time-check').addClass('disabled');
+                $('#close-time-check input').prop('checked',false);
+                $('#close-time-field').addClass('disabled');
+                $('#close-time-field input').prop('disabled',true);
+            }
+        });
 
         // fetch causes
         fetchDropdowns(
@@ -264,6 +347,13 @@
             .then(data_json => {
                 data_json.forEach(element => {
                     if (element['fse_code'] != 0) {
+                        // Fixed by phone (one FSE only)
+                        var option = document.createElement("option");
+                        option.setAttribute("value", element["fse_code"]);
+                        option.innerHTML = element["engname"];
+                        document.getElementById("fse-dropdown-single").appendChild(option);
+
+                        // On Site (Multiple FSEs)
                         var item = document.createElement('span');
                         item.setAttribute('class','select-multiple-item');
 
@@ -334,8 +424,7 @@
                             }
                             assigned_fse = true;
                         }
-                        $('input[name="job_type"]').val(data[0]['job_type']).change();
-                        console.log(data[0]['job_type']);
+                        $('select[name="job_type"]').val(data[0]['job_type']).change();
 
                         if (data[0]['cm_time'] != '' && data[0]['cm_time'] != null) {
                             $('#cm-time-field input').prop('disabled', false);
@@ -354,95 +443,12 @@
                 })
             });
 
-        
-        // Tick to assign and lock completion time
-        var assigned_fse = $('input[name="assign-fse"]').is(':checked');
-        var assigned_cm_time = $('input[name="assign-cm-time"]').is(':checked');
-
-        $('select[name="job_type"]').on('change',function() {
-            if ($(this).val() === 'On site') {
-                $('#job-details-site').removeClass('hidden');
-                $('#job-details-phone').addClass('hidden');
-
-                $('#job-details-phone input').val("");
-                $('#job-details-phone input').prop('disabled',true);
-
-            } else if ($(this).val() === 'Fixed by phone') {
-                $('#job-details-site').addClass('hidden');
-                $('#job-details-phone').removeClass('hidden');
-
-                $('#job-details-site input').val("");
-                $('#job-details-site input[type="text"]').prop('disabled',true);
-
-                $('#job-details-site input[name="assign-close-time"]').prop('checked',false).change();
-                $('#job-details-site input[name="assign-fse"]').prop('checked',false).change();
-                $('#job-details-site input[name="assign-cm-time"]').prop('checked',false).change();
-
-                $('#job-details-phone input').prop('disabled',false);
-            } else {
-                $('#job-details-site').addClass('hidden');
-                $('#job-details-phone').addClass('hidden');
-
-                $('#job-details-phone input').val("");
-                $('#job-details-phone input').prop('disabled',true);
-                $('#job-details-site input').val("");
-                $('#job-details-site input[type="text"]').prop('disabled',true);
-
-                $('#job-details-site input[name="assign-close-time"]').prop('checked',false).change();
-                $('#job-details-site input[name="assign-fse"]').prop('checked',false).change();
-                $('#job-details-site input[name="assign-cm-time"]').prop('checked',false).change();
-            }
-        });
-        $('input[name="assign-fse"]').on('change', function() {
-            if ($(this).is(':checked')) {
-                $('#fse-fieldset').removeClass('disabled');
-                assigned_fse = true;
-            } else {
-                $('#fse-fieldset').addClass('disabled');
-                $('#fse-fieldset input[type="checkbox"]').prop('checked',false).change();
-                assigned_fse = false;
-            }
-        });
-        $('input[name="assign-cm-time"]').on('change', function() {
-            if ($(this).is(':checked')) {
-                $('#cm-time-field input').prop('disabled', false);
-                $('#cm-time-field').removeClass('disabled');
-                assigned_cm_time = true
-            } else {
-                $('#cm-time-field input').prop('disabled', true);
-                $('#cm-time-field').addClass('disabled');
-                assigned_cm_time = false
-            }
-        });
-        $('input[name="assign-close-time"]').on('change', function() {
-            if ($(this).is(':checked')) {
-                $('#close-time-field input').prop('disabled', false);
-                $('#close-time-field').removeClass('disabled');
-            } else {
-                $('#close-time-field input').prop('disabled', true);
-                $('#close-time-field').addClass('disabled');
-            }
-        });
-
-        $('input[name="assign-fse"], input[name="assign-cm-time"]').on('change',function() {
-            if (assigned_cm_time && assigned_fse) {
-                $('#close-time-check').removeClass('disabled');
-            } else {
-                // Cannot assign completion time
-                $('#close-time-check').addClass('disabled');
-                $('#close-time-check input').prop('checked',false);
-                $('#close-time-field').addClass('disabled');
-                $('#close-time-field input').prop('disabled',true);
-            }
-        });
-
     });
     window.addEventListener("beforeunload", function (e) {       
             
         let remember = "<?php echo $_SESSION['remember']?>";
 
         if(remember == "off"){
-            console.log("UNDLOAD");
             $.ajax({
                 type: "POST",
                 url: '/srmsng/public/index.php/logout',

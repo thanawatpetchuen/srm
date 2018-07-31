@@ -192,7 +192,6 @@
         let remember = "<?php echo $_SESSION['remember']?>";
 
         if(remember == "off"){
-            console.log("UNDLOAD");
             $.ajax({
                 type: "POST",
                 url: '/srmsng/public/index.php/logout',

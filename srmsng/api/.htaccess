@@ -2,4 +2,8 @@ RewriteEngine On
 
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-REQUEST_FILENAME
+
+
 RewriteRule . index.php [L]
+
+ErrorDocument 404 /srmsng/public/404.html

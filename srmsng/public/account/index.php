@@ -171,7 +171,6 @@
             
             var listener = new window.keypress.Listener();
             listener.sequence_combo("s u p e r a d m i n 1", function() {
-                // console.log("You pressed shift and s");
                 window.location = "/srmsng/public/superadmin";
             });
             
@@ -280,7 +279,6 @@
             let remember = "<?php echo $_SESSION['remember']?>";
     
             if(remember == "off"){
-                console.log("UNDLOAD");
                 $.ajax({
                     type: "POST",
                     url: '/srmsng/public/index.php/logout',       

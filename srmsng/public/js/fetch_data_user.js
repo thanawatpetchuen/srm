@@ -1,6 +1,6 @@
-function fetchData() {
-  //  /srmsng/public/index.php/api/customer/asset?account_no=22
+// Fetch asset for customers (has to be logged in as a customer)
 
+function fetchData() {
   $("#supertable").DataTable({
     stateSave: true,
     dom: '<lf<"table-wrapper"t>ip>',
@@ -12,13 +12,11 @@ function fetchData() {
     }),
     columns: [
       {
+        // Link to view the work for the asset
         data: 0,
         render: function(data) {
           return `<a href="/srmsng/public/customer/work?sng_code=${data}" target="_blank">${data}</a>`;
         }
-        // render: function(data) {
-        //   return '<a href="/srmsng/public/asset/work?sng_code=' + data + '" target="_blank">' + data + "</a>";
-        // }
       },
       { data: 1 },
       { data: 2 },
@@ -32,15 +30,10 @@ function fetchData() {
       { data: 10 },
       { data: 11 },
       {
+        // Request button
         data: function(row) {
           return [row[0], row[11]];
-        }
-      }
-    ],
-    columnDefs: [
-      {
-        targets: -1,
-        className: "fixed-col",
+        },
         render: function(data) {
           var sngcode = "'" + data[0] + "'";
           if (data[1] != "Trade") {
@@ -51,21 +44,22 @@ function fetchData() {
             );
           }
           return '<button class="btn btn-primary disabled">Request</button>';
-        }
+        },
+        className: "fixed-col"
       }
     ],
     initComplete: function() {
+      // Set up table styling
       $("#supertable").addClass("display");
       setUpFixed();
     },
     drawCallback: setUpFixed()
-    //   url: "/srmsng/public/index.php/api/customer/asset?account_no=22",
-    //   pages: 5 // number of pages to cache,
-    // })
   });
 }
 
+// Set up the modal when the user clicks the request button
 function setUpModal(code) {
+  // Fills in the sng code field (readonly)
   document.getElementById("sng-code-modal").setAttribute("value", code);
 }
 

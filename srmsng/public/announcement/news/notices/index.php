@@ -62,8 +62,6 @@
             var fileinput = document.getElementById("fileToUpload");
             if(this.checked) {
                 // Checkbox is checked..
-                console.log("CHECKLKLKKL");
-                
                 fileinput.classList.add("disabled");
             } else {
                 fileinput.classList.remove("disabled");
@@ -76,7 +74,6 @@
             let remember = "<?php echo $_SESSION['remember']?>";
     
             if(remember == "off"){
-                console.log("UNDLOAD");
                 $.ajax({
                     type: "POST",
                     url: '/srmsng/public/index.php/logout',

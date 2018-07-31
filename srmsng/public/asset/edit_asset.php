@@ -435,19 +435,19 @@
                         <div class="modal-body">
                             <div class="form-group">
                                 <label>Customer Number</label>
-                                <input type="text" class="form-control" id="customer-no-field" name="customer_no" placeholder="Customer No."/>
+                                <input type="text" class="form-control" id="customer-no-field" name="customer_no" placeholder="Customer No." required/>
                             </div>
                             <div class="form-group">
                                 <label>Customer Name</label>
-                                <input type="text" class="form-control" name="customer_name" placeholder="Customer Thai Name"/>
+                                <input type="text" class="form-control" name="customer_name" placeholder="Customer Thai Name" required/>
                             </div>
                             <div class="form-group">
                                 <label>Customer English Name</label>
-                                <input type="text" class="form-control" name="customer_eng_name" placeholder="Customer English Name"/>
+                                <input type="text" class="form-control" name="customer_eng_name" placeholder="Customer English Name" required/>
                             </div>
                             <div class="form-group">
                                 <label>Tax ID</label>
-                                <input type="text" class="form-control" id="tax-id-field" name="taxid" placeholder="Tax ID"/>
+                                <input type="text" class="form-control" id="tax-id-field" name="taxid" placeholder="Tax ID" required/>
                             </div>
                             <div class="form-group">
                                 <label>Account Group</label>
@@ -510,11 +510,11 @@
                         <div class="modal-body">
                             <div class="form-group">
                                 <label>Location Code</label>
-                                <input type="text" class="form-control clear" id="location-code-field" name="location_code" placeholder="Location Code"/>
+                                <input type="text" class="form-control clear" id="location-code-field" name="location_code" placeholder="Location Code" required/>
                             </div>
                             <div class="form-group">
                                 <label>Site Name</label>
-                                <input type="text" class="form-control clear" id="site-name-field" name="sitename" placeholder="Site Name"/>
+                                <input type="text" class="form-control clear" id="site-name-field" name="sitename" placeholder="Site Name" required/>
                             </div>
                             <div class="form-group">
                                 <label>House Number</label>
@@ -583,12 +583,12 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">จังหวัด</span>
                                     </div>
-                                    <input type="text" placeholder="Enter Province" name="province" id="province" class="form-control clear">
+                                    <input type="text" placeholder="Enter Province" name="province" id="province" class="form-control clear" required>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label>Postal code</label>
-                                <input type="text" class="form-control clear" id="postal-code-field" name="postal_code" placeholder="Postal Code"/>
+                                <input type="text" class="form-control clear" id="postal-code-field" name="postal_code" placeholder="Postal Code" required/>
                             </div>
                             <div class="form-group">
                                 <label>Region</label>
@@ -605,7 +605,7 @@
                             </div>
                             <div class="form-group">
                                 <label>Country</label>
-                                <input type="text" class="form-control clear" id="country-field" name="country" placeholder="Country" value="ไทย"/>
+                                <input type="text" class="form-control clear" id="country-field" name="country" placeholder="Country" value="ไทย" required/>
                             </div>
                             <div class="form-group">
                                 <label>Store Phone</label>
@@ -652,7 +652,7 @@
                         <div class="modal-body">
                             <div class="form-group">
                                 <label>Sale Order Number</label>
-                                <input type="text" class="form-control" id="sale-order-no-field" name="sale_order_no" placeholder="Sale Order No."/>
+                                <input type="text" class="form-control" id="sale-order-no-field" name="sale_order_no" placeholder="Sale Order No." required/>
                             </div>
                             <div class="form-group">
                                 <label>Date Order</label>
@@ -709,11 +709,11 @@
                         <div class="modal-body">
                             <div class="form-group">
                                 <label>Item Number</label>
-                                <input type="text" class="form-control" id="item-no-field" name="itemnumber" placeholder="Item Number"/>
+                                <input type="text" class="form-control" id="item-no-field" name="itemnumber" placeholder="Item Number" required/>
                             </div>
                             <div class="form-group">
                                 <label>Model</label>
-                                <input type="text" class="form-control" id="model-field" name="model" placeholder="Item Name"/>
+                                <input type="text" class="form-control" id="model-field" name="model" placeholder="Item Name" required/>
                             </div>
                             <div class="form-group">
                                 <label>Rate</label>
@@ -782,8 +782,6 @@
         $('input[name="startwarranty"]').on("apply.daterangepicker", (start) => {
             var val = $('input[name="startwarranty"]').val();
             var mm = moment(val, "DD/M/Y H:mm").add(2, 'years');
-            // mm.add(2, "year");
-            // console.log(mm);
             $('input[name="endwarranty"]').data('daterangepicker').setStartDate(mm);
         })
     });
@@ -793,7 +791,6 @@
         let remember = "<?php echo $_SESSION['remember']?>";
 
         if(remember == "off"){
-            console.log("UNDLOAD");
             $.ajax({
                 type: "POST",
                 url: '/srmsng/public/index.php/logout',
@@ -819,7 +816,6 @@
             return res.json();
         })
         .then(data => {
-            console.log(data);
             for (var value in data[0]) {
                 $(".form-control[name='" + value + "']").val(data[0][value]);
             }
