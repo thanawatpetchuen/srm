@@ -1,0 +1,4 @@
+RewriteEngine on
+
+RewriteRule ^public_formviewer/([^/]*)/([^/]*)/viewer.pdf$ form_viewer.php?_compgrp=reportviewers&_comp=$1&_action=viewer&row_id=$2 [L]
+RewriteRule ^public_reportviewer/([^/]*)/([^/]*)/viewer.pdf$ report_viewer.php?_compgrp=reportviewers&_comp=$1&_action=viewer&row_id=$2 [L]
