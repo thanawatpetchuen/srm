@@ -1,0 +1,5 @@
+{
+	"mapsApiKey": "AIzaSyASE9pqq5UG6IL5Ppw-lCxKQyCCBVv89zM",
+	"databaseURL": "https://srm-tracking-system.firebaseio.com",
+	"simulation": true
+}
