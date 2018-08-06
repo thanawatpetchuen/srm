@@ -2,6 +2,7 @@
 // At /account/fse
 
 var data = null;
+var toastDuration = 1500;
 function fetchTable() {
   $("#supertable").DataTable({
     stateSave: true,
@@ -54,7 +55,14 @@ $("#add-fse-form").on("submit", () => {
     success: data => {
       $("#add-fse-popup").modal("hide");
       document.getElementById("add-fse-form").reset();
-      window.location = "/srmsng/public/account/fse?add_success=true";
+      toastr.options = {
+        positionClass: "toast-top-center"
+      };
+      toastr.success("<span>Please wait, this website is going to refresh...</span>");
+      setTimeout(() => {
+        window.location = "/srmsng/public/account/fse?add_success=true";
+      }, toastDuration);
+      
     },
     error: err => {
       console.log(err);
@@ -73,7 +81,14 @@ $("#edit-fse-form").on("submit", () => {
       console.log($("#edit-fse-form").serialize());
       $("#edit-fse-popup").modal("hide");
       document.getElementById("edit-fse-form").reset();
-      window.location = "/srmsng/public/account/fse?update_success=true";
+      toastr.options = {
+        positionClass: "toast-top-center"
+      };
+      toastr.success("<span>Please wait, this website is going to refresh...</span>");
+      setTimeout(() => {
+        window.location = "/srmsng/public/account/fse?update_success=true";
+      }, toastDuration);
+      
     },
     error: err => {
       console.log(err);

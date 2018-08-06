@@ -2,6 +2,7 @@
 
 // Submissions for location
 // Edit location
+var toastDuration = 1500;
 $("#edit-location-form").on("submit", () => {
   $.ajax({
     type: "PUT",
@@ -9,8 +10,15 @@ $("#edit-location-form").on("submit", () => {
     data: $("#edit-location-form").serialize(),
     success: data => {
       $("#edit-location-popup").modal("hide");
-      window.location =
+      toastr.options = {
+        positionClass: "toast-top-center"
+      };
+      toastr.success("<span>Please wait, this website is going to refresh...</span>");
+      setTimeout(() => {
+        window.location =
         "/srmsng/public/account/customer/view?id=" + $("input[name='customer_no']").val() + "&update_success=true";
+      }, toastDuration);
+      
       document.getElementById("edit-location-form").reset();
     },
     error: err => {
@@ -27,8 +35,15 @@ $("#add-location-form").on("submit", () => {
     success: data => {
       //console.log(data);
       $("#add-location-popup").modal("hide");
-      window.location =
+      toastr.options = {
+        positionClass: "toast-top-center"
+      };
+      toastr.success("<span>Please wait, this website is going to refresh...</span>");
+      setTimeout(() => {
+        window.location =
         "/srmsng/public/account/customer/view?id=" + $("input[name='customer_no']").val() + "&add_success=true";
+      }, toastDuration);
+     
       document.getElementById("add-location-form").reset();
     },
     error: err => {

@@ -395,7 +395,8 @@ table.dataTable tbody td input[type="checkbox"] {
 
 /* ============= Ticket ============= */
 /* #add-success, */
-#update-success {
+#update-success,
+#success {
   display: none;
 }
 /* View Asset */
@@ -648,16 +649,21 @@ main.news {
   }
 }
 
-
 @-webkit-keyframes blinker {
-  from {opacity: 1.0;}
-  to {opacity: 0.0;}
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
-.blink{
-	text-decoration: blink;
-	-webkit-animation-name: blinker;
-	-webkit-animation-duration: 0.8s;
-	-webkit-animation-iteration-count:infinite;
-	-webkit-animation-timing-function:ease-in-out;
-	-webkit-animation-direction: alternate;
+.blink {
+  text-decoration: blink;
+  -webkit-animation-name: blinker;
+  -webkit-animation-duration: 0.8s;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-timing-function: ease-in-out;
+  -webkit-animation-direction: alternate;
 }
+
+

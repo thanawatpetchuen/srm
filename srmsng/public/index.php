@@ -5,6 +5,9 @@ use \Psr\Http\Message\ResponseInterface as Response;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\ServiceAccount;
+
 
 session_start();
 
@@ -89,12 +92,12 @@ $app->post('/login', function (Request $request, Response $response) {
                             $success_json = array('statuscode' => '111', 'description' => '/srmsng/public/customer_page');
                             system_log('Login');
                             $db = null;
-                            return json_encode($success_json);
+                            return $response->withJson($success_json);
                         }else{
                             $success_json =array('statuscode' => '112', 'description' => '/srmsng/public/admin_page');
                             system_log('Login');
                             $db = null;
-                            return json_encode($success_json);
+                            return $response->withJson($success_json);
                         }
                     }else{
                         $token = md5(uniqid(rand(), true));
@@ -112,12 +115,12 @@ $app->post('/login', function (Request $request, Response $response) {
                         }
                         session_commit();
                         $db = null;
-                        return json_encode($err_json);
+                        return $response->withJson($err_json);
                     }
                 }else{
                     $err_json = array('statuscode' => '011', 'description' => 'Account has been locked0');
                     $db = null;
-                    return json_encode($err_json);
+                    return $response->withJson($err_json);
                 }
             }else{
                 $sql = "SELECT attempt FROM account WHERE username = '$username'";
@@ -146,12 +149,12 @@ $app->post('/login', function (Request $request, Response $response) {
                     $err_json = array('statuscode' => '000', 'description' => 'Invalid username and password');
                 }
                 $db = null;
-                return json_encode($err_json);
+                return $response->withJson($err_json);
             }
         }catch(PDOException $e){
             $db = null;
             $err_json = array('statuscode' => '001', 'description' => $e->getMessage());
-            return json_encode($err_json);
+            return $response->withJson($err_json);
         }
 });
 
@@ -183,14 +186,16 @@ $app->post('/logout', function (Request $request, Response $response) {
             session_unset();
             setcookie("user", "", time()-8000000, '/');
             $db = null;
-            return "/srmsng/public/login";
+
+            return $response->withStatus(200)->getBody()->write("/srmsng/public/login");
+            
 
         }catch(PDOException $e){
             $db = null;
-            return "/srmsng/public/login";
+            return $response->withStatus(400)->getBody()->write("/srmsng/public/login");
         }
     }else{
-        return "/srmsng/public/login";
+        return $response->withStatus(400)->getBody()->write("/srmsng/public/login");
     }
 });
 
@@ -251,18 +256,18 @@ $app->post('/logout/forcelogout', function (Request $request, Response $response
 
                     }catch(PDOException $e){
                         $db = null;
-                        return "/srmsng/public/login";
+                        return $response->withStatus(200)->getBody()->write("/srmsng/public/login");
                     }
 
                 }catch(PDOException $e){
                     $db = null;
-                    return "/srmsng/public/login";
+                    return $response->withStatus(200)->getBody()->write("/srmsng/public/login");
                 }
             }else{
-                return "/srmsng/public/login";
+                return $response->withStatus(200)->getBody()->write("/srmsng/public/login");
             }
     }else{
-        return "/srmsng/public/login";
+        return $response->withStatus(200)->getBody()->write("/srmsng/public/login");
     }
 });
 
@@ -295,11 +300,11 @@ $app->post('/login/recover', function (Request $request, Response $response) {
             $stmt->bindParam(':date_time',  $date);
             $stmt->execute();
             $db = null;
-            return 'SUCCESS';
+            return $response->withStatus(200)->getBody()->write("SUCCESS");
 
         } catch(PDOException $e){
             $db = null;
-            return $e->getmessage();
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
         }
     }else{
         return '/srmsng/public/recover.html';
@@ -316,16 +321,17 @@ $app->get('/api/customers', function(Request $request, Response $response){
                 $db = $db->connect();
 
                 $stmt = $db->query($sql);
-                $customers = $stmt->fetchAll(PDO::FETCH_OBJ);
+                $result = $stmt->fetchAll(PDO::FETCH_OBJ);
                 $db = null;
-                echo json_encode($customers);
+                return $response->withJson($result);
+
             } catch(PDOException $e) {
                 $db = null;
-                echo '{"error": {"text": '.$e->getMessage().'}';
+                return $response->withStatus(400)->getBody()->write($e->getmessage());
             }
 });
 
-// Get single customer information.
+// Get single customer information for editing customer modal.
 $app->get('/api/admin/getsinglecustomer', function(Request $request, Response $response){
     $customer_no = $request->getParam('customer_no');
 
@@ -340,16 +346,16 @@ $app->get('/api/admin/getsinglecustomer', function(Request $request, Response $r
 
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
+        return $response->withJson($result);
 
-        echo json_encode($result);
     } catch(PDOException $e){
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
 
-// Get single location information
+// Get single location information for editing location modal.
 $app->get('/api/admin/getsinglelocation', function(Request $request, Response $response){
     $location_code = $request->getParam('location_code');
 
@@ -364,16 +370,15 @@ $app->get('/api/admin/getsinglelocation', function(Request $request, Response $r
         $stmt = $db->query($sql);
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-
-        echo json_encode($result);
+        return $response->withJson($result);
 
     } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
-// Get single item information
+// Get single item information for editing item modal.
 $app->get('/api/admin/getsingleitem', function(Request $request, Response $response){
     $itemnumber = $request->getParam('itemnumber');
 
@@ -387,56 +392,30 @@ $app->get('/api/admin/getsingleitem', function(Request $request, Response $respo
         $stmt = $db->query($sql);
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-        echo json_encode($result);
+        return $response->withJson($result);
+
     } catch(PDOException $e){
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
 // Get all log
 $app->get('/api/admin/log', function(Request $request, Response $response){
-    // $acc_no = $_SESSION['account_no'];
     $sql = "SELECT * FROM system_log";
-
-        // if ($_SESSION['account_type'] == 'ADMIN'){
-            try{
-                // Get DB Object
-                $db = new db();
-                // Connect
-                $db = $db->connect();
-
-                $stmt = $db->query($sql);
-                $customers = $stmt->fetchAll(PDO::FETCH_OBJ);
-                $db = null;
-                echo json_encode($customers);
-            } catch(PDOException $e){
-                $db = null;
-                echo '{"error": {"text": '.$e->getMessage().'}';
-            }
-        // }
-});
-
-
-// Get asset location
-$app->get('/api/customers/assetlocation', function(Request $request, Response $response){
-    $sng_code = $request->getParam('sng_code');
-    $sql = "SELECT * FROM asset_location WHERE sngcode = '$sng_code'";
 
     try{
         // Get DB Object
         $db = new db();
         // Connect
         $db = $db->connect();
-
         $stmt = $db->query($sql);
-        $asset_location = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $customers = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-        return json_encode($asset_location);
-
-    } catch(PDOException $e){
+        return $response->withJson($result);
+    } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
@@ -452,23 +431,23 @@ $app->get('/api/customer/asset', function(Request $request, Response $response){
         $db = $db->connect();
 
         $stmt = $db->query($sql);
-        $customer = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-        echo json_encode($customer);
+        return $response->withJson($result);
+
     } catch(PDOException $e){
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
-
-
-// Get item
+// Get item for searching item.
 $app->get('/api/admin/item', function(Request $request, Response $response){
     $model = $request->getParam('model');
 
-    $sql = "SELECT model, itemnumber, power FROM material_master_record
-    WHERE model LIKE '%$model%'";
+    $sql = "SELECT model, itemnumber, power 
+            FROM material_master_record
+            WHERE model LIKE '%$model%'";
     try{
         // Get DB Object
         $db = new db();
@@ -478,17 +457,21 @@ $app->get('/api/admin/item', function(Request $request, Response $response){
         $stmt = $db->query($sql);
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-        echo json_encode($result);
+        return $response->withJson($result);
+
     } catch(PDOException $e){
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
-// Get battery type
+// Get all battery type for dropdown.
 $app->get('/api/admin/batterytype', function(Request $request, Response $response){
 
-    $sql = "SELECT DISTINCT battery_type FROM material_master_record WHERE battery_type != '' ORDER BY battery_type ASC";
+    $sql = "SELECT DISTINCT battery_type 
+            FROM material_master_record 
+            WHERE battery_type != '' 
+            ORDER BY battery_type ASC";
     try{
         // Get DB Object
         $db = new db();
@@ -498,19 +481,21 @@ $app->get('/api/admin/batterytype', function(Request $request, Response $respons
         $stmt = $db->query($sql);
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-        echo json_encode($result);
+        return $response->withJson($result);
+
     } catch(PDOException $e){
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
-// Get item name and number from item number.
+// Get item name and number for searching item.
 $app->get('/api/admin/itemnumber', function(Request $request, Response $response){
     $itemnumber = $request->getParam('itemnumber');
 
-    $sql = "SELECT model, itemnumber, power FROM material_master_record
-    WHERE itemnumber LIKE '%$itemnumber%'";
+    $sql = "SELECT model, itemnumber, power 
+            FROM material_master_record
+            WHERE itemnumber LIKE '%$itemnumber%'";
     try{
         // Get DB Object
         $db = new db();
@@ -520,18 +505,21 @@ $app->get('/api/admin/itemnumber', function(Request $request, Response $response
         $stmt = $db->query($sql);
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-        echo json_encode($result);
+        return $response->withJson($result);
+
     } catch(PDOException $e){
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
 // Get customer name and customer number
 $app->get('/api/admin/customername', function(Request $request, Response $response){
     $customer_name = $request->getParam('customer_name');
-    $sql = "SELECT customers.customer_name, customers.customer_no FROM customers
-    WHERE customers.customer_name LIKE '%$customer_name%' OR customers.customer_eng_name LIKE '%$customer_name%'";
+    $sql = "SELECT customers.customer_name, customers.customer_no 
+            FROM customers
+            WHERE customers.customer_name LIKE '%$customer_name%' 
+                OR customers.customer_eng_name LIKE '%$customer_name%'";
 
     try{
         // Get DB Object
@@ -542,18 +530,20 @@ $app->get('/api/admin/customername', function(Request $request, Response $respon
         $stmt = $db->query($sql);
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-        echo json_encode($result);
+        return $response->withJson($result);
+
     } catch(PDOException $e){
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
-// Get customer name and customer number
+// Get customer name and customer number for searching customer.
 $app->get('/api/admin/customercode', function(Request $request, Response $response){
     $customer_code = $request->getParam('customer_code');
-    $sql = "SELECT customers.customer_name, customers.customer_no FROM customers
-    WHERE customers.customer_no LIKE '%$customer_code%'";
+    $sql = "SELECT customers.customer_name, customers.customer_no 
+            FROM customers
+            WHERE customers.customer_no LIKE '%$customer_code%'";
 
     try{
         // Get DB Object
@@ -564,16 +554,19 @@ $app->get('/api/admin/customercode', function(Request $request, Response $respon
         $stmt = $db->query($sql);
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-        echo json_encode($result);
+        return $response->withJson($result);
+
     } catch(PDOException $e){
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
-// Get fse
+// Get all FSE which not busy.
 $app->get('/api/admin/fse', function(Request $request, Response $response){
-    $sql = "SELECT engname FROM fse WHERE status != 'BUSY'";
+    $sql = "SELECT engname 
+            FROM fse 
+            WHERE status != 'BUSY'";
     try{
         // Get DB Object
         $db = new db();
@@ -583,18 +576,21 @@ $app->get('/api/admin/fse', function(Request $request, Response $response){
         $stmt = $db->query($sql);
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-        echo json_encode($result);
+        return $response->withJson($result);
+
     } catch(PDOException $e){
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
-// Get location
+// Get all site location from specified customer.
 $app->get('/api/admin/location', function(Request $request, Response $response){
     $customer_no = $request->getParam('customer_no');
-    $sql = "SELECT location.* FROM location
-    WHERE location.customer_no = '$customer_no' ORDER BY sitename ASC";
+    $sql = "SELECT location.* 
+            FROM location
+            WHERE location.customer_no = '$customer_no' 
+            ORDER BY sitename ASC";
     try{
         // Get DB Object
         $db = new db();
@@ -604,10 +600,11 @@ $app->get('/api/admin/location', function(Request $request, Response $response){
         $stmt = $db->query($sql);
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-        echo json_encode($result);
+        return $response->withJson($result);
+
     } catch(PDOException $e){
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
@@ -615,7 +612,9 @@ $app->get('/api/admin/location', function(Request $request, Response $response){
 $app->get('/api/admin/getsaleorder', function(Request $request, Response $response){
     $sale_order_no = $request->getParam('sale_order_no');
 
-    $sql = "SELECT sale_order.* FROM sale_order WHERE sale_order_no LIKE '%$sale_order_no%'";
+    $sql = "SELECT sale_order.* 
+            FROM sale_order 
+            WHERE sale_order_no LIKE '%$sale_order_no%'";
     try{
         // Get DB Object
         $db = new db();
@@ -625,10 +624,11 @@ $app->get('/api/admin/getsaleorder', function(Request $request, Response $respon
         $stmt = $db->query($sql);
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-        echo json_encode($result);
+        return $response->withJson($result);
+
     } catch(PDOException $e){
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
@@ -662,12 +662,16 @@ $app->post('/api/customer/request', function(Request $request, Response $respons
         $current_number =  $result[0]['COUNT(cm_id)'] + 1;
         $current_number = str_pad($current_number, 4, "0", STR_PAD_LEFT);
         $cm_id = 'CM-' . date("Y") . '-' . $current_number;
-    } catch(PDOException $e){
+
+    } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
-    $sql = "INSERT INTO srm_request (cm_id, sng_code, name, phone_number, email, problem_type, asset_problem, request_time, request_id, request_user, job_status) VALUES
-    (:set_cm_id, :set_code, :set_name, :set_phone, :set_email, :set_problem_type, :set_problem, :set_requesttime, :set_requestid, :set_requestuser, :set_job_status)";
+
+    $sql = "INSERT INTO srm_request (cm_id, sng_code, name, phone_number, email, problem_type, asset_problem, 
+                                    request_time, request_id, request_user, job_status) 
+            VALUES (:set_cm_id, :set_code, :set_name, :set_phone, :set_email, :set_problem_type, :set_problem, 
+                    :set_requesttime, :set_requestid, :set_requestuser, :set_job_status)";
     try{
         // Get DB Object
         $db = new db();
@@ -687,9 +691,10 @@ $app->post('/api/customer/request', function(Request $request, Response $respons
         $stmt->bindParam(':set_requestuser', $request_username);
         $stmt->bindParam(':set_job_status', $status);
         $stmt->execute();
+
     }catch(PDOException $e){
         $db = null;
-        return $e->getmessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
     $sql = "INSERT INTO job_fse (job_id, fse_code) VALUES ('$cm_id', '0')";
@@ -703,10 +708,10 @@ $app->post('/api/customer/request', function(Request $request, Response $respons
 
     } catch(PDOException $e) {
         $db = null;
-        return $e->getmessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
     system_log('Send SRM request with JOBID: ' . $cm_id);
-    return "SUCCESS";
+    return $response->withStatus(200)->getBody()->write("SUCCESS");
 });
 
 // Add asset to customer in admin section
@@ -777,11 +782,11 @@ $app->post('/api/admin/addasset', function(Request $request, Response $response)
 
         $db = null;
         system_log('Add asset with SNGCODE: ' . $sngcode);
-        return "Success";
+        return $response->withStatus(200)->getBody()->write("SUCCESS");
 
-    } catch(PDOException $e ){
+    } catch(PDOException $e ) {
         $db = null;
-        return $e->getmessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
@@ -797,22 +802,20 @@ $app->get('/api/admin/getasset', function(Request $request, Response $response){
             AND asset_tracker.itemnumber = material_master_record.itemnumber
             AND asset_tracker.location_code  = location.location_code";
 
-        // if ($_SESSION['account_type'] == 'ADMIN'){
-            try{
-                // Get DB Object
-                $db = new db();
-                // Connect
-                $db = $db->connect();
+    try{
+        // Get DB Object
+        $db = new db();
+        // Connect
+        $db = $db->connect();
 
-                $stmt = $db->query($sql);
-                $customers = $stmt->fetchAll(PDO::FETCH_OBJ);
-                $db = null;
-                echo json_encode($customers);
-            } catch(PDOException $e){
-                $db = null;
-                echo '{"error": {"text": '.$e->getMessage().'}';
-            }
-        // }
+        $stmt = $db->query($sql);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $db = null;
+        return $response->withJson($result);
+    } catch(PDOException $e){
+        $db = null;
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
+    }
 });
 
 // Add ticket
@@ -836,7 +839,7 @@ $app->post('/api/admin/addticket', function(Request $request, Response $response
         
     } catch(PDOException $e){
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
     $sng_code = $request->getParam('sng_code');
@@ -864,10 +867,10 @@ $app->post('/api/admin/addticket', function(Request $request, Response $response
     $request_id = $_SESSION['account_no'];
     $request_user = $_SESSION['username_unhash'];
 
-    
+
     if ($job_type != 'Fixed by Phone') {
-        if ($complete_time != '' && $fse_code != '' && $cm_time != '' && $job_type != '') $job_status = 'Pending Approve';
-        elseif ($complete_time == '') $job_status = 'Assigned';
+        if ($complete_time != '' && $fse_code != 0 && $cm_time != '' && $job_type != '') $job_status = 'Pending Approve';
+        elseif ($complete_time == '' && $fse_code != 0 && $cm_time != '' && $job_type != '') $job_status = 'Assigned';
         else $job_status = 'Pending';
     } else {
         $job_status = "Closed";
@@ -888,9 +891,9 @@ $app->post('/api/admin/addticket', function(Request $request, Response $response
 
     } catch(PDOException $e){
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
-
+ 
     
     $sql = "INSERT INTO srm_request (cm_id, sng_code, name, email, phone_number, problem_type,
                 asset_problem, asset_detected, solution, suggestions, cause_id, correction_id,
@@ -902,7 +905,7 @@ $app->post('/api/admin/addticket', function(Request $request, Response $response
                 :set_suggestions, :set_cause_id, :set_correction_id, :set_cm_time, :set_job_status,
                 :set_complete_time, :set_request_time, :set_cause_detail, :set_correction_detail,
                 :set_work_class, :set_job_type, :set_close_time, :set_start_time, :set_request_id,
-                :set_request_user";
+                :set_request_user)";
 
     try{
         // Get DB Object
@@ -939,11 +942,10 @@ $app->post('/api/admin/addticket', function(Request $request, Response $response
 
     }catch(PDOException $e){
         $db = null;
-        return $e->getmessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
-    return $cm_id;
-    if ($fse_code != ''){
+    if ($fse_code != 0){
         $sql = "INSERT INTO job_fse (job_id, fse_code) VALUES ";
 
         foreach ($fse_code as $code=>$value) {
@@ -966,10 +968,10 @@ $app->post('/api/admin/addticket', function(Request $request, Response $response
 
     }catch(PDOException $e){
         $db = null;
-        return $e->getmessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
-    if ($fse_code != '' && $cm_time != '' && $job_type != '' && $complete_time == '') {
+    if ($fse_code != 0 && $cm_time != '' && $job_type != '' && $complete_time == '') {
         $sql1 = "SELECT thainame, email, fse_code, username FROM fse WHERE fse_code IN (";
 
         foreach ($fse_code as $code=>$value){
@@ -1043,7 +1045,7 @@ $app->post('/api/admin/addticket', function(Request $request, Response $response
             $db = null;
         } catch(PDOException $e){
             $db = null;
-            echo '{"error": {"text": '.$e->getMessage().'}';
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
         }
     }
 
@@ -1058,11 +1060,12 @@ $app->post('/api/admin/addticket', function(Request $request, Response $response
         $result = $stmt->fetch(PDO::FETCH_OBJ);
         system_log('Add ticket with JOBID: ' . $result->cm_id);
         $db = null;
-        return "SUCCESS";
+        return $response->withStatus(200)->getBody()->write("SUCCESS");
+    
 
     }catch(PDOException $e){
         $db = null;
-        return $e->getmessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
@@ -1086,9 +1089,9 @@ $app->put('/api/fse/acknowledge', function(Request $request, Response $response)
         $db = null;
     }catch(PDOException $e){
         $db = null;
-        return $e->getmessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
-    // return $result['job_status'];
+
     if ($result['job_status'] == 'Assigned'){
 
         $sql = "UPDATE srm_request SET
@@ -1107,11 +1110,11 @@ $app->put('/api/fse/acknowledge', function(Request $request, Response $response)
             $action = 'Acknowledge CM id :';
             system_log($engname . $action . $cm_id);
             $db = null;
-            return "SUCCESS";
+            return $response->withStatus(200)->getBody()->write("SUCCESS");
 
         } catch(PDOException $e){
             $db = null;
-            echo '{"error": {"text": '.$e->getMessage().'}';
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
         }
     } else {
         return "Some of your team have been response to this message.";
@@ -1124,6 +1127,67 @@ $app->put('/api/fse/starttravel', function(Request $request, Response $response)
     $engname = $request->getParam('engname');
     $cm_id = $request->getParam('cm_id');
     $start_travel_time = date('Y-m-d H:i:s', time());
+    $sng_code = $request->getParam('sng_code');
+    // return getClient();
+
+    try {
+        $username = $_SESSION['username_unhash'];
+        $sql = "SELECT fse_code FROM fse WHERE username = '$username'";
+        try{
+            // Get DB Object
+            $db = new db();
+            // Connect
+            $db = $db->connect();
+
+            $stmt = $db->query($sql);
+            $result =  $stmt->fetch(PDO::FETCH_OBJ);
+            $result = json_encode($result);
+            $result = json_decode($result, true);
+            
+            $db = null;
+        }catch(PDOException $e) {
+            $db = null;
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
+        }
+        $fse_code = $result['fse_code'];
+        $location_info = json_decode(get_fse_location($fse_code));
+        $lat = $location_info->{'latitude'};
+        $lon = $location_info->{'longitude'};
+
+        $sql = "SELECT latitude, longitude 
+                FROM location, asset_tracker 
+                WHERE asset_tracker.sng_code = '$sng_code'
+                    AND location.location_code = asset_tracker.location_code";
+        try{
+            // Get DB Object
+            $db = new db();
+            // Connect
+            $db = $db->connect();
+
+            $stmt = $db->query($sql);
+            $result =  $stmt->fetch(PDO::FETCH_OBJ);
+            $result = json_encode($result);
+            $result = json_decode($result, true);
+            
+            $db = null;
+        }catch(PDOException $e) {
+            $db = null;
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
+        }
+
+        $latitude =  $result['latitude'];
+        $longitude = $result['longitude'];
+
+        $url = "https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=$lat,$lon&destinations=$latitude,$longitude&key=AIzaSyBjTkocs5c2JDi5kyVXOLfT3PG9Uh6eXLw";
+    
+        $data = json_decode(file_get_contents($url));
+
+        $distance = json_encode($data->{'rows'}[0]->{'elements'}[0]->{'distance'}->{'value'} / 1000);
+        $distance_time = json_encode(ceil($data->{'rows'}[0]->{'elements'}[0]->{'duration'}->{'value'} / 60));
+    
+    } catch(Exception $e) {
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
+    }
 
     $sql = "SELECT job_status FROM srm_request WHERE cm_id = '$cm_id'";
     try{
@@ -1139,14 +1203,16 @@ $app->put('/api/fse/starttravel', function(Request $request, Response $response)
         $db = null;
     }catch(PDOException $e){
         $db = null;
-        return $e->getmessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
     if ($result['job_status'] == 'Acknowledged'){
 
         $sql = "UPDATE srm_request SET
-                    job_status = :set_job_status,
-                    start_travel_time = :set_start_travel_time
+                    job_status        = :set_job_status,
+                    start_travel_time = :set_start_travel_time,
+                    distance          = :set_distance,
+                    distance_time     = :set_distance_time
                 WHERE cm_id = '$cm_id'";
 
         try{
@@ -1158,15 +1224,17 @@ $app->put('/api/fse/starttravel', function(Request $request, Response $response)
 
             $stmt->bindParam(':set_job_status', $job_status);
             $stmt->bindParam(':set_start_travel_time', $start_travel_time);
+            $stmt->bindParam(':set_distance', $distance);
+            $stmt->bindParam(':set_distance_time', $distance_time);
             $stmt->execute();
             $action = 'Start Travelling CM id :';
             system_log($engname . $action . $cm_id);
             $db = null;
-            return "SUCCESS";
+            return $response->withStatus(200)->getBody()->write("SUCCESS");
 
         } catch(PDOException $e){
             $db = null;
-            echo '{"error": {"text": '.$e->getMessage().'}';
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
         }
     } else {
         return "Some of your team have been response to this message.";
@@ -1178,8 +1246,73 @@ $app->put('/api/fse/arrivedsite', function(Request $request, Response $response)
     $job_status = 'Arrived';
     $engname = $request->getParam('engname');
     $cm_id = $request->getParam('cm_id');
+    $sng_code = $request->getParam('sng_code');
     $arrived_time = date('Y-m-d H:i:s', time());
 
+    try {
+        $username = $_SESSION['username_unhash'];
+        $sql = "SELECT fse_code FROM fse WHERE username = '$username'";
+        try {
+            // Get DB Object
+            $db = new db();
+            // Connect
+            $db = $db->connect();
+
+            $stmt = $db->query($sql);
+            $result =  $stmt->fetch(PDO::FETCH_OBJ);
+            $result = json_encode($result);
+            $result = json_decode($result, true);
+            
+            $db = null;
+        }catch(PDOException $e){
+            $db = null;
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
+        }
+
+        $fse_code = $result['fse_code'];
+        $location_info = json_decode(get_fse_location($fse_code));
+        $lat = $location_info->{'latitude'};
+        $lon = $location_info->{'longitude'};
+
+        $sql = "SELECT latitude, longitude 
+                FROM location, asset_tracker 
+                WHERE asset_tracker.sng_code = '$sng_code'
+                    AND location.location_code = asset_tracker.location_code";
+        try{
+            // Get DB Object
+            $db = new db();
+            // Connect
+            $db = $db->connect();
+
+            $stmt = $db->query($sql);
+            $result =  $stmt->fetch(PDO::FETCH_OBJ);
+            $result = json_encode($result);
+            $result = json_decode($result, true);
+            
+            $db = null;
+        }catch(PDOException $e){
+            $db = null;
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
+        }
+
+        $latitude =  $result['latitude'];
+        $longitude = $result['longitude'];
+
+        $url = "https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=$lat,$lon&destinations=$latitude,$longitude&key=AIzaSyBjTkocs5c2JDi5kyVXOLfT3PG9Uh6eXLw";
+    
+        $data = json_decode(file_get_contents($url));
+        
+        $distance = json_encode($data->{'rows'}[0]->{'elements'}[0]->{'distance'}->{'value'} / 1000);
+        
+        } catch(Exception $e) {
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
+        }
+
+    if ($distance > 1.0) {
+        $text = array('response' => "You have to be near site atleast 1 KM.");
+        return $response->withJson($text, 400);
+    }
+    
     $sql = "SELECT job_status FROM srm_request WHERE cm_id = '$cm_id'";
     try{
         // Get DB Object
@@ -1194,7 +1327,7 @@ $app->put('/api/fse/arrivedsite', function(Request $request, Response $response)
         $db = null;
     }catch(PDOException $e){
         $db = null;
-        return $e->getmessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
     if ($result['job_status'] == 'Travelling'){
@@ -1217,11 +1350,11 @@ $app->put('/api/fse/arrivedsite', function(Request $request, Response $response)
             $action = 'Arrived Site CM id :';
             system_log($engname . $action . $cm_id);
             $db = null;
-            return "SUCCESS";
+            return $response->withStatus(200)->getBody()->write("SUCCESS");
 
         } catch(PDOException $e){
             $db = null;
-            echo '{"error": {"text": '.$e->getMessage().'}';
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
         }
     } else {
         return "Some of your team have been response to this message.";
@@ -1247,19 +1380,19 @@ $app->put('/api/fse/startwork', function(Request $request, Response $response){
         $result = json_encode($result);
         $result = json_decode($result, true);
         $db = null;
-    }catch(PDOException $e){
+    } catch(PDOException $e) {
         $db = null;
-        return $e->getmessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
     if ($result['job_status'] == 'Arrived'){
 
         $sql = "UPDATE srm_request SET
-                    job_status = :set_job_status,
-                    start_time = :set_start_time
+                    job_status    = :set_job_status,
+                    start_time    = :set_start_time
                 WHERE cm_id = '$cm_id'";
 
-        try{
+        try {
             // Get DB Object
             $db = new db();
             // Connect
@@ -1268,15 +1401,16 @@ $app->put('/api/fse/startwork', function(Request $request, Response $response){
 
             $stmt->bindParam(':set_job_status', $job_status);
             $stmt->bindParam(':set_start_time', $start_time);
+
             $stmt->execute();
             $action = 'Start Work CM id :';
             system_log($engname . $action . $cm_id);
             $db = null;
-            return "SUCCESS";
+            return $response->withStatus(200)->getBody()->write("SUCCESS");
 
-        } catch(PDOException $e){
+        } catch(PDOException $e) {
             $db = null;
-            echo '{"error": {"text": '.$e->getMessage().'}';
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
         }
     } else {
         return "Some of your team have been response to this message.";
@@ -1285,56 +1419,11 @@ $app->put('/api/fse/startwork', function(Request $request, Response $response){
 
 // Update ticket status to
 $app->put('/api/fse/notfinishwork', function(Request $request, Response $response){
-    $job_status = 'Incomplete';
+    $job_status = 'Incomplete Pending Approve';
     $notes = $request->getParam('notes');
     $cm_id = $request->getParam('cm_id');
     $complete_time = date('Y-m-d H:i:s', time());
     $is_finish = false;
-
-    $sql = "SELECT COUNT(cm_id) FROM srm_request";
-    try{
-        // Get DB Object
-        $db = new db();
-        // Connect
-        $db = $db->connect();
-
-        $stmt = $db->query($sql);
-        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
-        $db = null;
-        $result = json_encode($result);
-        $result = json_decode($result, true);
-        $current_number =  $result[0]['COUNT(cm_id)'] + 1;
-        $current_number = str_pad($current_number, 4, "0", STR_PAD_LEFT);
-        $cm_id_new = 'CM-' . date("Y") . '-' . $current_number;
-    } catch(PDOException $e){
-        $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
-    }
-
-    $sql = "SELECT sng_code, name, phone_number, srm_request.email, problem_type,
-                asset_problem, asset_detected, solution, suggestions, cause_id,
-                correction_id, ups_status, cause_detail, correction_detail, job_status,
-                GROUP_CONCAT(DISTINCT job_fse.fse_code ORDER BY engname ASC SEPARATOR ',')
-            FROM srm_request, job_fse, fse
-            WHERE srm_request.cm_id = '$cm_id'
-                AND job_fse.job_id  = '$cm_id'
-                AND fse.fse_code    = job_fse.fse_code
-            GROUP BY srm_request.cm_id";
-    try{
-        // Get DB Object
-        $db = new db();
-        // Connect
-        $db = $db->connect();
-
-        $stmt = $db->query($sql);
-        $result =  $stmt->fetch(PDO::FETCH_OBJ);
-        $result = json_encode($result);
-        $result = json_decode($result, true);
-        $db = null;
-    }catch(PDOException $e){
-        $db = null;
-        return $e->getmessage();
-    }
 
     if ($result['job_status'] == 'Working in Progress'){
         $sql = "UPDATE srm_request SET
@@ -1357,97 +1446,16 @@ $app->put('/api/fse/notfinishwork', function(Request $request, Response $respons
             $stmt->execute();
             $action = 'Work Incomplete CM id :';
             $db = null;
-        } catch(PDOException $e){
+            return $response->withStatus(200)->getBody()->write("SUCCESS");
+
+        } catch(PDOException $e) {
             $db = null;
-            echo '{"error": {"text": '.$e->getMessage().'}';
-        }
-
-        $sng_code = $result['sng_code'];
-        $name = $result['name'];
-        $phone_number = $result['phone_number'];
-        $email = $result['email'];
-        $problem_type = $result['problem_type'];
-        $asset_problem = $result['asset_problem'];
-        $asset_detected = $result['asset_detected'];
-        $solution = $result['solution'];
-        $suggestions = $result['suggestions'];
-        $cause_id = $result['cause_id'];
-        $correction_id = $result['correction_id'];
-        $ups_status = $result['ups_status'];
-        $cause_detail = $result['cause_detail'];
-        $correction_detail = $result['correction_detail'];
-        $fse_code = explode(',', $result["GROUP_CONCAT(DISTINCT job_fse.fse_code ORDER BY engname ASC SEPARATOR ',')"]);
-        $job_status = 'Acknowledged';
-        $work_class = 'CM';
-
-        $sql = "INSERT INTO srm_request (cm_id, sng_code, name, email, phone_number, problem_type,
-                            asset_problem, asset_detected, solution, suggestions, cause_id, correction_id,
-                            job_status, request_time, cause_detail, correction_detail, work_class)
-                VALUES  (:set_new_cm_id, :set_sng_code, :set_name, :set_email, :set_phone_number,
-                        :set_problem_type, :set_asset_problem, :set_asset_detected, :set_solution,
-                        :set_suggestions, :set_cause_id, :set_correction_id, :set_job_status,
-                        :set_request_time, :set_cause_detail, :set_correction_detail, :set_work_class)";
-
-        try{
-            // Get DB Object
-            $db = new db();
-            // Connect
-            $db = $db->connect();
-            $stmt = $db->prepare($sql);
-            $stmt->bindParam(':set_new_cm_id', $cm_id_new);
-            $stmt->bindParam(':set_sng_code', $sng_code);
-            $stmt->bindParam(':set_name', $name);
-            $stmt->bindParam(':set_email', $email);
-            $stmt->bindParam(':set_phone_number', $phone_number);
-            $stmt->bindParam(':set_problem_type', $problem_type);
-            $stmt->bindParam(':set_asset_problem', $asset_problem);
-            $stmt->bindParam(':set_asset_detected', $asset_detected);
-            $stmt->bindParam(':set_solution', $solution);
-            $stmt->bindParam(':set_suggestions', $suggestions);
-            $stmt->bindParam(':set_cause_id', $cause_id);
-            $stmt->bindParam(':set_correction_id', $correction_id);
-            $stmt->bindParam(':set_job_status', $job_status);
-            $stmt->bindParam(':set_request_time', $complete_time);
-            $stmt->bindParam(':set_cause_detail', $cause_detail);
-            $stmt->bindParam(':set_correction_detail', $correction_detail);
-            $stmt->bindParam(':set_work_class', $work_class);
-
-            $stmt->execute();
-
-            $action = 'Work Incomplete CM id :';
-            $db = null;
-
-        } catch(PDOException $e){
-            $db = null;
-            echo '{"error": {"text": '.$e->getMessage().'}';
-        }
-
-
-        $sql = "INSERT INTO job_fse (job_id, fse_code) VALUES ";
-
-        foreach ($fse_code as $code=>$value) {
-            $sql = $sql . '(' . "'" . $cm_id_new . "'" . ', ' . "'" . $value . "'" . '),';
-        }
-        $last_char = strlen($sql) - 1;
-        $sql[$last_char] = ";";
-
-        try{
-            // Get DB Object
-            $db = new db();
-            // Connect
-            $db = $db->connect();
-            $stmt = $db->prepare($sql);
-            $stmt->execute();
-            return "SUCCESS";
-        }catch(PDOException $e){
-            $db = null;
-            return $e->getmessage();
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
         }
     } else {
         return "Some of your team have been response to this message.";
     }
 });
-
 
 // Update ticket status to Working in
 $app->put('/api/fse/finishwork', function(Request $request, Response $response){
@@ -1457,7 +1465,9 @@ $app->put('/api/fse/finishwork', function(Request $request, Response $response){
     $complete_time = date('Y-m-d H:i:s', time());
     $is_finish = true;
 
-    $sql = "SELECT job_status FROM srm_request WHERE cm_id = '$cm_id'";
+    $sql = "SELECT job_status 
+            FROM srm_request 
+            WHERE cm_id = '$cm_id'";
     try{
         // Get DB Object
         $db = new db();
@@ -1469,17 +1479,17 @@ $app->put('/api/fse/finishwork', function(Request $request, Response $response){
         $result = json_encode($result);
         $result = json_decode($result, true);
         $db = null;
-    }catch(PDOException $e){
+    } catch(PDOException $e) {
         $db = null;
-        return $e->getmessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
     // return 'abc';
     if ($result['job_status'] == 'Working in Progress'){
 
         $sql = "UPDATE srm_request SET
-                    job_status = :set_job_status,
+                    job_status    = :set_job_status,
                     complete_time = :set_complete_time,
-                    is_finish = :set_is_finish
+                    is_finish     = :set_is_finish
                 WHERE cm_id = '$cm_id'";
 
         try{
@@ -1496,23 +1506,25 @@ $app->put('/api/fse/finishwork', function(Request $request, Response $response){
             $action = 'Work Complete CM id :';
             system_log($engname . $action . $cm_id);
             $db = null;
-            return "SUCCESS";
+            return $response->withStatus(200)->getBody()->write("SUCCESS");
 
-        } catch(PDOException $e){
+        } catch(PDOException $e) {
             $db = null;
-            echo '{"error": {"text": '.$e->getMessage().'}';
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
         }
     } else {
         return "Some of your team have been response to this message.";
     }
 });
 
-// Approve CM
-$app->put('/api/admin/approvecm', function(Request $request, Response $response){
-    $job_status = 'Completed';
-    $cm_id = $request->getParam('cm_id');
-    $approve_time = date('Y-m-d H:i:s', time());
-    $sql = "SELECT job_status FROM srm_request WHERE cm_id = '$cm_id'";
+// Verify Incomplete
+$app->put('/api/admin/reject', function(Request $request, Response $response){
+    $cm_id  = $request->getParam('cm_id');
+    $status  = $request->getParam('status');
+    
+    $sql = "SELECT job_status, complete_time 
+            FROM srm_request 
+            WHERE cm_id = '$cm_id'";
     try{
         // Get DB Object
         $db = new db();
@@ -1524,19 +1536,96 @@ $app->put('/api/admin/approvecm', function(Request $request, Response $response)
         $result = json_encode($result);
         $result = json_decode($result, true);
         $db = null;
-    }catch(PDOException $e){
+    } catch(PDOException $e) {
         $db = null;
-        return $e->getmessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
-    if ($result['job_status'] == 'Pending Approve'){
+    if ($result['job_status'] == 'Incomplete Pending Approve' || 
+    $result['job_status'] == 'Pending Approve'){
 
+        $sql = "UPDATE srm_request SET
+                    job_status    = :set_job_status,
+                    complete_time = :set_complete_time,
+                    is_finish     = :set_is_finish
+                WHERE cm_id = '$cm_id'";
+        
+        if ($status == 'Incomplete Pending Approve') { 
+            $job_status = "Completed";
+            $is_finish = true;
+            $complete_time = $result['complete_time'];
+       } elseif ($status == 'Pending Approve') {
+            $job_status = 'Working in Progress';
+            $complete_time = '';
+            $is_finish = false;
+       } else {
+           return; 
+       }
+
+        try {
+            // Get DB Object
+            $db = new db();
+            // Connect
+            $db = $db->connect();
+            $stmt = $db->prepare($sql);
+            $stmt->bindParam(':set_job_status', $job_status);
+            $stmt->bindParam(':set_complete_time', $complete_time);
+            $stmt->bindParam(':set_is_finish', $is_finish);
+            $stmt->execute();
+            $action = 'Reject CM id :';
+            system_log($action . $cm_id);
+            $db = null;
+            return $response->withStatus(200)->getBody()->write("SUCCESS");
+
+        } catch(PDOException $e){
+            $db = null;
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
+        }
+    } else {
+        return "Some of your team have been response to this message.";
+    }
+});
+
+// Approve CM
+$app->put('/api/admin/approvecm', function(Request $request, Response $response){
+    $cm_id = $request->getParam('cm_id');
+    $approve_time = date('Y-m-d H:i:s', time());
+    $sql = "SELECT job_status 
+            FROM srm_request 
+            WHERE cm_id = '$cm_id'";
+    
+    try {
+        // Get DB Object
+        $db = new db();
+        // Connect
+        $db = $db->connect();
+
+        $stmt = $db->query($sql);
+        $result =  $stmt->fetch(PDO::FETCH_OBJ);
+        $result = json_encode($result);
+        $result = json_decode($result, true);
+        $db = null;
+    
+    } catch(PDOException $e) {
+        $db = null;
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
+    }
+
+    if ($result['job_status'] == 'Pending Approve' || $result['job_status'] == 'Incomplete Pending Approve'){
+        
+        if ($result['job_status'] == 'Pending Approve') { 
+            $job_status = "Completed";
+            $is_finish = true;
+       } elseif ($result['job_status'] == 'Incomplete Pending Approve') {
+            $job_status = 'Incomplete';
+            $is_finish = false;
+       }
         $sql = "UPDATE srm_request SET
                     job_status   = :set_job_status,
                     approve_time = :set_approve_time
                 WHERE cm_id = '$cm_id'";
 
-        try{
+        try {
             // Get DB Object
             $db = new db();
             // Connect
@@ -1549,11 +1638,128 @@ $app->put('/api/admin/approvecm', function(Request $request, Response $response)
             $action = 'Approve CM id :';
             system_log($action . $cm_id);
             $db = null;
-            return "SUCCESS";
-
-        } catch(PDOException $e){
+            if ($result['job_status'] == 'Pending Approve') return "SUCCESS";
+        } catch(PDOException $e) {
             $db = null;
-            echo '{"error": {"text": '.$e->getMessage().'}';
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
+        }
+
+        if ($result['job_status'] == 'Incomplete Pending Approve'){
+            $old_cm = implode("-", array_slice(explode("-", $cm_id), 0, 3));
+
+            $sql = "SELECT COUNT(cm_id) FROM srm_request WHERE cm_id LIKE '$old_cm%'";
+            try{
+                // Get DB Object
+                $db = new db();
+                // Connect
+                $db = $db->connect();
+
+                $stmt = $db->query($sql);
+                $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+                $db = null;
+                $result = json_encode($result);
+                $result = json_decode($result, true);
+                $current_number =  $result[0]['COUNT(cm_id)'];
+                $cm_id_new = $old_cm . "-" . $current_number;
+            } catch(PDOException $e) {
+                $db = null;
+                return $response->withStatus(400)->getBody()->write($e->getmessage());
+            }
+
+            $sql = "SELECT sng_code, name, phone_number, srm_request.email, problem_type,
+                            asset_problem, asset_detected, solution, suggestions, cause_id,
+                            correction_id, ups_status, cause_detail, correction_detail
+                    FROM srm_request
+                    WHERE srm_request.cm_id = '$cm_id'";
+
+            try{
+                // Get DB Object
+                $db = new db();
+                // Connect
+                $db = $db->connect();
+
+                $stmt = $db->query($sql);
+                $result =  $stmt->fetch(PDO::FETCH_OBJ);
+                $result = json_encode($result);
+                $result = json_decode($result, true);
+                $db = null;
+            } catch(PDOException $e) {
+                $db = null;
+                return $response->withStatus(400)->getBody()->write($e->getmessage());
+            }
+
+            $sng_code = $result['sng_code'];
+            $name = $result['name'];
+            $phone_number = $result['phone_number'];
+            $email = $result['email'];
+            $problem_type = $result['problem_type'];
+            $asset_problem = $result['asset_problem'];
+            $asset_detected = $result['asset_detected'];
+            $solution = $result['solution'];
+            $suggestions = $result['suggestions'];
+            $cause_id = $result['cause_id'];
+            $correction_id = $result['correction_id'];
+            $ups_status = $result['ups_status'];
+            $cause_detail = $result['cause_detail'];
+            $correction_detail = $result['correction_detail'];
+            $job_status = 'Pending';
+            $work_class = 'CM';
+
+            $sql = "INSERT INTO srm_request (cm_id, sng_code, name, email, phone_number, problem_type,
+                                asset_problem, asset_detected, solution, suggestions, cause_id, correction_id,
+                                job_status, request_time, cause_detail, correction_detail, work_class)
+                    VALUES  (:set_new_cm_id, :set_sng_code, :set_name, :set_email, :set_phone_number,
+                            :set_problem_type, :set_asset_problem, :set_asset_detected, :set_solution,
+                            :set_suggestions, :set_cause_id, :set_correction_id, :set_job_status,
+                            :set_request_time, :set_cause_detail, :set_correction_detail, :set_work_class)";
+
+            try{
+                // Get DB Object
+                $db = new db();
+                // Connect
+                $db = $db->connect();
+                $stmt = $db->prepare($sql);
+                $stmt->bindParam(':set_new_cm_id', $cm_id_new);
+                $stmt->bindParam(':set_sng_code', $sng_code);
+                $stmt->bindParam(':set_name', $name);
+                $stmt->bindParam(':set_email', $email);
+                $stmt->bindParam(':set_phone_number', $phone_number);
+                $stmt->bindParam(':set_problem_type', $problem_type);
+                $stmt->bindParam(':set_asset_problem', $asset_problem);
+                $stmt->bindParam(':set_asset_detected', $asset_detected);
+                $stmt->bindParam(':set_solution', $solution);
+                $stmt->bindParam(':set_suggestions', $suggestions);
+                $stmt->bindParam(':set_cause_id', $cause_id);
+                $stmt->bindParam(':set_correction_id', $correction_id);
+                $stmt->bindParam(':set_job_status', $job_status);
+                $stmt->bindParam(':set_request_time', $approve_time);
+                $stmt->bindParam(':set_cause_detail', $cause_detail);
+                $stmt->bindParam(':set_correction_detail', $correction_detail);
+                $stmt->bindParam(':set_work_class', $work_class);
+                $stmt->execute();
+                $db = null;
+
+            } catch(PDOException $e){
+                $db = null;
+                return $response->withStatus(400)->getBody()->write($e->getmessage());
+            }
+
+            $sql = "INSERT INTO job_fse (job_id, fse_code)
+                    VALUES  ('$cm_id_new', '0')";
+
+            try{
+                // Get DB Object
+                $db = new db();
+                // Connect
+                $db = $db->connect();
+                $stmt = $db->prepare($sql);
+                $stmt->execute();
+                $db = null;
+                return $response->withStatus(200)->getBody()->write("SUCCESS");
+            } catch(PDOException $e){
+                $db = null;
+                return $response->withStatus(400)->getBody()->write($e->getmessage());
+            }
         }
     } else {
         return "Some of your team have been response to this message.";
@@ -1598,12 +1804,12 @@ $app->put('/api/admin/assignticket', function(Request $request, Response $respon
         $stmt->execute();
         $db = null;
 
-    } catch(PDOException $e){
+    } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
-    if ($fse_code != ''){
+    if ($fse_code != 0) {
         $sql = "INSERT INTO job_fse (job_id, fse_code) VALUES ";
 
         foreach ($fse_code as $code=>$value) {
@@ -1612,7 +1818,7 @@ $app->put('/api/admin/assignticket', function(Request $request, Response $respon
         $last_char = strlen($sql) - 1;
         $sql[$last_char] = ";";
 
-    }else{
+    } else { 
         $sql = "INSERT INTO job_fse (job_id, fse_code) VALUES ('$cm_id', '0')";
     }
 
@@ -1626,13 +1832,13 @@ $app->put('/api/admin/assignticket', function(Request $request, Response $respon
 
     }catch(PDOException $e){
         $db = null;
-        return $e->getmessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
     if ($job_type != 'Fixed by Phone')
     {
-        if ($complete_time != '' && $fse_code != '' && $cm_time != '' && $job_type != '') $job_status = 'Pending Approve';
-        elseif ($complete_time == '') $job_status = 'Assigned';
+        if ($complete_time != '' && $fse_code != 0 && $cm_time != '' && $job_type != '') $job_status = 'Pending Approve';
+        elseif ($complete_time == '' && $fse_code != 0 && $cm_time != '' && $job_type != '') $job_status = 'Assigned';
         else $job_status = 'Pending';
     } else {
         $job_status = "Closed";
@@ -1689,13 +1895,13 @@ $app->put('/api/admin/assignticket', function(Request $request, Response $respon
 
         system_log('Assign ticket at JOBID: ' . $cm_id);
         $db = null;
-        // return "Success";
-    }catch(PDOException $e){
+        
+    } catch(PDOException $e) {
         $db = null;
-        return $e->getmessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
-    if ($fse_code != '' && $cm_time != '' && $job_type != '' && $complete_time == '') {
+    if ($fse_code != 0 && $cm_time != '' && $job_type != '' && $complete_time == '') {
         $sql1 = "SELECT thainame, email, fse_code, username FROM fse WHERE fse_code IN (";
 
         foreach ($fse_code as $code=>$value){
@@ -1704,10 +1910,11 @@ $app->put('/api/admin/assignticket', function(Request $request, Response $respon
         $last_char = strlen($sql1) - 1;
         $sql1[$last_char] = ")";
 
-        $sql2 = "SELECT location.*, asset_tracker.*, material_master_record.* FROM location, asset_tracker, material_master_record
-        WHERE sng_code = '$sng_code'
-        AND location.location_code = asset_tracker.location_code
-        AND asset_tracker.itemnumber = material_master_record.itemnumber";
+        $sql2 = "SELECT location.*, asset_tracker.*, material_master_record.* 
+                FROM location, asset_tracker, material_master_record
+                WHERE sng_code = '$sng_code'
+                    AND location.location_code = asset_tracker.location_code
+                    AND asset_tracker.itemnumber = material_master_record.itemnumber";
 
         try{
             // Get DB Object
@@ -1766,18 +1973,18 @@ $app->put('/api/admin/assignticket', function(Request $request, Response $respon
                 '<a href="url">poowapong@synergize.co.th</a><br>';
                 $res = smtp($subject, $body, $row['email']);
             }
-            return "SUCCESS";
+            return $response->withStatus(200)->getBody()->write("SUCCESS");
             $db = null;
+
         } catch(PDOException $e){
             $db = null;
-            echo '{"error": {"text": '.$e->getMessage().'}';
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
         }
     }
 });
 
 // Add Service Request
 $app->post('/api/admin/addservice', function(Request $request, Response $response){
-
     //Prepare Required Parameters
     $title = $request->getParam('title');
     $description = $request->getParam('description');
@@ -1794,7 +2001,7 @@ $app->post('/api/admin/addservice', function(Request $request, Response $respons
     $result = add_service_request($title, $description, $work_class, $contact_name, $contact_number, $alternate_number, $asset, $fse_code, $leader, $due_date, $status);
 
     if (substr($result,0,3) == 'JOB') {
-        return 'SUCCESS';
+        return $response->withStatus(200)->getBody()->write("SUCCESS");
     }
 
 });
@@ -1828,7 +2035,10 @@ $app->post('/api/admin/updateservice', function(Request $request, Response $resp
     foreach ($asset as &$sng_code) {
         //Filter out empty asset field
         if ($sng_code != '') {
-            $sql = "SELECT sng_code, location_code FROM asset_tracker WHERE sng_code = '$sng_code' LIMIT 1";
+            $sql = "SELECT sng_code, location_code 
+                    FROM asset_tracker 
+                    WHERE sng_code = '$sng_code' 
+                    LIMIT 1";
             try{
                 $db = new db();
                 $db = $db->connect();
@@ -1844,22 +2054,22 @@ $app->post('/api/admin/updateservice', function(Request $request, Response $resp
                 }
             } catch(PDOException $e) {
                 $db = null;
-                echo '{"error": {"text": '.$e->getMessage().'}';
+                return $response->withStatus(400)->getBody()->write($e->getmessage());
             }
         }
     }
 
     //Insert new row to service_request table
     $sql = "UPDATE service_request SET
-            service_request_id  = :set_service_request_id,
-            title               = :set_title,
-            description         = :set_description,
-            status              = :set_status,
-            contact_name        = :set_contact_name,
-            contact_number      = :set_contact_number,
-            alternate_number    = :set_alternate_number,
-            work_class          = :set_work_class,
-            due_date            = :set_due_date
+                service_request_id  = :set_service_request_id,
+                title               = :set_title,
+                description         = :set_description,
+                status              = :set_status,
+                contact_name        = :set_contact_name,
+                contact_number      = :set_contact_number,
+                alternate_number    = :set_alternate_number,
+                work_class          = :set_work_class,
+                due_date            = :set_due_date
             WHERE service_request_id = '$service_request_id'";
     try{
         $db = new db();
@@ -1877,11 +2087,12 @@ $app->post('/api/admin/updateservice', function(Request $request, Response $resp
         $stmt->execute();
     } catch(PDOException $e) {
         $db = null;
-        return $e->getmessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
     //Clear old service_asset row
-    $sql = "DELETE FROM service_asset WHERE service_request_id = '$service_request_id'";
+    $sql = "DELETE FROM service_asset 
+            WHERE service_request_id = '$service_request_id'";
     try{
         $db = new db();
         $db = $db->connect();
@@ -1890,7 +2101,7 @@ $app->post('/api/admin/updateservice', function(Request $request, Response $resp
         $db = null;
     } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());        
     }
 
     //Insert new row to service_asset table
@@ -1910,11 +2121,12 @@ $app->post('/api/admin/updateservice', function(Request $request, Response $resp
         $stmt->execute();
     } catch(PDOException $e) {
         $db = null;
-        return $e->getmessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
     //Clear old service_fse row
-    $sql = "DELETE FROM service_fse WHERE service_request_id = '$service_request_id'";
+    $sql = "DELETE FROM service_fse 
+            WHERE service_request_id = '$service_request_id'";
     try{
         $db = new db();
         $db = $db->connect();
@@ -1923,7 +2135,7 @@ $app->post('/api/admin/updateservice', function(Request $request, Response $resp
         $db = null;
     } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
     //Insert new row to service_fse table
@@ -1938,17 +2150,20 @@ $app->post('/api/admin/updateservice', function(Request $request, Response $resp
     }
     $last_char = strlen($sql) - 1;
     $sql[$last_char] = ";";
-    try{
+    try {
         $db = new db();
         $db = $db->connect();
         $stmt = $db->prepare($sql);
         $stmt->execute();
     } catch(PDOException $e) {
         $db = null;
-        return $e->getmessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
     //Logging action
-    $sql = "SELECT service_request_id FROM service_request WHERE service_request_id = '$service_request_id' LIMIT 1";
+    $sql = "SELECT service_request_id 
+            FROM service_request 
+            WHERE service_request_id = '$service_request_id' 
+            LIMIT 1";
     try{
         // Get DB Object
         $db = new db();
@@ -1961,11 +2176,11 @@ $app->post('/api/admin/updateservice', function(Request $request, Response $resp
         $result = json_decode($result, true);
         system_log('Update Service with Service ID: ' . $result['service_request_id']);
         $db = null;
-        return "SUCCESS";
+        return $response->withStatus(200)->getBody()->write("SUCCESS");
 
-    }catch(PDOException $e){
+    } catch(PDOException $e) {
         $db = null;
-        return $e->getmessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
@@ -2005,7 +2220,10 @@ $app->post('/api/admin/addplan', function(Request $request, Response $response){
     foreach ($asset as &$sng_code) {
       //Filter out empty asset field
       if ($sng_code != '') {
-        $sql = "SELECT sng_code, location_code FROM asset_tracker WHERE sng_code = '$sng_code' LIMIT 1";
+        $sql = "SELECT sng_code, location_code 
+                FROM asset_tracker 
+                WHERE sng_code = '$sng_code' 
+                LIMIT 1";
         try{
           $db = new db();
           $db = $db->connect();
@@ -2021,7 +2239,7 @@ $app->post('/api/admin/addplan', function(Request $request, Response $response){
           }
         } catch(PDOException $e) {
           $db = null;
-          echo '{"error": {"text": '.$e->getMessage().'}';
+          return $response->withStatus(400)->getBody()->write($e->getmessage());
         }
       }
     }
@@ -2050,12 +2268,14 @@ $app->post('/api/admin/addplan', function(Request $request, Response $response){
         }
     } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
     //Insert new row to maintenance_plan table
-    $sql = "INSERT INTO maintenance_plan (maintenance_plan_id, title, start_date, year_count, times_per_year, sale_order_no)
-            VALUES (:set_maintenance_plan_id, :set_title, :set_start_date, :set_year_count, :set_times_per_year, :set_sale_order_no)";
+    $sql = "INSERT INTO maintenance_plan (maintenance_plan_id, title, start_date, year_count, 
+                        times_per_year, sale_order_no)
+            VALUES (:set_maintenance_plan_id, :set_title, :set_start_date, :set_year_count, 
+                    :set_times_per_year, :set_sale_order_no)";
     try{
         $db = new db();
         $db = $db->connect();
@@ -2069,7 +2289,7 @@ $app->post('/api/admin/addplan', function(Request $request, Response $response){
         $stmt->execute();
     } catch(PDOException $e) {
         $db = null;
-        return $e->getmessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
     //Batch add_service_request for each plan_date[]
@@ -2087,12 +2307,15 @@ $app->post('/api/admin/addplan', function(Request $request, Response $response){
             $stmt->execute();
         } catch(PDOException $e) {
             $db = null;
-            return $e->getmessage();
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
         }
     }
 
     //Logging action
-    $sql = "SELECT maintenance_plan_id FROM maintenance_plan WHERE maintenance_plan_id = '$maintenance_plan_id' LIMIT 1";
+    $sql = "SELECT maintenance_plan_id 
+            FROM maintenance_plan 
+            WHERE maintenance_plan_id = '$maintenance_plan_id' 
+            LIMIT 1";
     try{
         // Get DB Object
         $db = new db();
@@ -2105,18 +2328,19 @@ $app->post('/api/admin/addplan', function(Request $request, Response $response){
         $result = json_decode($result, true);
         system_log('Add Service with Maintenance Plan ID: ' . $result['maintenance_plan_id']);
         $db = null;
-        return "SUCCESS";
+        return $response->withStatus(200)->getBody()->write("SUCCESS");
 
     }catch(PDOException $e){
         $db = null;
-        return $e->getmessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
 function add_service_request($title, $description, $work_class, $contact_name, $contact_number, $alternate_number, $asset, $fse_code, $leader, $due_date, $status) {
 
     //Generate next service_request_id
-    $sql = "SELECT MAX(service_request_id) FROM service_request";
+    $sql = "SELECT MAX(service_request_id) 
+            FROM service_request";
     try{
         $db = new db();
         $db = $db->connect();
@@ -2148,7 +2372,10 @@ function add_service_request($title, $description, $work_class, $contact_name, $
     foreach ($asset as &$sng_code) {
       //Filter out empty asset field
       if ($sng_code != '') {
-        $sql = "SELECT sng_code, location_code FROM asset_tracker WHERE sng_code = '$sng_code' LIMIT 1";
+        $sql = "SELECT sng_code, location_code 
+                FROM asset_tracker 
+                WHERE sng_code = '$sng_code' 
+                LIMIT 1";
         try{
           $db = new db();
           $db = $db->connect();
@@ -2170,8 +2397,10 @@ function add_service_request($title, $description, $work_class, $contact_name, $
     }
 
     //Insert new row to service_request table
-    $sql = "INSERT INTO service_request (service_request_id, title, description, status, contact_name, contact_number, alternate_number, work_class, due_date)
-            VALUES (:set_service_request_id, :set_title, :set_description, :set_status, :set_contact_name, :set_contact_number, :set_alternate_number, :set_work_class, :set_due_date)";
+    $sql = "INSERT INTO service_request (service_request_id, title, description, status, contact_name, 
+                                        contact_number, alternate_number, work_class, due_date)
+            VALUES (:set_service_request_id, :set_title, :set_description, :set_status, :set_contact_name, 
+                    :set_contact_number, :set_alternate_number, :set_work_class, :set_due_date)";
 
     try{
         $db = new db();
@@ -2235,7 +2464,10 @@ function add_service_request($title, $description, $work_class, $contact_name, $
     }
 
     //Logging action
-    $sql = "SELECT service_request_id FROM service_request WHERE service_request_id = '$service_request_id' LIMIT 1";
+    $sql = "SELECT service_request_id 
+            FROM service_request 
+            WHERE service_request_id = '$service_request_id' 
+            LIMIT 1";
     try{
         // Get DB Object
         $db = new db();
@@ -2262,28 +2494,19 @@ $app->put('/api/admin/updateasset', function(Request $request, Response $respons
     $customer_no = $request->getParam('customer_no');
     $location_code = $request->getParam('location_code');
     $sale_order_no = $request->getParam('sale_order_no');
-
     $contactname = $request->getParam('contactname');
     $contactnumber = $request->getParam('contactnumber');
-
     $pmyear = $request->getParam('pmyear');
     $nextpm = $request->getParam('nextpm');
-
     $itemnumber = $request->getParam('itemnumber');
-
     $serial = $request->getParam('serial');
-
     $fse_code = $request->getParam('fse_code');
-
     $battery = $request->getParam('battery');
     $quantity = $request->getParam('quantity');
     $battery_date = $request->getParam('battery_date');
-
     $startwarranty = $request->getParam('startwarranty');
     $endwarranty = $request->getParam('endwarranty');
-
     $ups_status = $request->getParam('ups_status');
-
     $sla_conditon = $request->getParam('sla_condition');
     $sla_response = $request->getParam('sla_response');
     $sla_recovery = $request->getParam('sla_recovery');
@@ -2346,28 +2569,32 @@ $app->put('/api/admin/updateasset', function(Request $request, Response $respons
         $stmt->execute();
         system_log('Edit asset at SNGCODE: ' . $sng_code);
         $db = null;
-        return "SUCCESS";
+        return $response->withStatus(200)->getBody()->write("SUCCESS");
 
-    } catch(PDOException $e){
+    } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
 // Get single asset
 $app->get('/api/admin/singleasset', function(Request $request, Response $response){
     $sng_code = $request->getParam('sng_code');
-    $sql = "SELECT sng_code, asset_tracker.sale_order_no, sale_order.since, contactname, contactnumber, pmyear, nextpm, typeofcontract,
-    sla_condition, sla_response, sla_recovery, date_order, po_number, po_date, customer_name, model, serial, engname, do_number,
-    battery, quantity, battery_date, sitename, house_no, village_no, soi, road, sub_district,
-    district, province, postal_code, region, country, contactname, contactnumber, startwarranty,
-    endwarranty, ups_status, pmyear, nextpm, power, asset_tracker.itemnumber, date_order, po_number,
-    do_number, asset_tracker.location_code, asset_tracker.customer_no
-    FROM asset_tracker, location, sale_order, customers, fse, material_master_record WHERE asset_tracker.sng_code = '$sng_code'
-    AND asset_tracker.location_code = location.location_code
-    AND sale_order.sale_order_no = asset_tracker.sale_order_no
-    AND asset_tracker.customer_no = customers.customer_no AND asset_tracker.fse_code = fse.fse_code
-    AND asset_tracker.itemnumber = material_master_record.itemnumber";
+
+    $sql = "SELECT sng_code, asset_tracker.sale_order_no, sale_order.since, contactname, contactnumber, 
+                    pmyear, nextpm, typeofcontract, sla_condition, sla_response, sla_recovery, date_order, 
+                    po_number, po_date, customer_name, model, serial, engname, do_number, battery, quantity, 
+                    battery_date, sitename, house_no, village_no, soi, road, sub_district, district, province, 
+                    postal_code, region, country, contactname, contactnumber, startwarranty,
+                    endwarranty, ups_status, pmyear, nextpm, power, asset_tracker.itemnumber, date_order,
+                    po_number, do_number, asset_tracker.location_code, asset_tracker.customer_no
+            FROM asset_tracker, location, sale_order, customers, fse, material_master_record 
+            WHERE asset_tracker.sng_code = '$sng_code'
+                AND asset_tracker.location_code = location.location_code
+                AND sale_order.sale_order_no = asset_tracker.sale_order_no
+                AND asset_tracker.customer_no = customers.customer_no 
+                AND asset_tracker.fse_code = fse.fse_code
+                AND asset_tracker.itemnumber = material_master_record.itemnumber";
     try{
         // Get DB Object
         $db = new db();
@@ -2375,13 +2602,13 @@ $app->get('/api/admin/singleasset', function(Request $request, Response $respons
         $db = $db->connect();
 
         $stmt = $db->query($sql);
-        $request = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
+        return $response->withJson($result);
 
-        return json_encode($request);
-    } catch(PDOException $e){
+    } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
@@ -2389,31 +2616,31 @@ $app->get('/api/admin/singleasset', function(Request $request, Response $respons
 $app->get('/api/admin/request/single', function(Request $request, Response $response){
     $cm_id = $request->getParam('cm_id');
     $sql = "SELECT sng_code, name, email, phone_number, asset_problem, asset_detected,
-        srm_request.cause_id, cause_description, srm_request.correction_id, correction_description,
-        GROUP_CONCAT(fse_code), cm_time, complete_time, job_status, correction_detail, cause_detail,
-        problem_type, solution, suggestions, job_type, start_time, close_time
-        FROM srm_request, root_cause, correction, job_fse
-        WHERE cm_id = '$cm_id' AND srm_request.cause_id = root_cause.cause_id
-        AND srm_request.correction_id = correction.correction_id
-        AND job_fse.job_id = srm_request.cm_id GROUP BY srm_request.cm_id";
-        try{
-            // Get DB Object
-            $db = new db();
-            // Connect
-            $db = $db->connect();
+                    srm_request.cause_id, cause_description, srm_request.correction_id, correction_description,
+                    GROUP_CONCAT(fse_code), cm_time, complete_time, job_status, correction_detail, cause_detail,
+                    problem_type, solution, suggestions, job_type, start_time, close_time
+            FROM srm_request, root_cause, correction, job_fse
+            WHERE cm_id = '$cm_id' 
+            AND srm_request.cause_id = root_cause.cause_id
+            AND srm_request.correction_id = correction.correction_id
+            AND job_fse.job_id = srm_request.cm_id 
+            GROUP BY srm_request.cm_id";
+    try{
+        // Get DB Object
+        $db = new db();
+        // Connect
+        $db = $db->connect();
 
-            $stmt = $db->query($sql);
-            $request = $stmt->fetchAll(PDO::FETCH_OBJ);
-            $db = null;
+        $stmt = $db->query($sql);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $db = null;
+        return $response->withJson($result);
 
-            return json_encode($request);
-        } catch(PDOException $e){
-            $db = null;
-            echo '{"error": {"text": '.$e->getMessage().'}';
-        }
+    } catch(PDOException $e){
+        $db = null;
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
+    }
 });
-
-
 
 // Get single customer request
 $app->get('/api/admin/workload', function(Request $request, Response $response){
@@ -2474,29 +2701,30 @@ service_request.start_time,service_request.status
             AND asset_tracker.customer_no = customers.customer_no) as sub_q) AS sub_q3
             WHERE YEAR(sub_q3.date_start) = '$year'
                       AND MONTH(sub_q3.date_start) = '$month'";
-        try{
-            // Get DB Object
-            $db = new db();
-            // Connect
-            $db = $db->connect();
+    try{
+        // Get DB Object
+        $db = new db();
+        // Connect
+        $db = $db->connect();
 
-            $stmt = $db->query($sql);
-            $request = $stmt->fetchAll(PDO::FETCH_OBJ);
-            $db = null;
+        $stmt = $db->query($sql);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $db = null;
+        return $response->withJson($result);
 
-            return json_encode($request);
-        } catch(PDOException $e){
-            $db = null;
-            echo '{"error": {"text": '.$e->getMessage().'}';
-        }
+    } catch(PDOException $e) {
+        $db = null;
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
+    }
 });
 
 // Get all customer request
 $app->get('/api/admin/request', function(Request $request, Response $response){
      $sql = "SELECT cm_id sng_code, name, email, phone_number, asset_problem, asset_detected,
-        cause_description, correction_description, fse, cm_time, close_time, job_status FROM srm_request, root_cause
-        WHERE srm_request.cause_id = root_cause.cause_id
-        AND srm_request.correction_id = correction.correction_id";
+                cause_description, correction_description, fse, cm_time, close_time, job_status 
+            FROM srm_request, root_cause
+            WHERE srm_request.cause_id = root_cause.cause_id
+                AND srm_request.correction_id = correction.correction_id";
         try{
             // Get DB Object
             $db = new db();
@@ -2504,14 +2732,14 @@ $app->get('/api/admin/request', function(Request $request, Response $response){
             $db = $db->connect();
 
             $stmt = $db->query($sql);
-            $request = $stmt->fetchAll(PDO::FETCH_OBJ);
+            $result = $stmt->fetchAll(PDO::FETCH_OBJ);
 
             $db = null;
+            return $response->withJson($result);
 
-            return json_encode($request);
-        } catch(PDOException $e){
+        } catch(PDOException $e) {
             $db = null;
-            echo '{"error": {"text": '.$e->getMessage().'}';
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
         }
 });
 
@@ -2521,18 +2749,18 @@ $app->get('/api/admin/get_asset_location_code', function(Request $request, Respo
     $sql = "SELECT location.sitename, asset_tracker.location_code
             FROM asset_tracker, location
             WHERE asset_tracker.sng_code = '$sng_code'
-            AND asset_tracker.location_code = location.location_code";
+                AND asset_tracker.location_code = location.location_code";
     try{
         $db = new db();
         $db = $db->connect();
         $stmt = $db->query($sql);
-        $request = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
     } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
-    return json_encode($request);
+    return $response->withJson($result);
 });
 
 // Get asset location and customer
@@ -2541,19 +2769,19 @@ $app->get('/api/admin/get_asset_location_and_customer', function(Request $reques
     $sql = "SELECT location.sitename, asset_tracker.location_code, customers.customer_name, customers.customer_no
             FROM asset_tracker, location, customers
             WHERE asset_tracker.sng_code = '$sng_code'
-            AND asset_tracker.location_code = location.location_code
-            AND location.customer_no = customers.customer_no";
+                AND asset_tracker.location_code = location.location_code
+                AND location.customer_no = customers.customer_no";
     try{
         $db = new db();
         $db = $db->connect();
         $stmt = $db->query($sql);
-        $request = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
     } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
-    return json_encode($request);
+    return $response->withJson($result);
 });
 
 // Get lastest asset warranty
@@ -2562,18 +2790,18 @@ $app->get('/api/admin/get_asset_warranty', function(Request $request, Response $
     $sql = "SELECT start_date, end_date, year_count, times_per_year, typeofcontract
             FROM asset_tracker, warranty
             WHERE warranty.sng_code = '$sng_code'
-            AND warranty.sng_code = asset_tracker.sng_code";
+                AND warranty.sng_code = asset_tracker.sng_code";
     try{
         $db = new db();
         $db = $db->connect();
         $stmt = $db->query($sql);
-        $request = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
     } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
-    return json_encode($request);
+    return $response->withJson($result);
 });
 
 // Get single service request
@@ -2581,20 +2809,12 @@ $app->get('/api/admin/service/single', function(Request $request, Response $resp
     $service_request_id = $request->getParam('service_request_id');
 
     //Get service_request with fse
-    $sql = "SELECT service_request.service_request_id,
-            title,
-            description,
-            work_class,
-            contact_name,
-            contact_number,
-            alternate_number,
-            GROUP_CONCAT(fse_code),
-            GROUP_CONCAT(is_leader),
-            due_date,
-            status AS job_status
+    $sql = "SELECT service_request.service_request_id, title, description, work_class, contact_name,
+                contact_number, alternate_number, GROUP_CONCAT(fse_code), GROUP_CONCAT(is_leader), 
+                due_date, status AS job_status
             FROM service_request, service_fse
             WHERE service_request.service_request_id = '$service_request_id'
-            AND service_request.service_request_id = service_fse.service_request_id
+                AND service_request.service_request_id = service_fse.service_request_id
             GROUP BY service_request.service_request_id";
     try{
         $db = new db();
@@ -2604,7 +2824,7 @@ $app->get('/api/admin/service/single', function(Request $request, Response $resp
         $db = null;
     } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
     //Get service_request assets
@@ -2618,13 +2838,13 @@ $app->get('/api/admin/service/single', function(Request $request, Response $resp
         $stmt = $db->query($sql);
         $request2 = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
+        $json_data = array_merge($request1, $request2);
 
-        $json_data = json_encode(array_merge($request1,$request2));
     } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
-    return $json_data;
+    return $response->withJson($json_data);
 });
 
 // Get single maintenance plan
@@ -2632,11 +2852,7 @@ $app->get('/api/admin/plan/single', function(Request $request, Response $respons
     $maintenance_plan_id = $request->getParam('maintenance_plan_id');
 
     //Get service_request with fse
-    $sql = "SELECT maintenance_plan_id,
-            title,
-            start_date,
-            year_count,
-            times_per_year
+    $sql = "SELECT maintenance_plan_id, title, start_date, year_count, times_per_year
             FROM maintenance_plan
             WHERE maintenance_plan_id = '$maintenance_plan_id'
             LIMIT 1";
@@ -2644,19 +2860,21 @@ $app->get('/api/admin/plan/single', function(Request $request, Response $respons
         $db = new db();
         $db = $db->connect();
         $stmt = $db->query($sql);
-        $request = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-        return json_encode($request);
+        return $response->withJson($result);
     } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
 // Get all user
 $app->get('/api/admin/getuser', function(Request $request, Response $response){
-    $sql = "SELECT account_status, account_type, is_lock, last_login, account_name, username_tag FROM account
-    LEFT JOIN customers ON customers.customer_no = account.account_no";
+    $sql = "SELECT account_status, account_type, is_lock, last_login, account_name, username_tag 
+            FROM account
+            LEFT JOIN customers 
+                ON customers.customer_no = account.account_no";
 
         try{
             // Get DB Object
@@ -2665,21 +2883,22 @@ $app->get('/api/admin/getuser', function(Request $request, Response $response){
             $db = $db->connect();
 
             $stmt = $db->query($sql);
-            $request = $stmt->fetchAll(PDO::FETCH_OBJ);
+            $result = $stmt->fetchAll(PDO::FETCH_OBJ);
             $db = null;
+            return $response->withJson($result);
 
-            return json_encode($request);
         } catch(PDOException $e){
             $db = null;
-            echo '{"error": {"text": '.$e->getMessage().'}';
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
         }
-
 });
 
 
-// Get FSE
+// Get FSE for assigning FSE.
 $app->get('/api/admin/getfse', function (Request $request, Response $response) {
-    $sql = "SELECT engname, fse_code, status FROM fse ORDER BY engname ASC";
+    $sql = "SELECT engname, fse_code, status 
+            FROM fse 
+            ORDER BY engname ASC";
     try{
         // Get DB Object
         $db = new db();
@@ -2687,18 +2906,17 @@ $app->get('/api/admin/getfse', function (Request $request, Response $response) {
         $db = $db->connect();
 
         $stmt = $db->query($sql);
-        $message = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-
-        return json_encode($message);
+        return $response->withJson($result);
 
     } catch(PDOException $e){
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
-// Get FSE
+// Get specified FSE information for FSE modal.
 $app->get('/api/admin/getsinglefse', function (Request $request, Response $response) {
     $username = $request->getParam('username');
     $sql = "SELECT fse_code FROM fse WHERE username = '$username'";
@@ -2709,26 +2927,29 @@ $app->get('/api/admin/getsinglefse', function (Request $request, Response $respo
         $db = $db->connect();
 
         $stmt = $db->query($sql);
-        $message = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-
-        return json_encode($message);
+        return $response->withJson($result);
 
     } catch(PDOException $e){
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
-// Get lat lon
+// Get all latitude and longitude for work location on google map. 
 $app->get('/api/admin/getlatlon', function (Request $request, Response $response) {
-    $sql = "SELECT DISTINCT location.location_code, sitename ,latitude, longitude, sitename, problem_type, asset_problem  FROM location, srm_request, asset_tracker
-    WHERE srm_request.sng_code = asset_tracker.sng_code
-    AND (srm_request.job_status != 'Pending Approve' 
-                                OR srm_request.job_status != 'Completed'
-                                OR srm_request.job_status != 'Closed'
-                                )
-    AND   asset_tracker.location_code = location.location_code GROUP BY location.location_code";
+    $sql = "SELECT DISTINCT location.location_code, sitename ,latitude, longitude, sitename, 
+                problem_type,  asset_problem  
+            FROM location, srm_request, asset_tracker
+            WHERE srm_request.sng_code = asset_tracker.sng_code
+                AND (srm_request.job_status   != 'Pending Approve' 
+                    OR srm_request.job_status != 'Completed'
+                    OR srm_request.job_status != 'Closed'
+                    )
+                AND asset_tracker.location_code = location.location_code 
+            GROUP BY location.location_code";
+
     try{
         // Get DB Object
         $db = new db();
@@ -2736,17 +2957,15 @@ $app->get('/api/admin/getlatlon', function (Request $request, Response $response
         $db = $db->connect();
 
         $stmt = $db->query($sql);
-        $message = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
+        return $response->withJson($result);
 
-        return json_encode($message);
-
-    } catch(PDOException $e){
+    } catch(PDOException $e) { 
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
-
 
 // Get all pasasword recovery message from customers
 $app->get('/admin/recover', function (Request $request, Response $response) {
@@ -2759,32 +2978,30 @@ $app->get('/admin/recover', function (Request $request, Response $response) {
         $db = $db->connect();
 
         $stmt = $db->query($sql);
-        $message = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-        return json_encode($message);
+        return $response->withJson($result);
 
-    } catch(PDOException $e){
+    } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
-
-//
+// Reset password
 $app->put('/admin/recover/reset', function (Request $request, Response $response) {
     $username = $request->getParam('username');
     $new_password = $request->getParam('new_password');
     $email = $request->getParam('email');
     $hash_password = hash('sha256', $new_password);
-    // the message
     $user_msg = $new_password;
 
     if (!check_pass($new_password)) return '0';
 
-    $sql = "UPDATE account SET password = :set_password WHERE username_tag = '$username'";
+    $sql = "UPDATE account SET password = :set_password 
+            WHERE username_tag = '$username'";
 
     try{
-
         // Get DB Object
         $db = new db();
         // Connect
@@ -2793,13 +3010,14 @@ $app->put('/admin/recover/reset', function (Request $request, Response $response
         $stmt->bindParam(':set_password', $hash_password);
         $stmt->execute();
         $db = null;
-
-    } catch(PDOException $e){
+        
+    } catch(PDOException $e) { 
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
-    $sql = "UPDATE recover_msg SET status = :set_status WHERE username = '$username'";
+    $sql = "UPDATE recover_msg SET status = :set_status 
+            WHERE username = '$username'";
 
     try{
         // Get DB Object
@@ -2831,27 +3049,25 @@ $app->put('/admin/recover/reset', function (Request $request, Response $response
         $res = smtp($subject, $body, $email);
         system_log('Reset password for user: '. $username);
         $db = null;
-        return $res;
+        return $response->withStatus(200)->getBody()->write($res);
 
-    } catch(PDOException $e){
+    } catch(PDOException $e) {
         $db = null;
-        return '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
 });
 
 $app->put('/api/customer/resetpassword', function (Request $request, Response $response) {
     $old_password = hash('sha256', $request->getParam('old_password'));
-
     $username_tag = $_SESSION['username_unhash'];
-
     $new_password = $request->getParam('new_password');
     $confirm_password = $request->getParam('confirm_new_password');
     $hash_password = hash('sha256', $new_password);
 
-    $sql = "SELECT * FROM account WHERE username_tag = '$username_tag' AND password = '$old_password'";
-
-
+    $sql = "SELECT * FROM account 
+            WHERE username_tag = '$username_tag' 
+                AND password = '$old_password'";
 
     try{
         // Get DB Object
@@ -2861,16 +3077,16 @@ $app->put('/api/customer/resetpassword', function (Request $request, Response $r
 
         $stmt = $db->query($sql);
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
-        if(!$result){
-            return '1';
-        }
+        if(!$result) return '1';
+
         $db = null;
-    } catch(PDOException $e){
+    } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
-    $sql = "UPDATE account SET password = :set_password WHERE username_tag = '$username_tag'";
+    $sql = "UPDATE account SET password = :set_password 
+            WHERE username_tag = '$username_tag'";
 
     try{
 
@@ -2886,10 +3102,11 @@ $app->put('/api/customer/resetpassword', function (Request $request, Response $r
         $stmt->execute();
         $db = null;
         system_log('Reset password for user: '. $username_tag);
-        return 'SUCCESS';
-    } catch(PDOException $e){
+        return $response->withStatus(200)->getBody()->write("SUCCESS");
+
+    } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
@@ -2897,7 +3114,8 @@ $app->put('/api/customer/resetpassword', function (Request $request, Response $r
 $app->put('/api/admin/account', function(Request $request, Response $response){
     $username = $request->getParam('username');
 
-    $sql = "UPDATE account SET is_lock = Not is_lock WHERE username_tag = '$username'";
+    $sql = "UPDATE account SET is_lock = Not is_lock 
+            WHERE username_tag = '$username'";
 
     try{
         // Get DB Object
@@ -2908,11 +3126,11 @@ $app->put('/api/admin/account', function(Request $request, Response $response){
         $stmt->execute();
         system_log('Set Lock status for user: '. $username );
         $db = null;
-        return "SUCCESS";
+        return $response->withStatus(200)->getBody()->write("SUCCESS");
 
-    } catch(PDOException $e){
+    } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
@@ -2978,10 +3196,10 @@ $app->put('/api/admin/updatelocation', function(Request $request, Response $resp
 
         $db = null;
         system_log('Update location informmation: '. $location_code);
-        return 'SUCCESS';
-    } catch(PDOException $e){
+        return $response->withStatus(200)->getBody()->write("SUCCESS");
+    } catch(PDOException $e) { 
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
@@ -3024,10 +3242,11 @@ $app->put('/api/admin/updateitem', function(Request $request, Response $response
 
         $db = null;
         system_log('Update item informmation: '. $itemnumber);
-        return 'SUCCESS';
-    } catch(PDOException $e){
+        return $response->withStatus(200)->getBody()->write("SUCCESS");
+
+    } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
@@ -3074,10 +3293,11 @@ $app->put('/api/admin/updatecustomer', function(Request $request, Response $resp
 
         $db = null;
         system_log('Update customer informmation: '. $customer_name);
-        return 'SUCCESS';
+        return $response->withStatus(200)->getBody()->write("SUCCESS");
+
     } catch(PDOException $e){
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
@@ -3114,10 +3334,11 @@ $app->put('/api/admin/updatesaleorder', function(Request $request, Response $res
 
         $db = null;
         system_log('Update sale order informmation: '. $sale_order_no);
-        return 'SUCCESS';
+        return $response->withStatus(200)->getBody()->write("SUCCESS");
+
     } catch(PDOException $e){
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
@@ -3172,10 +3393,11 @@ $app->put('/api/admin/updatefse', function(Request $request, Response $response)
 
         $db = null;
         system_log('Update fse informmation: '. $engname);
-        return 'SUCCESS';
+        return $response->withStatus(200)->getBody()->write("SUCCESS");
+
     } catch(PDOException $e){
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
@@ -3191,8 +3413,11 @@ $app->post('/api/adduser', function(Request $request, Response $response){
     $attempt = 0;
     $is_lock = false;
 
-    $sql = "INSERT INTO account (account_no, username, password, account_status, attempt, is_lock, account_type, username_tag) VALUES
-    (:set_account, :set_user, :set_pass, :set_status, :set_attempt, :set_lock, :set_type, :set_tag)";
+    $sql = "INSERT INTO account (account_no, username, password, account_status, attempt, is_lock, 
+                        account_type, username_tag) 
+            VALUES (:set_account, :set_user, :set_pass, :set_status, :set_attempt, 
+                    :set_lock, :set_type, :set_tag)";
+    
     // return $unhash_password;
     if (!check_pass($unhash_password)) return '0';
 
@@ -3216,10 +3441,11 @@ $app->post('/api/adduser', function(Request $request, Response $response){
         $stmt->execute();
         $db = null;
         // system_log('Add user for user: '. $username_tag);
-        return "ACCOUNT HAS BEEEN CREATED";
-    } catch(PDOException $e){
+        return $response->withStatus(200)->getBody()->write("SUCCESS");
+    
+    } catch(PDOException $e) {
         $db = null;
-        echo $e->getMessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
@@ -3235,8 +3461,10 @@ $app->post('/api/admin/addcustomer', function(Request $request, Response $respon
     $service_sale = $request->getParam('service_sale');
     $taxid = $request->getParam('taxid');
     
-    $sql = "INSERT INTO customers (customer_no, customer_name, customer_eng_name, sale_team, account_group, primary_contact, product_sale, service_sale, taxid )
-    VALUES (:set_customer_no, :set_customer_name, :set_customer_eng_name, :set_sale_team, :set_account_group, :set_primary_contact, :set_product_sale, :set_service_sale, :set_taxid)";
+    $sql = "INSERT INTO customers (customer_no, customer_name, customer_eng_name, sale_team, account_group, 
+                        primary_contact, product_sale, service_sale, taxid )
+            VALUES (:set_customer_no, :set_customer_name, :set_customer_eng_name, :set_sale_team, 
+                    :set_account_group, :set_primary_contact, :set_product_sale, :set_service_sale, :set_taxid)";
 
     try{
         // Get DB Object
@@ -3259,10 +3487,11 @@ $app->post('/api/admin/addcustomer', function(Request $request, Response $respon
         $stmt->execute();
         $db = null;
         system_log('Add customer: '. $customer_name);
-        return "ADD SUCCESSFULLY";
+        return $response->withStatus(200)->getBody()->write("SUCCESS");
+
     } catch(PDOException $e){
         $db = null;
-        echo $e->getMessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
@@ -3286,10 +3515,11 @@ $app->post('/api/admin/addlocation', function(Request $request, Response $respon
     $soi = $request->getParam('soi');
 
     $sql = "INSERT INTO location (location_code, sitename, house_no, village_no, road, district,
-                                sub_district, province, postal_code, region, country, store_phone, customer_no, latitude, longitude, soi)
+                                sub_district, province, postal_code, region, country, store_phone, 
+                                customer_no, latitude, longitude, soi)
             VALUES (:set_location_code, :set_sitename, :set_house_no, :set_village_no, :set_road,
-            :set_district, :set_sub_district, :set_province, :set_postal_code, :set_region, :set_country, :set_store_phone, :set_customer_no,
-            :set_latitude, :set_longitude, :set_soi)";
+                    :set_district, :set_sub_district, :set_province, :set_postal_code, :set_region, :set_country, :set_store_phone, :set_customer_no,
+                    :set_latitude, :set_longitude, :set_soi)";
 
     try{
         // Get DB Object
@@ -3319,10 +3549,11 @@ $app->post('/api/admin/addlocation', function(Request $request, Response $respon
         $stmt->execute();
         $db = null;
         system_log('Add location: '. $sitename);
-        return "ADD SUCCESSFULLY";
+        return $response->withStatus(200)->getBody()->write("SUCCESS");
+
     } catch(PDOException $e){
         $db = null;
-        echo $e->getMessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
@@ -3356,10 +3587,11 @@ $app->post('/api/admin/addsaleorder', function(Request $request, Response $respo
         $stmt->execute();
         $db = null;
         system_log('Add sale order: '. $sale_order_no);
-        return "ADD SUCCESSFULLY";
+        return $response->withStatus(200)->getBody()->write("SUCCESS");
+
     } catch(PDOException $e){
         $db = null;
-        echo $e->getMessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
@@ -3375,8 +3607,10 @@ $app->post('/api/admin/additem', function(Request $request, Response $response){
     $model = $request->getParam('model');
     $created_on = date('Y-m-d H:i:s', time());
 
-    $sql = "INSERT INTO material_master_record (itemnumber, model, item_class, category, is_lot, is_serial, is_warranty, power, created_on)
-            VALUES (:set_itemnumber, :set_model, :set_item_class, :set_category, :set_is_lot, :set_is_serial, :set_is_warranty, :set_power, :set_created_on)";
+    $sql = "INSERT INTO material_master_record (itemnumber, model, item_class, category, is_lot, 
+                        is_serial, is_warranty, power, created_on)
+            VALUES (:set_itemnumber, :set_model, :set_item_class, :set_category, :set_is_lot, :set_is_serial, 
+                    :set_is_warranty, :set_power, :set_created_on)";
 
     try{
         // Get DB Object
@@ -3399,10 +3633,11 @@ $app->post('/api/admin/additem', function(Request $request, Response $response){
         $stmt->execute();
         $db = null;
         system_log('Add item: '. $itemnumber);
-        return "ADD SUCCESSFULLY";
+        return $response->withStatus(200)->getBody()->write("SUCCESS");
+
     } catch(PDOException $e){
         $db = null;
-        echo $e->getMessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
@@ -3434,9 +3669,9 @@ $app->post('/api/admin/addfse', function(Request $request, Response $response){
     $sql = "INSERT INTO account (account_no, username, password, account_status, attempt, is_lock,
                         account_type, username_tag)
             VALUES (:set_account, :set_user, :set_pass, :set_status, :set_attempt, :set_lock,
-                        :set_type, :set_tag);
+                    :set_type, :set_tag);
             INSERT INTO fse (fse_code, thainame, engname, abbr, company, position,
-                    service_center, section, team, status, email, phone, username)
+                            service_center, section, team, status, email, phone, username)
             VALUES (:set_fse_code, :set_thainame, :set_engname, :set_abbr, :set_company,
                     :set_position, :set_service_center, :set_section, :set_team, :set_status,
                     :set_email, :set_phone, :set_username);";
@@ -3462,7 +3697,6 @@ $app->post('/api/admin/addfse', function(Request $request, Response $response){
         $stmt->bindParam(':set_email', $email);
         $stmt->bindParam(':set_phone', $phone);
         $stmt->bindParam(':set_username', $username);
-
         $stmt->bindParam(':set_account', $acc_no);
         $stmt->bindParam(':set_user', $username_hash);
         $stmt->bindParam(':set_pass', $password);
@@ -3475,16 +3709,19 @@ $app->post('/api/admin/addfse', function(Request $request, Response $response){
         $stmt->execute();
         $db = null;
         system_log('Add FSE: '. $engname);
-        return "ADD SUCCESSFULLY";
+        return $response->withStatus(200)->getBody()->write("SUCCESS");
+
     } catch(PDOException $e){
         $db = null;
-        echo $e->getMessage();
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
 // Get all root cause
 $app->get('/api/admin/getallcauses', function (Request $request, Response $response) {
-    $sql = "SELECT cause_id, cause_description FROM root_cause ORDER BY cause_description ASC";
+    $sql = "SELECT cause_id, cause_description 
+            FROM root_cause 
+            ORDER BY cause_description ASC";
 
     try{
         // Get DB Object
@@ -3493,19 +3730,21 @@ $app->get('/api/admin/getallcauses', function (Request $request, Response $respo
         $db = $db->connect();
 
         $stmt = $db->query($sql);
-        $message = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-        return json_encode($message);
+        return $response->withJson($result);
 
     } catch(PDOException $e){
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
 // Get all correction
 $app->get('/api/admin/getallcorrections', function (Request $request, Response $response) {
-    $sql = "SELECT correction_id, correction_description FROM correction ORDER BY correction_description ASC";
+    $sql = "SELECT correction_id, correction_description 
+            FROM correction 
+            ORDER BY correction_description ASC";
 
     try{
         // Get DB Object
@@ -3514,13 +3753,13 @@ $app->get('/api/admin/getallcorrections', function (Request $request, Response $
         $db = $db->connect();
 
         $stmt = $db->query($sql);
-        $message = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-        return json_encode($message);
+        return $response->withJson($result);
 
-    } catch(PDOException $e){
+    } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
@@ -3528,7 +3767,8 @@ $app->get('/api/admin/getallcorrections', function (Request $request, Response $
 $app->delete('/api/admin/delete', function(Request $request, Response $response){
     $username = $request->getParam('username');
 
-    $sql = "DELETE FROM account WHERE username_tag = '$username'";
+    $sql = "DELETE FROM account 
+            WHERE username_tag = '$username'";
 
     try{
         // Get DB Object
@@ -3540,11 +3780,11 @@ $app->delete('/api/admin/delete', function(Request $request, Response $response)
         $stmt->execute();
         $db = null;
         system_log('Delete: ' . $username);
-        return "SUCCESS DELETE";
+        return $response->withStatus(200)->getBody()->write("SUCCESS");
 
-    } catch(PDOException $e){
+    } catch(PDOException $e) {
         $db = null;
-        echo '{"error": {"text": '.$e->getMessage().'}';
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 });
 
@@ -3588,7 +3828,6 @@ function check_pass($password) {
         }
     }
 
-    // echo $score;
     if ($score == 4) return TRUE;
     else return FALSE;
 }
@@ -3691,50 +3930,104 @@ function smtp($subject, $body, $email) {
     }
 }
 
-// class AsyncOperation extends Thread {
-//     public function __construct($subject, $body, $email) {
-//         $this->subject = $subject;
-//         $this->body    = $body;
-//         $this->email   = $email;
-//     }
+function firebase_connect() {
+    // This assumes that you have placed the Firebase credentials in the same directory
+    // as this PHP file.
+    $serviceAccount = ServiceAccount::fromJsonFile('./srm-tracking-system-firebase-adminsdk-6acpo-f3ed3bbfb3.json');
 
-//     public function run() {
-//         try {
-//             //Server settings
-//             $mail->SMTPDebug = 0;                                 // Enable verbose debug output
-//             $mail->isSMTP();                                      // Set mailer to use SMTP
-//             $mail->Host = 'smtp.gmail.com';                       // Specify main and backup SMTP servers
-//             $mail->SMTPAuth = true;                               // Enable SMTP authentication
-//             $mail->Username = 'synergize.provider@gmail.com';     // SMTP username
-//             $mail->Password = '27042537poO';                      // SMTP password
-//             $mail->SMTPSecure = 'TLS;';                           // Enable TLS encryption, `ssl` also accepted
-//             $mail->Port = 587;                                    // TCP port to connect to
+    $firebase = (new Factory)
+    ->withServiceAccount($serviceAccount)
+    // The following line is optional if the project id in your credentials file
+    // is identical to the subdomain of your Firebase project. If you need it,
+    // make sure to replace the URL with the URL of your project.
+    ->withDatabaseUri('https://srm-tracking-system.firebaseio.com/')
+    ->create();
 
-//             //Recipients
-//             $mail->setFrom('synergize.provider@gmail.com', 'Synergize Service');
-//             $mail->addAddress($email);            // Name is optional
-//             $mail->addReplyTo('synergize.provider@gmail.com', 'Information');
-//             // $mail->addCC('cc@example.com');
-//             // $mail->addBCC('bcc@example.com');
+    return $firebase->getDatabase();
+}
 
-//             //Attachments
-//             // $mail->addAttachment('/var/tmp/file.tar.gz');         // Add attachments
-//             // $mail->addAttachment('/tmp/image.jpg', 'new.jpg');    // Optional name
+function get_fse_location($fse_code){
+    $database = firebase_connect();
+    $newPost = $database
+    ->getReference('locations')->getChild($fse_code);
 
-//             //Content
-//             $mail->isHTML(true);                                  // Set email format to HTML
-//             $mail->Subject = $subject;
-//             $mail->Body    = $body;
+    return json_encode($newPost->getValue());
+}
 
-//             // $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+function getClient()
+{
+    $client = new Google_Client();
+    $client->setApplicationName('SRMSNG');
+    $client->setScopes(Google_Service_Calendar::CALENDAR_READONLY);
+    $client->setAuthConfig('client_secret_28002227602-qoik01jcou25hhrb2o94ooelaq1qn9qq.apps.googleusercontent.com.json');
+    $client->setAccessType('offline');
+    
+    // Load previously authorized credentials from a file.
+    $credentialsPath = 'token.json';
+    if (file_exists($credentialsPath)) {
+        $accessToken = json_decode(file_get_contents($credentialsPath), true);
+    } else {
+        // Request authorization from the user.
+        $authUrl = $client->createAuthUrl();
+        return $authUrl;
+        $authCode = "hMAd1GMpLd_IgG9ij4HCJccd";
 
-//             $mail->send();
-//             return 'SUCCESS';
-//         } catch (Exception $e) {
-//             return 'Message could not be sent. Mailer Error: '. $mail->ErrorInfo;
-//         }
-//     }
-// }
+        // Exchange authorization code for an access token.
+        $accessToken = $client->fetchAccessTokenWithAuthCode($authCode);
+
+        // Check to see if there was an error.
+        if (array_key_exists('error', $accessToken)) {
+            throw new Exception(join(', ', $accessToken));
+        }
+
+        // Store the credentials to disk.
+        if (!file_exists(dirname($credentialsPath))) {
+            mkdir(dirname($credentialsPath), 0700, true);
+        }
+        file_put_contents($credentialsPath, json_encode($accessToken));
+    }
+    $client->setAccessToken($accessToken);
+
+    // Refresh the token if it's expired.
+    if ($client->isAccessTokenExpired()) {
+        $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+        file_put_contents($credentialsPath, json_encode($client->getAccessToken()));
+    }
+    return $client;
+}
+
+function getEvent(){
+    // Get the API client and construct the service object.
+    $client = getClient();
+
+    $service = new Google_Service_Calendar($client);
+
+    // Get the next event on the user's calendar.
+    $calendarId = 'th.th#holiday@group.v.calendar.google.com';
+    $optParams = array(
+    'maxResults' => 1,
+    'orderBy' => 'startTime',
+    'singleEvents' => true,
+    'timeMin' => date('Y-m-d H:i:s', time()),
+    );
+    $results = $service->events->listEvents($calendarId, $optParams);
+    $events = $results->getItems();
+
+    if (empty($events)) {
+        return 0;
+    } else {
+        foreach ($events as $event) {
+            $start = $event->start->dateTime;
+            return json_encode($start);
+            // if (empty($start)) {
+            //     $start = $event->start->date;
+            // }
+            // printf("%s (%s)\n", $event->getSummary(), $start);
+        }
+    }
+}
+
+
 
 // Customer Routes
 // require '../src/routes/customers.php';

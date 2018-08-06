@@ -7,15 +7,20 @@ namespace Composer\Autoload;
 class ComposerStaticInitc82ab0d08062be0c2bb39513349a1b8b
 {
     public static $files = array (
-        'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
         'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
+        'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         '253c157292f75eb38082b5acb06f3f01' => __DIR__ . '/..' . '/nikic/fast-route/src/functions.php',
         'b067bc7112e384b61c701452d53a14a8' => __DIR__ . '/..' . '/mtdowling/jmespath.php/src/JmesPath.php',
+        'decc78cc4436b1292c6c0d151b19445c' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
         'f7c6080b46f9fe41a46a657439674576' => __DIR__ . '/..' . '/kreait/firebase-php/src/Firebase.php',
     );
 
     public static $prefixLengthsPsr4 = array (
+        'p' => 
+        array (
+            'phpseclib\\' => 10,
+        ),
         'S' => 
         array (
             'Slim\\Views\\' => 11,
@@ -25,10 +30,15 @@ class ComposerStaticInitc82ab0d08062be0c2bb39513349a1b8b
         'P' => 
         array (
             'Psr\\SimpleCache\\' => 16,
+            'Psr\\Log\\' => 8,
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Container\\' => 14,
             'Psr\\Cache\\' => 10,
             'PHPMailer\\PHPMailer\\' => 20,
+        ),
+        'M' => 
+        array (
+            'Monolog\\' => 8,
         ),
         'L' => 
         array (
@@ -63,6 +73,10 @@ class ComposerStaticInitc82ab0d08062be0c2bb39513349a1b8b
     );
 
     public static $prefixDirsPsr4 = array (
+        'phpseclib\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib',
+        ),
         'Slim\\Views\\' => 
         array (
             0 => __DIR__ . '/..' . '/slim/php-view/src',
@@ -79,6 +93,10 @@ class ComposerStaticInitc82ab0d08062be0c2bb39513349a1b8b
         array (
             0 => __DIR__ . '/..' . '/psr/simple-cache/src',
         ),
+        'Psr\\Log\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
+        ),
         'Psr\\Http\\Message\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/http-message/src',
@@ -94,6 +112,10 @@ class ComposerStaticInitc82ab0d08062be0c2bb39513349a1b8b
         'PHPMailer\\PHPMailer\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
+        ),
+        'Monolog\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/monolog/monolog/src/Monolog',
         ),
         'Lcobucci\\JWT\\' => 
         array (
@@ -153,6 +175,22 @@ class ComposerStaticInitc82ab0d08062be0c2bb39513349a1b8b
                 0 => __DIR__ . '/..' . '/pimple/pimple/src',
             ),
         ),
+        'G' => 
+        array (
+            'Google_Service_' => 
+            array (
+                0 => __DIR__ . '/..' . '/google/apiclient-services/src',
+            ),
+            'Google_' => 
+            array (
+                0 => __DIR__ . '/..' . '/google/apiclient/src',
+            ),
+        ),
+    );
+
+    public static $classMap = array (
+        'Google_Service_Exception' => __DIR__ . '/..' . '/google/apiclient/src/Google/Service/Exception.php',
+        'Google_Service_Resource' => __DIR__ . '/..' . '/google/apiclient/src/Google/Service/Resource.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
@@ -161,6 +199,7 @@ class ComposerStaticInitc82ab0d08062be0c2bb39513349a1b8b
             $loader->prefixLengthsPsr4 = ComposerStaticInitc82ab0d08062be0c2bb39513349a1b8b::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInitc82ab0d08062be0c2bb39513349a1b8b::$prefixDirsPsr4;
             $loader->prefixesPsr0 = ComposerStaticInitc82ab0d08062be0c2bb39513349a1b8b::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInitc82ab0d08062be0c2bb39513349a1b8b::$classMap;
 
         }, null, ClassLoader::class);
     }

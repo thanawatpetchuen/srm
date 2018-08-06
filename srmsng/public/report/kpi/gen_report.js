@@ -1,8 +1,14 @@
-////////////////////////////////////////////////////
-//                     PDF                        //
-////////////////////////////////////////////////////
-
 function genReportPDF(form_data) {
+  // form_data: SerializeArray() of the form. Comes in this order:
+  // form_data[0] = month
+  // form_data[1] = year
+  // form_data[2] = filter (by-fse, by-customer, overview)
+  // form_data[3] = FSE name and code (ex. 119_Chamin Inthidet)
+  // form_data[4] = Customer Name
+  // form_data[5] = Customer Code
+
+  var content = [];
+
   // Get data from form_data (serializeArray)
   if (form_data[2].value === "by-fse") {
     var name = form_data[3]["value"].split("_")[1];
@@ -33,6 +39,7 @@ function genReportPDF(form_data) {
     "November",
     "December"
   ];
+
   if (month != 0) {
     monthName = monthNames[month - 1];
   } else {
@@ -48,6 +55,23 @@ function genReportPDF(form_data) {
     var filename = "KPI_Overview_" + monthName + "_" + year;
   }
 
+  // Insert Title to File
+  content.push({
+    text: "KPIs - Service and Project",
+    fontSize: 23,
+    bold: "true"
+  });
+  content.push({
+    text: "For " + monthName + " " + year,
+    fontSize: 17,
+    bold: "true"
+  });
+
+  // Table Rows
+  // For the first row, put all the data in row1
+  // For the the second row, put the total in row2, and achieved, unachieved work in row2content
+  // For the other rows, do the same as in the second row
+
   // ========= Customer Complain Response ========== //
   var row1 = [
     {
@@ -57,8 +81,8 @@ function genReportPDF(form_data) {
     "เดือน",
     "100%",
     "99",
-    "",
-    ""
+    "99",
+    "0"
   ];
   // ========= First Time Fix Rate ========== //
   var row2 = [
@@ -76,6 +100,7 @@ function genReportPDF(form_data) {
       rowSpan: 2
     },
     {
+      // TOTAL HERE //
       text: "24",
       rowSpan: 2
     },
@@ -88,7 +113,8 @@ function genReportPDF(form_data) {
       style: "tableHeader"
     }
   ];
-  var row2content = [{}, {}, {}, "24", "23", "1"];
+  // ACHIEVED WORK AND UNACHIEVED WORK HERE //
+  var row2content = [{}, {}, {}, {}, "23", "1"];
   // ========= Service and Project Implement on Time ========== //
   var row3 = [
     {
@@ -105,6 +131,7 @@ function genReportPDF(form_data) {
       rowSpan: 2
     },
     {
+      // TOTAL HERE //
       text: "50",
       rowSpan: 2
     },
@@ -117,6 +144,7 @@ function genReportPDF(form_data) {
       style: "tableHeader"
     }
   ];
+  // ACHIEVED WORK AND UNACHIEVED WORK HERE //
   var row3content = [{}, {}, {}, {}, "50", "0"];
   // ========= Waste from Project Implementation ========== //
   var row4 = [
@@ -134,6 +162,7 @@ function genReportPDF(form_data) {
       rowSpan: 2
     },
     {
+      // TOTAL HERE //
       text: "50",
       rowSpan: 2
     },
@@ -146,6 +175,7 @@ function genReportPDF(form_data) {
       style: "tableHeader"
     }
   ];
+  // ACHIEVED WORK AND UNACHIEVED WORK HERE //
   var row4content = [{}, {}, {}, {}, "50", "0"];
   // ========= Accident from working, take leave at least 1 day ========== //
   var row5 = [
@@ -164,6 +194,7 @@ function genReportPDF(form_data) {
       rowSpan: 2
     },
     {
+      // TOTAL HERE //
       text: "19",
       rowSpan: 2
     },
@@ -176,29 +207,12 @@ function genReportPDF(form_data) {
       style: "tableHeader"
     }
   ];
+  // ACHIEVED WORK AND UNACHIEVED WORK HERE //
   var row5content = [{}, {}, {}, {}, "19", "0"];
 
+  // Construct Table
+  // Table Data
   var tableData = [row1, row2, row2content, row3, row3content, row4, row4content, row5, row5content];
-
-  createPDF(filename, title, tableData);
-}
-
-function createPDF(filename, title, rows) {
-  // Thai Fonts
-  pdfMake.fonts = {
-    THSarabunNew: {
-      normal: "THSarabunNew.ttf",
-      bold: "THSarabunNew-Bold.ttf",
-      italics: "THSarabunNew-Italic.ttf",
-      bolditalics: "THSarabunNew-BoldItalic.ttf"
-    },
-    Roboto: {
-      normal: "Roboto-Regular.ttf",
-      bold: "Roboto-Medium.ttf",
-      italics: "Roboto-Italic.ttf",
-      bolditalics: "Roboto-MediumItalic.ttf"
-    }
-  };
 
   // Table Columns
   var columnNames = [
@@ -220,15 +234,84 @@ function createPDF(filename, title, rows) {
     ]
   ];
 
-  var widths = ["*", "auto", "auto", "auto", "auto", "auto"];
-
-  // Table Data
   var data = columnNames;
 
   // pdfmake recieves data as an array of arrays
   // The first array is the data for the column names (table header). The others are the
   // data for each row
-  data = data.concat(rows);
+  data = data.concat(tableData);
+
+  var widths = ["*", "auto", "auto", "auto", "auto", "auto"];
+
+  content.push({
+    table: {
+      headerRows: 2,
+      widths: widths,
+      body: data
+    },
+    layout: {
+      // Color for the table header
+      fillColor: function(i) {
+        return i < 2 ? "#CCCCCC" : null;
+      }
+    }
+  });
+
+  // Generate Charts for each KPI Objective
+  // First Chart (Monthly)
+  var achieved1 = [33, 43, 56, 33, 45, 43, 42, 47, 38, 45, 43, 44];
+  var total1 = [34, 43, 56, 35, 47, 44, 43, 49, 39, 45, 46, 44];
+  content = content.concat(
+    genKPIGraph(
+      1,
+      false,
+      achieved1,
+      total1,
+      100,
+      "Customer Complain Response ≤ 1 Day",
+      "Response on Time",
+      "Total Customer Complaints",
+      form_data
+    )
+  );
+
+  // Second Chart (Quarterly)
+  var achieved2 = [33, 43, 56, 33];
+  var total2 = [34, 43, 56, 35];
+  content = content.concat(
+    genKPIGraph(
+      2,
+      true,
+      achieved2,
+      total2,
+      95,
+      "First Time Fix Rate",
+      "เข้าปฏิบัติงานให้จบในครั้งเดียว",
+      "จำนวนการเสียทั้งสิ้น",
+      form_data
+    )
+  );
+
+  // Create PDF File and Download
+  createPDF(filename, title, content);
+}
+
+function createPDF(filename, title, content) {
+  // Thai Fonts
+  pdfMake.fonts = {
+    THSarabunNew: {
+      normal: "THSarabunNew.ttf",
+      bold: "THSarabunNew-Bold.ttf",
+      italics: "THSarabunNew-Italic.ttf",
+      bolditalics: "THSarabunNew-BoldItalic.ttf"
+    },
+    Roboto: {
+      normal: "Roboto-Regular.ttf",
+      bold: "Roboto-Medium.ttf",
+      italics: "Roboto-Italic.ttf",
+      bolditalics: "Roboto-MediumItalic.ttf"
+    }
+  };
 
   // Document Setup
   var docDefinition = {
@@ -249,25 +332,7 @@ function createPDF(filename, title, rows) {
         color: "black"
       }
     },
-    content: [
-      // Title
-      { text: title, alignment: "center", fontSize: 15, bold: "true" },
-
-      // Table
-      {
-        table: {
-          headerRows: 2,
-          widths: widths,
-          body: data
-        },
-        layout: {
-          // Color for the table header
-          fillColor: function(i) {
-            return i < 2 ? "#CCCCCC" : null;
-          }
-        }
-      }
-    ]
+    content: content
   };
   // Download the PDF
   pdfMake.createPdf(docDefinition).download(filename + ".pdf");

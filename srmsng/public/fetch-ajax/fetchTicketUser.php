@@ -6,7 +6,9 @@ session_start();
 $customer_no = $_SESSION['account_no'];
 
 
-$statement_after_from = "srm_request WHERE request_user != '' AND request_id = '$customer_no'" ;
+$statement_after_from = "srm_request, asset_tracker
+                        WHERE srm_request.sng_code = asset_tracker.sng_code
+                            AND asset_tracker.customer_no = '$customer_no'" ;
  
 // Table's primary key
 $primaryKey = 'sng_code';
@@ -18,7 +20,7 @@ $primaryKey = 'sng_code';
 
 // Selected Columns
 $columns = array(
-    array( 'db' => 'sng_code',       'dt' => 0 ),
+    array( 'db' => 'srm_request.sng_code',       'dt' => 0 ),
     array( 'db' => 'problem_type',   'dt' => 1 ),
     array( 'db' => 'asset_problem',  'dt' => 2 ),
     array( 'db' => 'request_time',   'dt' => 3 ),

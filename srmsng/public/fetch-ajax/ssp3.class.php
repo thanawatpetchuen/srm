@@ -42,8 +42,7 @@ class SSP {
 				// }
 				if ( isset( $column['formatter'] ) ) {
 					$row[ $column['dt'] ] = $column['formatter']( $data[$i][ $column['db'] ], $data[$i] );
-				}
-				else {
+				} else {
 					$index = explode('.',$columns[$j]['db']);
 
 					if (count($index) > 1 ) {
@@ -58,7 +57,6 @@ class SSP {
 					} else {
 						$row[ $column['dt'] ] = $data[$i][ $columns[$j]['db'] ] ;
 					}
-
 				}
 			}
 			$out[] = $row;

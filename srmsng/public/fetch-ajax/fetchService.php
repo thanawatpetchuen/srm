@@ -34,17 +34,17 @@ $statement_after_from = "(SELECT service_request.service_request_id,
                     ON service_request.service_request_id = service_request_no_asset.service_request_id
                 LEFT JOIN location AS site_location
                     ON service_request_no_asset.location_code = site_location.location_code
-			) AS sub_q";
+			";
 
 //Filter by URL attributes
 if (!empty($_GET['maintenance_plan_id'])) {
     $statement_after_from = "$statement_after_from , maintenance_service
-                WHERE sub_q.service_request_id = maintenance_service.service_request_id
+                WHERE service_request.service_request_id = maintenance_service.service_request_id
                 AND maintenance_plan_id = '" . $_GET['maintenance_plan_id'] . "'";
 }
 
 //Group table by service_request_id
-$statement_after_from = $statement_after_from . " GROUP BY sub_q.service_request_id";
+$statement_after_from = $statement_after_from . ") AS sub_q GROUP BY sub_q.service_request_id";
 
 // Table's primary key
 $primaryKey = 'title';

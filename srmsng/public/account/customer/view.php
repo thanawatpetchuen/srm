@@ -428,8 +428,11 @@
 <script src="/srmsng/public/js/submit.js"></script>
 <script src="/srmsng/public/js/view_customer.js"></script>
 <script src="/srmsng/public/js/map_places.js"></script>
-<script
+<!-- <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC8NC0ToCiqmrDLjvOu9H74ZjeWtgQkU7E&libraries=places&callback=initMap">
+    </script> -->
+    <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA9PZM0cHmzEm7LOEBB_coeCZpNOLI7aC4&libraries=places&callback=initMap">
     </script>
 <script>
     // Map

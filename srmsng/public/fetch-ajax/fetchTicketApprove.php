@@ -27,6 +27,8 @@ $statement_after_for = 'srm_request, asset_tracker, location, material_master_re
                             AND (srm_request.job_status = "Pending Approve" 
                                 OR srm_request.job_status = "Completed"
                                 OR srm_request.job_status = "Closed"
+                                OR srm_request.job_status = "Incomplete Pending Approve"
+                                OR srm_request.job_status = "Incomplete"
                                 )
                         GROUP BY srm_request.cm_id';
 

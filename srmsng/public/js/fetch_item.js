@@ -2,6 +2,7 @@
 // at /account/item
 
 var data = null;
+var toastDuration = 1500;
 function fetchTable() {
   $("#supertable").DataTable({
     stateSave: true,
@@ -55,7 +56,14 @@ $("#add-item-form").on("submit", () => {
       //console.log(data);
       $("#add-item-popup").modal("hide");
       document.getElementById("add-item-form").reset();
-      window.location = "/srmsng/public/account/item?add_success=true";
+      toastr.options = {
+        positionClass: "toast-top-center"
+      };
+      toastr.success("<span>Please wait, this website is going to refresh...</span>");
+      setTimeout(() => {
+        window.location = "/srmsng/public/account/item?add_success=true";
+      }, toastDuration);
+      
     },
     error: err => {
       console.log(err);
@@ -73,7 +81,14 @@ $("#edit-item-form").on("submit", () => {
       console.log(data);
       $("#edit-item-popup").modal("hide");
       document.getElementById("edit-item-form").reset();
-      window.location = "/srmsng/public/account/item?update_success=true";
+      toastr.options = {
+        positionClass: "toast-top-center"
+      };
+      toastr.success("<span>Please wait, this website is going to refresh...</span>");
+      setTimeout(() => {
+        window.location = "/srmsng/public/account/item?update_success=true";
+      }, toastDuration);
+      
     },
     error: err => {
       console.log(err);

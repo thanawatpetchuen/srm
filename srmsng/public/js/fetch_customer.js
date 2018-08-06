@@ -1,6 +1,8 @@
 // Fetch Customer List
 // at /account/customer
 
+
+var toastDuration = 1500;
 var data = null;
 function fetchTable() {
   $("#supertable").DataTable({
@@ -71,7 +73,14 @@ $("#add-customer-form").on("submit", () => {
     success: data => {
       $("#add-customer-popup").modal("hide");
       document.getElementById("add-customer-form").reset();
-      window.location = "/srmsng/public/account/customer?add_success=true";
+      toastr.options = {
+        positionClass: "toast-top-center"
+      };
+      toastr.success("<span>Please wait, this website is going to refresh...</span>");
+      setTimeout(() => {
+        window.location = "/srmsng/public/account/customer?add_success=true";
+      }, toastDuration);
+      
     },
     error: err => {
       console.log(err);
@@ -95,7 +104,14 @@ $("#edit-customer-form").on("submit", () => {
     success: data => {
       $("#edit-customer-popup").modal("hide");
       document.getElementById("edit-customer-form").reset();
-      window.location = "/srmsng/public/account/customer?update_success=true";
+      toastr.options = {
+        positionClass: "toast-top-center"
+      };
+      toastr.success("<span>Please wait, this website is going to refresh...</span>");
+      setTimeout(() => {
+        window.location = "/srmsng/public/account/customer?update_success=true";
+      }, toastDuration);
+      
     },
     error: err => {
       console.log(err);

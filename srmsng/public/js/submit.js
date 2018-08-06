@@ -1,6 +1,9 @@
 // ============ LOGIN/LOGOUT ============ //
 
 // Recover Form
+
+var toastDuration = 1500;
+
 $("#usrform").submit(function(e) {
   e.preventDefault();
   $.ajax({
@@ -113,7 +116,14 @@ $("#edit-form").submit(function(e) {
     success: data => {
       //console.log($("#edit-form").serialize());
       //console.log(data);
-      window.location = "/srmsng/public/asset?edit_success=true";
+      toastr.options = {
+        positionClass: "toast-top-center"
+      };
+      toastr.success("<span>Please wait, this website is going to refresh...</span>");
+      setTimeout(() => {
+        window.location = "/srmsng/public/asset?edit_success=true";
+      }, toastDuration);
+     
     },
     error: err => {
       console.log("ERROR!");
@@ -133,7 +143,14 @@ $("#add-form").submit(function(e) {
     data: $("#add-form").serialize(),
     success: data => {
       console.log(data);
-      window.location = "/srmsng/public/asset?add_success=true";
+      toastr.options = {
+        positionClass: "toast-top-center"
+      };
+      toastr.success("<span>Please wait, this website is going to refresh...</span>");
+      setTimeout(() => {
+        window.location = "/srmsng/public/asset?add_success=true";
+      }, toastDuration);
+      
     },
     error: err => {
       console.log("ERROR");
@@ -160,7 +177,14 @@ $("#add-ticket-form").submit(function(e) {
           window.scrollTo(0, 0);
         } else {
           $("#loader").css("display", "none");
-          window.location = "/srmsng/public/ticket?add_success=true";
+          toastr.options = {
+            positionClass: "toast-top-center"
+          };
+          toastr.success("<span>Please wait, this website is going to refresh...");
+          setTimeout(() => {
+            window.location = "/srmsng/public/ticket?add_success=true";
+          }, toastDuration);
+          
         }
       },
       error: err => {
@@ -188,7 +212,14 @@ $("#update-ticket-form").submit(function(e) {
         console.log(data);
         console.log($("#update-ticket-form").serialize());
         $("#loader").css("display", "none");
-        window.location = "/srmsng/public/ticket?update_success=true";
+        toastr.options = {
+          positionClass: "toast-top-center"
+        };
+        toastr.success("<span>Please wait, this website is going to refresh...</span>");
+        setTimeout(() => {
+          window.location = "/srmsng/public/ticket?update_success=true";
+        }, toastDuration);
+        
       },
       error: err => {
         alert(err);
@@ -223,9 +254,23 @@ $("#add-service-form").submit(function(e) {
           success: function(result) {
             if (result == "SUCCESS") {
               if ($("#add-service-form").data("type") === "work") {
-                window.location = "/srmsng/public/asset/work?add_success=true&sng_code=" + serialData[6]["value"];
+                toastr.options = {
+                  positionClass: "toast-top-center"
+                };
+                toastr.success("<span>Please wait, this website is going to refresh...</span>");
+                setTimeout(() => {
+                  window.location = "/srmsng/public/asset/work?add_success=true&sng_code=" + serialData[6]["value"];
+                }, toastDuration);
+               
               } else {
-                window.location = "/srmsng/public/service?add_success=true";
+                toastr.options = {
+                  positionClass: "toast-top-center"
+                };
+                toastr.success("<span>Please wait, this website is going to refresh...</span>");
+                setTimeout(() => {
+                  window.location = "/srmsng/public/service?add_success=true";
+                }, toastDuration);
+                
               }
             } else {
               alert(result);
@@ -275,7 +320,14 @@ $("#update-service-form").submit(function(e) {
           url: "/srmsng/public/index.php/api/admin/updateservice",
           success: function(result) {
             if (result == "SUCCESS") {
+              toastr.options = {
+                positionClass: "toast-top-center"
+              };
+              toastr.success("<span>Please wait, this website is going to refresh...</span>");
+              setTimeout(() => {
                 window.location = "/srmsng/public/service?update_success=true";
+              }, toastDuration);
+                
             } else {
               alert(result);
             }
@@ -325,7 +377,14 @@ $("#add-maintenance-plan-form").submit(function(e) {
           url: "/srmsng/public/index.php/api/admin/addplan",
           success: function(result) {
             if (result == "SUCCESS") {
-              window.location = "/srmsng/public/plan?add_success=true";
+              toastr.options = {
+                positionClass: "toast-top-center"
+              };
+              toastr.success("<span>Please wait, this website is going to refresh...</span>");
+              setTimeout(() => {
+                window.location = "/srmsng/public/plan?add_success=true";
+              }, toastDuration);
+              
             } else {
               alert(result);
             }
@@ -374,7 +433,14 @@ $("#update-maintenance-plan-form").submit(function(e) {
           url: "/srmsng/public/index.php/api/admin/updateplan",
           success: function(result) {
             if (result == "SUCCESS") {
-              window.location = "/srmsng/public/plan?update_success=true";
+              toastr.options = {
+                positionClass: "toast-top-center"
+              };
+              toastr.success("<span>Please wait, this website is going to refresh...</span>");
+              setTimeout(() => {
+                window.location = "/srmsng/public/plan?update_success=true";
+              }, toastDuration);
+             
             } else {
               alert(result);
             }
@@ -419,7 +485,14 @@ $("#add-account-form").submit(function(e) {
         $("#weak-password-warning").css("display", "block");
         return false;
       } else {
-        window.location = "/srmsng/public/account?add_success=true";
+        toastr.options = {
+          positionClass: "toast-top-center"
+        };
+        toastr.success("<span>Please wait, this website is going to refresh...</span>");
+        setTimeout(() => {
+          window.location = "/srmsng/public/account?add_success=true";
+        }, toastDuration);
+       
       }
     },
     error: err => {
@@ -442,7 +515,14 @@ $("#deleteBtn").on("click", e => {
           data: "username=" + inputs[i].value,
           url: "/srmsng/public/index.php/api/admin/delete",
           success: data => {
-            window.location = "/srmsng/public/account?delete_success=true";
+            toastr.options = {
+              positionClass: "toast-top-center"
+            };
+            toastr.success("<span>Please wait, this website is going to refresh...</span>");
+            setTimeout(() => {
+              window.location = "/srmsng/public/account?delete_success=true";
+            }, toastDuration);
+            
           },
           error: err => {
             alert(err);
@@ -474,7 +554,14 @@ $("#reset-password-form").submit(function(e) {
           $("#weak-password-warning").css("display", "block");
         } else {
           // $("#loader").css("display", "none");
-          window.location = "/srmsng/public/customer/passwordreset?reset_success=true";
+          toastr.options = {
+            positionClass: "toast-top-center"
+          };
+          toastr.success("<span>Please wait, this website is going to refresh...</span>");
+            setTimeout(() => {
+              window.location = "/srmsng/public/customer/passwordreset?reset_success=true";
+            }, toastDuration);
+          
         }
       },
       error: err => {
@@ -489,13 +576,3 @@ $("#reset-password-form").submit(function(e) {
   }
 });
 
-$("#add-news-form").submit(function(e) {
-  // e.preventDefault();
-
-  console.log($("#add-news-form").serialize());
-
-  // $.ajax({
-  //   type: "POST",
-
-  // })
-});

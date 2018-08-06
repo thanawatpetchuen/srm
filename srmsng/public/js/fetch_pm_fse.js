@@ -1,6 +1,6 @@
 // Fetch PM for FSEs
 // This table is on the first page in the PM tab when logged in as an FSE
-
+var toastDuration = 1500;
 function fetchTablePM(fse_code) {
   $("#supertable-pm").DataTable({
     stateSave: true,
@@ -254,7 +254,7 @@ function actionAck(cm_id, name) {
       toastr.success("<span>Please wait, this website is going to refresh...</span>");
       setTimeout(() => {
         window.location.reload();
-      }, 2000);
+      }, toastDuration);
     },
     error: data => {
       console.log("ERR" + data);
@@ -274,7 +274,7 @@ function actionTravel(cm_id, name) {
       toastr.success("<span>Please wait, this website is going to refresh...</span>");
       setTimeout(() => {
         window.location.reload();
-      }, 2000);
+      }, toastDuration);
     },
     error: data => {
       console.log(data);
@@ -294,7 +294,7 @@ function actionArrived(cm_id, name) {
       toastr.success("<span>Please wait, this website is going to refresh...</span>");
       setTimeout(() => {
         window.location.reload();
-      }, 2000);
+      }, toastDuration);
     },
     error: data => {
       console.log(data);
@@ -314,7 +314,7 @@ function actionStart(cm_id, name) {
       toastr.success("<span>Please wait, this website is going to refresh...</span>");
       setTimeout(() => {
         window.location.reload();
-      }, 2000);
+      }, toastDuration);
     },
     error: data => {
       console.log(data);
@@ -334,7 +334,7 @@ function actionComplete(cm_id, name) {
       toastr.success("<span>Please wait, this website is going to refresh...</span>");
       setTimeout(() => {
         window.location.reload();
-      }, 2000);
+      }, toastDuration);
       // window.location.reload();
     },
     error: data => {

@@ -83,8 +83,8 @@ $app->add(new TokenAuthentication([
 
 
 
-$app->get('/v1/getUserInfo', function(Request $request, Response $response, $args){
-    // if(checkAuth()){
+$app->get('/v1/userinfo', function(Request $request, Response $response, $args){
+    if(checkAuth()){
         $info = array();
         $cookie_info = array();
         $info["session"] = $_SESSION;
@@ -92,9 +92,9 @@ $app->get('/v1/getUserInfo', function(Request $request, Response $response, $arg
         $cookie_info["PHPSESSID"] = $_COOKIE["PHPSESSID"];
         $info["cookie"] = $cookie_info;
         return $response->withJson($info, 200);
-    // }else{
-    //     return $this->renderer->render($response, "/unauth.php")->withStatus(401)->withHeader('Content-Type', 'text/html');
-    // };
+    }else{
+        return $this->renderer->render($response, "/unauth.php")->withStatus(401)->withHeader('Content-Type', 'text/html');
+    };
 });
 
 $app->get('/v1/generateKey', function(Request $request, Response $response, $args){
@@ -102,11 +102,35 @@ $app->get('/v1/generateKey', function(Request $request, Response $response, $arg
         $api_key = array();
         $key = substr(strtolower(md5(microtime().rand(1000, 9999))), 0, 21);
         $api_key["api_key"] = hash("sha256", $key);
-        return $response->withJson($api_key, 200);
+        return $response->withJson($api_key, 201);
+        // $res = $response->getBody()->write('Asd');
+        // return $res;
     }else{
         return $this->renderer->render($response, "/unauth.php")->withStatus(401)->withHeader('Content-Type', 'text/html');
     };
 });
+
+$app->post('/v1/maintenance', function(Request $request, Response $response, $args){
+    $my_file = $_SERVER['DOCUMENT_ROOT']."/srmsng/settings/maintenance.enable";
+    $myfile = fopen($my_file, "w") or die("Unable to open file!");
+    $txt = "Just a moment!";
+    fwrite($myfile, $txt);
+    fclose($myfile);
+});
+
+$app->delete('/v1/maintenance', function(Request $request, Response $response, $args){
+    $file = $_SERVER['DOCUMENT_ROOT']."/srmsng/settings/maintenance.enable";
+    if (!unlink($file))
+      {
+      echo ("Error deleting $file");
+      }
+    else
+      {
+      echo ("Deleted $file");
+      }
+});
+
+
 
 // $app->get('/books/:one/:two', function ($one, $two) {
 //     echo "The first parameter is " . $one;

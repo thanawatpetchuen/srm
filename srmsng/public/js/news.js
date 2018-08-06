@@ -66,7 +66,7 @@ $(document).ready( function () {
                 if (datai.image !== ""){
                     default_image = datai.image;
                 }
-                let inputDate = new Date(datai.date);
+                let inputDate = new Date(datai.dates);
                 let todaysDate = new Date();
                 if(inputDate.setHours(0,0,0,0) == todaysDate.setHours(0,0,0,0)) {
                     // Date equals today's date
@@ -78,7 +78,7 @@ $(document).ready( function () {
                             <img class="img-fluid news-image" data-src="holder.js/100px260/" alt="100%x260" src="${default_image}">
                         </div>
                         <div class="col-sm-10">
-                            <span class="news-header-wrapper"><h4 class="news-header">${datai.title}</h4><span class="news-date">Posted on ${datai.date} by ${datai.author}</span>${badge}</span>
+                            <span class="news-header-wrapper"><h4 class="news-header">${datai.title}</h4><span class="news-date">Posted on ${datai.dates} by ${datai.author}</span>${badge}</span>
                             <p style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${datai.content}</p>
                             <div class="d-flex align-items-end flex-column footee">
                                 <a class="mt-auto p-2" href="/srmsng/public/announcement/news/${datai.id}">Read more...</a>
@@ -121,7 +121,7 @@ $(document).ready( function () {
                                                 <img class="img-fluid news-image" data-src="holder.js/100px260/" alt="100%x260" src="${default_image}">
                                             </div>
                                             <div class="col-sm-10">
-                                                <span class="news-header-wrapper"><h4 class="news-header">${datai.title}</h4><span class="news-date">Posted on ${datai.date} by ${datai.author}</span></span>
+                                                <span class="news-header-wrapper"><h4 class="news-header">${datai.title}</h4><span class="news-date">Posted on ${datai.dates} by ${datai.author}</span></span>
                                                 <p>${datai.content}</p>
                                                 <div class="d-flex align-items-end flex-column footee">
                                                     <a class="mt-auto p-2" href="/srmsng/public/announcement/news/${datai.id}">Read more...</a>

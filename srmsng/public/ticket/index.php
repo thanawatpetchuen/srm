@@ -12,13 +12,14 @@
     <meta name="author" content="">
     <link rel="icon" href="/favicon.ico">
 
-    <title>Synergize Provide Service</title>
+    <title>Synergize Provide Service </title>
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
     <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
     <link href='http://fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.16/fc-3.2.4/r-2.2.1/datatables.min.css"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <link rel="stylesheet" href="/srmsng/public/css/style.css">
 </head>
 <body>
@@ -36,12 +37,18 @@
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
+        <div class="alert alert-success" id="success">
+            Success
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
         
         
 
         <div class="tabs">
             <div class="tab-item active" id="ticket-view-tab">
-                Tickets
+                Tickets 
             </div>
             <div class="tab-item" id="approve-view-tab">
                 Request Approve
@@ -129,8 +136,8 @@
                 </tbody>
             </table>
         </div>
-
         
+        <!-- <button class="btn btn-primary" onClick="testToast()">Test Toast</button> -->
     </main>
 </body>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -147,7 +154,9 @@
     <script src="/srmsng/public/js/submit.js"></script>
     <script src="/srmsng/public/js/onclose.js"></script>
     <script>
+        
         $(document).ready( function () {
+            
             var url_string = window.location.href;
             var url = new URL(url_string);
             var add_success = url.searchParams.get("add_success");
@@ -164,6 +173,10 @@
             var update_success = url.searchParams.get("update_success")
             if (update_success == 'true') {
                 $('#update-success').css('display','block');
+            }
+            var success = url.searchParams.get("success")
+            if (success == 'true') {
+                $('#success').css('display','block');
             }
            
             // Tabs
@@ -206,5 +219,12 @@
                 return;
             }
         }); 
+
+        // function testToast(){
+        //     toastr.options = {
+        //         positionClass: "toast-top-center"
+        //     };
+        //     toastr.success("<span>Please wait, this website is going to refresh...<div class='lds-ring'><div></div><div></div><div></div><div></div></div></span>");
+        // }
     </script>
 </html>

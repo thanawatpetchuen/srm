@@ -17,6 +17,7 @@
     <link href='http://fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <link rel="stylesheet" href="/srmsng/public/css/style.css">
 </head>
 <body>
@@ -205,6 +206,7 @@
 <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script src="/srmsng/public/js/submit.js"></script>
 <script>
@@ -254,7 +256,7 @@
                 $('#job-details-phone').addClass('hidden');
 
                 $('#job-details-phone input').val("");
-                $('#job-details-phone input').prop('disabled',true);
+                $('#job-details-phone input, #job-details-phone select').prop('disabled',true);
 
             } else if ($(this).val() === 'Fixed by phone') {
                 $('#job-details-site').addClass('hidden');
@@ -267,19 +269,23 @@
                 #job-details-site input[name="assign-fse"],\
                 #job-details-site input[name="assign-cm-time"]').prop('checked',false).change();
 
-                $('#job-details-phone input').prop('disabled',false);
+                $('#selected-fse').html('<span class="selected-fse-none">None</span>');
+
+                $('#job-details-phone input, #job-details-phone select').prop('disabled',false);
             } else {
                 $('#job-details-site').addClass('hidden');
                 $('#job-details-phone').addClass('hidden');
 
                 $('#job-details-phone input').val("");
-                $('#job-details-phone input').prop('disabled',true);
+                $('#job-details-phone input, #job-details-phone select').prop('disabled',true);
                 $('#job-details-site input').val("");
                 $('#job-details-site input[type="text"]').prop('disabled',true);
 
                 $('#job-details-site input[name="assign-close-time"], \
                 #job-details-site input[name="assign-fse"],\
                 #job-details-site input[name="assign-cm-time"]').prop('checked',false).change();
+
+                $('#selected-fse').html('<span class="selected-fse-none">None</span>');
             }
         });
         $('input[name="assign-fse"]').on('change', function() {

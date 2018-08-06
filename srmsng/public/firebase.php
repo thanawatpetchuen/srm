@@ -7,28 +7,25 @@ use Kreait\Firebase\ServiceAccount;
 
 // This assumes that you have placed the Firebase credentials in the same directory
 // as this PHP file.
-$serviceAccount = ServiceAccount::fromJsonFile('./srmsng-2704-firebase-adminsdk-4jd56-f42918511e.json');
+$serviceAccount = ServiceAccount::fromJsonFile('./srm-tracking-system-firebase-adminsdk-6acpo-f3ed3bbfb3.json');
 
 $firebase = (new Factory)
     ->withServiceAccount($serviceAccount)
     // The following line is optional if the project id in your credentials file
     // is identical to the subdomain of your Firebase project. If you need it,
     // make sure to replace the URL with the URL of your project.
-    ->withDatabaseUri('https://srmsng-2704.firebaseio.com/')
+    ->withDatabaseUri('https://srm-tracking-system.firebaseio.com/')
     ->create();
 
 $database = $firebase->getDatabase();
 
 $newPost = $database
-    ->getReference('blog/posts')
-    ->push([
-        'title' => 'Post title',
-        'body' => 'This should probably be longer.'
-    ]);
+    ->getReference('locations');
 
-$newPost->getKey(); // => -KVr5eu8gcTv7_AHb-3-
-$newPost->getUri(); // => https://my-project.firebaseio.com/blog/posts/-KVr5eu8gcTv7_AHb-3-
+// $newPost->getKey(); // => -KVr5eu8gcTv7_AHb-3-
+// $newPost->getUri(); // => https://my-project.firebaseio.com/blog/posts/-KVr5eu8gcTv7_AHb-3-
 
 // $newPost->getChild('title')->set('Changed post title');
-// $newPost->getValue(); // Fetches the data from the realtime database
+echo json_encode($newPost->getValue()); // Fetches the data from the realtime database
+
 // $newPost->remove();

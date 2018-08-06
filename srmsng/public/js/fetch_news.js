@@ -1,3 +1,5 @@
+
+var toastDuration = 1500;
 function fetchTable() {
   $("#supertable-news").DataTable({
     ajax: $.fn.dataTable.pipeline({
@@ -119,7 +121,14 @@ function deleteNews(id) {
     url: "/srmsng/public/announcement/news/api/deleteNews",
     data: "id=" + id,
     success: data => {
-      window.location.reload();
+      toastr.options = {
+        positionClass: "toast-top-center"
+      };
+      toastr.success("<span>Please wait, this website is going to refresh...</span>");
+      setTimeout(() => {
+        window.location.reload();
+      }, toastDuration);
+      
     }
   });
 }
@@ -130,7 +139,13 @@ function deleteNotice(id) {
     url: "/srmsng/public/announcement/news/api/deleteNotice",
     data: "id=" + id,
     success: data => {
-      window.location.reload();
+      toastr.options = {
+        positionClass: "toast-top-center"
+      };
+      toastr.success("<span>Please wait, this website is going to refresh...</span>");
+      setTimeout(() => {
+        window.location.reload();
+      }, toastDuration);
     }
   });
 }
@@ -151,7 +166,13 @@ $("#deleteSelectedNewsBtn").on("click", e => {
       });
     }
   }
-  window.location.reload();
+  toastr.options = {
+    positionClass: "toast-top-center"
+  };
+  toastr.success("<span>Please wait, this website is going to refresh...</span>");
+  setTimeout(() => {
+    window.location.reload();
+  }, toastDuration);
 });
 
 $("#deleteSelectedNoticesBtn").on("click", e => {
@@ -170,7 +191,13 @@ $("#deleteSelectedNoticesBtn").on("click", e => {
       });
     }
   }
-  window.location.reload();
+  toastr.options = {
+    positionClass: "toast-top-center"
+  };
+  toastr.success("<span>Please wait, this website is going to refresh...</span>");
+  setTimeout(() => {
+    window.location.reload();
+  }, toastDuration);
 });
 
 $(document).ready(function() {

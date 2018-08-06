@@ -5,8 +5,16 @@ $("#deauthBtn").on("click", e => {
         type: "PUT",
         url: "/srmsng/public/api.php/api/admin/deauthall",
         success: data => {
-            console.log(data);
-            window.location.reload();
+          console.log(data);
+          toastr.options = {
+            positionClass: "toast-bottom-center"
+          };
+          toastr.success("<span>See you again</span>");
+          setTimeout(() => {
+            window.location.reload();;
+          }, 2000);
+            
+            
         }
     })
   });

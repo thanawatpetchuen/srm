@@ -66,7 +66,7 @@ $app->get('/{id}', function ($request, $response, $args) {
 
 $app->get('/api/getnews/{start}/{stop}', function(Request $request, Response $response, $args){
     if(checkAuth()){
-        $sql = "SELECT id, title, content, author, DATE_FORMAT(date, '%d %M %Y (%H:%i)') AS date, image FROM news ORDER BY date DESC LIMIT ".$args['start'].",".$args['stop'];
+        $sql = "SELECT id, title, content, author, DATE_FORMAT(date, '%d %M %Y (%H:%i)') AS dates, image FROM news ORDER BY date DESC LIMIT ".$args['start'].",".$args['stop'];
            try{
                // Get DB Object
                $db = new db();
@@ -236,7 +236,7 @@ $app->post('/api/post', function(Request $request, Response $response, $args){
             return $e->getmessage();
         }
     
-        return $response->withRedirect("/srmsng/public/announcement")->withStatus(201);
+        return $response->withRedirect("/srmsng/public/announcement");
     }else{
         return $this->renderer->render($response, "/unauth.php")->withStatus(401)->withHeader('Content-Type', 'text/html');
     }

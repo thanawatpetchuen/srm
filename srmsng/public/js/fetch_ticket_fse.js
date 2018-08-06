@@ -1,6 +1,6 @@
 // Fetch ticket for FSE
 // This table is in the first page in the CM tab when logged in as an FSE
-
+var toastDuration = 1500;
 function fetchTable(fse_code) {
   $("#supertable-cm").DataTable({
     stateSave: true,
@@ -30,6 +30,34 @@ function fetchTable(fse_code) {
             '<i class="fa fa-search" style="padding-left:5px;"></i></a>'
           );
         }
+      },
+      {
+        targets: 3,
+        data: 2
+      },
+      {
+        targets: 4,
+        data: 3
+      },
+      {
+        targets: 5,
+        data: 4
+      },
+      {
+        targets: 6,
+        data: 5
+      },
+      {
+        targets: 7,
+        data: 6
+      },
+      {
+        targets: 8,
+        data: 7
+      },
+      {
+        targets: 9,
+        data: 8
       },
       {
         targets: 11,
@@ -108,7 +136,7 @@ function fetchTable(fse_code) {
       {
         targets: 0,
         data: function(row) {
-          return [row[0], row[21], row[20]];
+          return [row[0], row[21], row[20], row[1]];
         },
         render: function(data) {
           // Job Status
@@ -131,27 +159,19 @@ function fetchTable(fse_code) {
             status2 = "Incomplete";
             type = "Complete";
             type2 = "Incomplete";
-            let btt = `<a href='#' class='btn btn-block btn-primary' style="width:auto; margin-right:2px" onClick="action${type}('${
+            let btt = `<a href='#' class='btn btn-block btn-primary' style="width:auto; margin-bottom:5px" onClick="action${type}('${
               data[0]
             }', '${data[2]}')"> ${status} </a>`;
             let btt2 =
-              `<a href='#' class='btn btn-primary' style="width:auto; margin-left:2px" data-toggle="modal" data-target="#note-modal" onClick="setModal('` +
+              `<a href='#' class='btn btn-primary' style="width:auto" data-toggle="modal" data-target="#note-modal" onClick="setModal('` +
               data[0] +
               `')"> ${status2} </a>`;
             return `<div class="form-group" style="margin-bottom:0">${btt}${btt2}</div>`;
-          } else if (data[1] == "Pending Approve") {
-            let btt = `<a href='#' class='btn btn-primary btn-block disabled'">Done</a>`;
-            return btt;
-          } else if (data[1] == "Incomplete") {
-            let btt = `<a href='#' class='btn btn-primary btn-block disabled'">Incomplete</a>`;
-            return btt;
-          } else if (data[1] == "Completed") {
-            let btt = `<a href='#' class='btn btn-primary btn-block disabled'">Done</a>`;
+          } else {
+            let btt = `<a href='#' class='btn btn-primary btn-block disabled'">` + data[1] + `</a>`;
             return btt;
           }
-          var btt = `<a href='#' class='btn btn-primary btn-block' onClick="action${type}('${data[0]}', '${
-            data[2]
-          }')"> ${status} </a>`;
+          var btt = `<a href='#' class='btn btn-primary btn-block' onClick="action${type}('${data[0]}', '${data[2]}', '${data[3]}')"> ${status} </a>`;
           return btt;
         }
       }
@@ -220,7 +240,7 @@ function makeDropArrow() {
   return wrapper;
 }
 
-function actionAck(cm_id, name) {
+function actionAck(cm_id, name, sng_code) {
   $.ajax({
     type: "PUT",
     url: "/srmsng/public/index.php/api/fse/acknowledge",
@@ -240,11 +260,11 @@ function actionAck(cm_id, name) {
   });
 }
 
-function actionTravel(cm_id, name) {
+function actionTravel(cm_id, name, sng_code) {
   $.ajax({
     type: "PUT",
     url: "/srmsng/public/index.php/api/fse/starttravel",
-    data: "cm_id=" + cm_id + "&engname=" + name,
+    data: "cm_id=" + cm_id + "&engname=" + name + "&sng_code=" + sng_code,
     success: data => {
       toastr.options = {
         positionClass: "toast-bottom-center"
@@ -252,7 +272,7 @@ function actionTravel(cm_id, name) {
       toastr.success("<span>Please wait, this website is going to refresh...</span>");
       setTimeout(() => {
         window.location.reload();
-      }, 2000);
+      }, toastDuration);
     },
     error: data => {
       console.log(data);
@@ -260,27 +280,42 @@ function actionTravel(cm_id, name) {
   });
 }
 
-function actionArrived(cm_id, name) {
+function actionArrived(cm_id, name, sng_code) {
   $.ajax({
     type: "PUT",
     url: "/srmsng/public/index.php/api/fse/arrivedsite",
-    data: "cm_id=" + cm_id + "&engname=" + name,
-    success: data => {
+    // url: "/srmsng/api/v1/generateKey",
+    data: "cm_id=" + cm_id + "&engname=" + name + "&sng_code=" + sng_code,
+    complete: fqxhr => {
+      // console.log("fqxhr: "+ fqxhr.status);
+      // console.log(fq)
+    }, 
+    statusCode: {
+      400: function(data){
+        alert(data.responseJSON.response)
+        // alert(Object.keys(data)+"ERROR");
+      }
+    },
+    success: (data, status, ex) => {
+      // if(data.)
+      // console.log(``)
+      console.log(data, status, ex);
+      // console.log(`DATA: ${data}\nSTATUS: ${status}\nEX: ${ex}`);
       toastr.options = {
         positionClass: "toast-bottom-center"
       };
-      toastr.success("<span>Please wait, this website is going to refresh...</span>");
+      toastr.success(`<span>${data.response}<br>Please wait, this website is going to refresh...</span>`);
       setTimeout(() => {
         window.location.reload();
-      }, 2000);
+      }, toastDuration);
     },
     error: data => {
-      console.log(data);
+      // console.log("ERROR: ",data);
     }
   });
 }
 
-function actionStart(cm_id, name) {
+function actionStart(cm_id, name, sng_code) {
   $.ajax({
     type: "PUT",
     url: "/srmsng/public/index.php/api/fse/startwork",
@@ -292,7 +327,7 @@ function actionStart(cm_id, name) {
       toastr.success("<span>Please wait, this website is going to refresh...</span>");
       setTimeout(() => {
         window.location.reload();
-      }, 2000);
+      }, toastDuration);
     },
     error: data => {
       console.log(data);
@@ -300,7 +335,7 @@ function actionStart(cm_id, name) {
   });
 }
 
-function actionComplete(cm_id, name) {
+function actionComplete(cm_id, name, sng_code) {
   $.ajax({
     type: "PUT",
     url: "/srmsng/public/index.php/api/fse/finishwork",
@@ -312,7 +347,7 @@ function actionComplete(cm_id, name) {
       toastr.success("<span>Please wait, this website is going to refresh...</span>");
       setTimeout(() => {
         window.location.reload();
-      }, 2000);
+      }, toastDuration);
       // window.location.reload();
     },
     error: data => {

@@ -1,3 +1,4 @@
+var toastDuration = 1500;
 function fetchTable() {
   $("#supertable-ticket").DataTable({
     //columnDefs: [{ orderable: false, targets: [6, 7, 9] }],
@@ -229,10 +230,18 @@ function fetchTable() {
         },
         className: "fixed-col",
         render: function(data) {
-          render_data =
-            data[1] == "Completed"
-              ? `<a class='btn btn-primary text-center disabled' href='#'>Completed</a>`
-              : `<a class='btn btn-primary text-center' href='#' onClick="approve('${data[0]}')">Approve</a>`;
+          if (data[1] === "Completed" || data[1] === "Incomplete") {
+            render_data = `<a class='btn btn-primary text-center disabled' href='#'>` + data[1] + `</a>`;
+          } else {
+            render_data = `<div>
+            <a class='btn btn-primary text-center' href='#' style="width:auto" onClick="approve('${
+              data[0]
+            }')">Approve</a>
+            <a class='btn btn-danger text-center' href='#' style="width:auto" onClick="reject('${data[0] +
+              "','" +
+              data[1]}')">Reject</a>
+          </div>`;
+          }
           return render_data;
         }
       }
@@ -302,9 +311,36 @@ function approve(cm_id) {
     data: "cm_id=" + cm_id,
     success: data => {
       console.log(data);
+      toastr.options = {
+        positionClass: "toast-top-center"
+      };
+      toastr.success("<span>Please wait, this website is going to refresh...</span>");
       setTimeout(() => {
-        window.location.href = "/srmsng/public/ticket/?approve=true";
-      }, 2000);
+        window.location.href = "/srmsng/public/ticket/?success=true";
+      }, toastDuration);
+      // window.location.reload();
+    },
+    error: data => {
+      console.log(data);
+    }
+  });
+}
+
+function reject(cm_id, status) {
+  // console.log(status);
+  $.ajax({
+    type: "PUT",
+    url: "/srmsng/public/index.php/api/admin/reject",
+    data: "cm_id=" + cm_id + "&status=" + status,
+    success: data => {
+      console.log(data);
+      toastr.options = {
+        positionClass: "toast-top-center"
+      };
+      toastr.success("<span>Please wait, this website is going to refresh...</span>");
+      setTimeout(() => {
+        window.location.href = "/srmsng/public/ticket/?success=true";
+      }, toastDuration);
       // window.location.reload();
     },
     error: data => {

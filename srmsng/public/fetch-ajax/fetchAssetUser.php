@@ -1,10 +1,10 @@
 <?php
 
 // For Testing 
-$customer_no = $_GET['account_no'];
+// $customer_no = $_GET['account_no'];
 
 session_start();
-// $customer_no = $_SESSION['account_no'];
+$customer_no = $_SESSION['account_no'];
 
 $statement_after_from = "asset_tracker, sale_order, material_master_record, location
     WHERE asset_tracker.customer_no = '$customer_no' 
