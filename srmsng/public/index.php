@@ -2943,10 +2943,8 @@ $app->get('/api/admin/getlatlon', function (Request $request, Response $response
                 problem_type,  asset_problem  
             FROM location, srm_request, asset_tracker
             WHERE srm_request.sng_code = asset_tracker.sng_code
-                AND (srm_request.job_status   != 'Pending Approve' 
-                    OR srm_request.job_status != 'Completed'
-                    OR srm_request.job_status != 'Closed'
-                    )
+                AND srm_request.job_status != 'Completed'
+                AND srm_request.job_status != 'Closed'
                 AND asset_tracker.location_code = location.location_code 
             GROUP BY location.location_code";
 
