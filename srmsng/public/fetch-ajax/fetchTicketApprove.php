@@ -68,7 +68,8 @@ $columns = array(
     array( 'db' => 'cm_time',     'dt' => 23 ),
     array( 'db' => 'request_time',     'dt' => 24 ),
     array( 'db' => 'start_time',     'dt' => 25 ),
-    array( 'db' => 'close_time',     'dt' => 26 ),
+    array( 'db' => 'complete_time',     'dt' => 26 ),
+    array( 'db' => 'close_time',     'dt' => 27 ),
 );
  
 // SQL server connection information

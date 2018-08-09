@@ -1,3 +1,14 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+#RewriteCond %{REMOTE_ADDR} !^123\.456\.789\.000
+RewriteCond %{DOCUMENT_ROOT}/maintenance.html -f
+RewriteCond %{DOCUMENT_ROOT}/srmsng/settings/service.enable -f
+RewriteCond %{SCRIPT_FILENAME} !maintenance.html
+RewriteRule ^.*$ /maintenance.html [R=503,L]
+ErrorDocument 503 /maintenance.html
+Header Set Cache-Control "max-age=0, no-store"
+</IfModule>
+
 RewriteEngine On
 
 

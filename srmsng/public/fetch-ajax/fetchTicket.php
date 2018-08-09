@@ -2,16 +2,18 @@
 
 // SQL statement for "fetchTicket.php" is
 
-//  SELECT srm_request.cm_id, srm_request.sng_code, model, power, battery, quantity, sitename, name, phone_number, srm_request.email, problem_type, asset_problem, asset_detected, correction_description, correction_detail, cause_description, cause_detail, solution, suggestions, asset_tracker.ups_status, GROUP_CONCAT(DISTINCT fse.engname ORDER BY engname ASC SEPARATOR '<br>') AS groupFSE, job_type, job_status, cm_time, request_time, start_time, close_time
-//  FROM srm_request, asset_tracker, location, material_master_record, fse, root_cause, correction, job_fse
-//  WHERE asset_tracker.sng_code = srm_request.sng_code
-//      AND location.location_code = asset_tracker.location_code
-//      AND asset_tracker.itemnumber = material_master_record.itemnumber
-//      AND srm_request.cm_id = job_fse.job_id
-//      AND fse.fse_code = job_fse.fse_code
-//      AND srm_request.cause_id = root_cause.cause_id
-//      AND srm_request.correction_id = correction.correction_id
-//  GROUP BY srm_request.cm_id
+/*
+ SELECT srm_request.cm_id, srm_request.sng_code, model, power, battery, quantity, sitename, name, phone_number, srm_request.email, problem_type, asset_problem, asset_detected, correction_description, correction_detail, cause_description, cause_detail, solution, suggestions, asset_tracker.ups_status, GROUP_CONCAT(DISTINCT fse.engname ORDER BY engname ASC SEPARATOR '<br>') AS groupFSE, job_type, job_status, cm_time, request_time, start_time, close_time
+ FROM srm_request, asset_tracker, location, material_master_record, fse, root_cause, correction, job_fse
+ WHERE asset_tracker.sng_code = srm_request.sng_code
+     AND location.location_code = asset_tracker.location_code
+     AND asset_tracker.itemnumber = material_master_record.itemnumber
+     AND srm_request.cm_id = job_fse.job_id
+     AND fse.fse_code = job_fse.fse_code
+     AND srm_request.cause_id = root_cause.cause_id
+     AND srm_request.correction_id = correction.correction_id
+ GROUP BY srm_request.cm_id
+*/
 
 $statement_after_for = 'srm_request, asset_tracker, location, material_master_record, fse,
                         root_cause, correction, job_fse

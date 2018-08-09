@@ -212,7 +212,7 @@
 <script>
     // Initialize Date Range Pickers
     $(function() {
-        $('input[name="cm_time"], input[name="complete_time"]').daterangepicker({
+        $('input[name="cm_time"], input[name="complete_time"], input[name="start_time"], input[name="close_time"]').daterangepicker({
             timePicker: true,
             "timePicker24Hour": true,
             singleDatePicker: true,
@@ -258,11 +258,13 @@
                 $('#job-details-phone input').val("");
                 $('#job-details-phone input, #job-details-phone select').prop('disabled',true);
 
+             
+
             } else if ($(this).val() === 'Fixed by phone') {
                 $('#job-details-site').addClass('hidden');
                 $('#job-details-phone').removeClass('hidden');
 
-                $('#job-details-site input').val("");
+                $('#job-details-site input').not("[name='fse_code[]']").val("");
                 $('#job-details-site input[type="text"]').prop('disabled',true);
 
                 $('#job-details-site input[name="assign-close-time"], \
@@ -291,6 +293,7 @@
         $('input[name="assign-fse"]').on('change', function() {
             if ($(this).is(':checked')) {
                 $('#fse-fieldset').removeClass('disabled');
+                $('input[name="assign-fse"]').val("on");
                 assigned_fse = true;
             } else {
                 $('#fse-fieldset').addClass('disabled');

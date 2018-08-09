@@ -110,16 +110,18 @@ $app->get('/v1/generateKey', function(Request $request, Response $response, $arg
     };
 });
 
-$app->post('/v1/maintenance', function(Request $request, Response $response, $args){
-    $my_file = $_SERVER['DOCUMENT_ROOT']."/srmsng/settings/maintenance.enable";
+$app->post('/v1/maintenance/{module}', function(Request $request, Response $response, $args){
+    $module = $args['module'];
+    $my_file = $_SERVER['DOCUMENT_ROOT']."/srmsng/settings/{$module}.enable";
     $myfile = fopen($my_file, "w") or die("Unable to open file!");
     $txt = "Just a moment!";
     fwrite($myfile, $txt);
     fclose($myfile);
 });
 
-$app->delete('/v1/maintenance', function(Request $request, Response $response, $args){
-    $file = $_SERVER['DOCUMENT_ROOT']."/srmsng/settings/maintenance.enable";
+$app->delete('/v1/maintenance/{module}', function(Request $request, Response $response, $args){
+    $module = $args['module'];
+    $file = $_SERVER['DOCUMENT_ROOT']."/srmsng/settings/{$module}.enable";
     if (!unlink($file))
       {
       echo ("Error deleting $file");

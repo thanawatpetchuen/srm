@@ -17,14 +17,30 @@ var infowindow;
 // This function does not open the modal.
 function setUpModal() {
   var code = $(this).data("entry-id");
-
+  console.log(`Code = ${code}`);
+  console.log("CM_TIME: "+markers[code].cm_id+markers[code].groupFSE);
   $("input[name='sitename']").val(markers[code].title);
   $('input[name="problem_type"]').val(markers[code].problem_type);
   $('textarea[name="asset_problem"]').val(markers[code].asset_problem);
+  $('input[name="cm_id"]').val(markers[code].cm_id);
+  $('input[name="cm_time"]').val(markers[code].cm_time);
 
-  // Remove the previous location's selected fse
-  $(".selected-fse .fse").remove();
+  console.log(markers[code].groupFSE.split(","));
+
   $("#fse-code-input").html("");
+  $(".selected-fse .fse").remove();
+
+  fetch(`/srmsng/public/index.php/api/admin/request/single?cm_id=${markers[code].cm_id}`).then((data) => {return data.json()}).then((data) => {console.log(data)});
+  markers[code].groupFSE.split(",").forEach((each) => {
+    $("#fse-code-input").append('<input type="hidden" name="fse_code[]" value="' + markers[code].fse_code + '"/>');
+    $("#selected-fse").append('<span class="fse" id="' + markers[code].fse_code + '">' + each + "</span>");
+  })
+
+    // Add FSE's name to the list
+  // $("#selected-fse-on-select").append('<span class="fse" id="' + code + '">' + markers[code].title + "</span>");
+  // Remove the previous location's selected fse
+  
+  
 }
 
 // Cancel button in the modal
@@ -182,7 +198,8 @@ function initMap() {
           type: status,
           statustext: getstatus,
           formericon: icons[status].icon,
-          selected: false
+          selected: false,
+          
         });
         marker.addListener("click", toggleDetails);
         markers[marker.code] = marker;
@@ -260,7 +277,11 @@ function initMap() {
           problem_type: element["problem_type"],
           asset_problem: element["asset_problem"],
           formericon: icons["site"].icon,
-          selected: false
+          selected: false,
+          cm_time: element["cm_time"],
+          groupFSE: element["groupFSE"],
+          cm_id: element["cm_id"],
+          fse_code: element["fse_code"],
         });
         marker.addListener("click", toggleDetails);
         markers[marker.code] = marker;

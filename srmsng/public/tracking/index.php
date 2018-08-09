@@ -32,6 +32,10 @@
                 <form id="assign-tracking-form">
                     <div class="modal-body">
                         <div class="form-group">
+                            <label>CM ID</label>
+                            <input type="text" class="form-control" name="cm_id" placeholder="CM ID" readonly/>
+                        </div>
+                        <div class="form-group">
                             <label>Site Name</label>
                             <input type="text" class="form-control" name="sitename" placeholder="Site Name" readonly/>
                         </div>
@@ -98,8 +102,8 @@
             timePicker: true,
             "timePicker24Hour": true,
             singleDatePicker: true,
-            startDate: moment().startOf('hour'),
-            endDate: moment().startOf('hour').add(32, 'hour'),
+            // startDate: moment().startOf('hour'),
+            // endDate: moment().startOf('hour').add(32, 'hour'),
             locale: {
                 format: 'Y-MM-DD H:mm:ss'
             }

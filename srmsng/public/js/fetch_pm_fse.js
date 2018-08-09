@@ -134,6 +134,7 @@ function fetchTablePM(fse_code) {
           return [row[0], row[2], row[6]];
         },
         render: function(data) {
+          // Job Status
           var status = "";
           var type = "";
           if (data[1] == "Assigned") {
@@ -153,27 +154,19 @@ function fetchTablePM(fse_code) {
             status2 = "Incomplete";
             type = "Complete";
             type2 = "Incomplete";
-            let btt = `<a href='#' class='btn btn-block btn-primary' style="width:auto; margin-right:2px" onClick="action${type}('${
+            let btt = `<a href='#' class='btn btn-block btn-primary' style="width:auto; margin-bottom:5px" onClick="action${type}('${
               data[0]
             }', '${data[2]}')"> ${status} </a>`;
             let btt2 =
-              `<a href='#' class='btn btn-block btn-primary' style="width:auto; margin-left:2px" data-toggle="modal" data-target="#note-modal" onClick="setModal('` +
+              `<a href='#' class='btn btn-primary' style="width:auto" data-toggle="modal" data-target="#note-modal" onClick="setModal('` +
               data[0] +
               `')"> ${status2} </a>`;
             return `<div class="form-group" style="margin-bottom:0">${btt}${btt2}</div>`;
-          } else if (data[1] == "Pending Approve") {
-            let btt = `<a href='#' class='btn btn-block btn-primary disabled'">Done</a>`;
-            return btt;
-          } else if (data[1] == "Incomplete") {
-            let btt = `<a href='#' class='btn btn-block btn-primary disabled'">Incomplete</a>`;
-            return btt;
-          } else if (data[1] == "Completed") {
-            let btt = `<a href='#' class='btn btn-block btn-primary disabled'">Done</a>`;
+          } else {
+            let btt = `<a href='#' class='btn btn-primary btn-block disabled'">` + data[1] + `</a>`;
             return btt;
           }
-          var btt = `<a href='#' class='btn btn-block btn-primary' onClick="action${type}('${data[0]}', '${
-            data[2]
-          }')"> ${status} </a>`;
+          var btt = `<a href='#' class='btn btn-primary btn-block' onClick="action${type}('${data[0]}', '${data[2]}', '${data[3]}')"> ${status} </a>`;
           return btt;
         }
       }
