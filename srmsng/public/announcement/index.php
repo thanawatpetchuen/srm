@@ -49,7 +49,7 @@
                     Lorem ipsum dolor sit amet, consectetur adipisicing elit. Doloribus maiores dolores voluptate dolorum! Molestiae sed ullam dicta vel nam deleniti eveniet optio saepe. Ducimus saepe consectetur, est assumenda nemo nobis!
                 </div> -->
             </div>
-            
+            <iframe src="https://www.lottery.co.th/small" width="210" height="290" frameborder="0"></iframe>
             
             <h2>Announcements</h2>
             <div id="all-news">

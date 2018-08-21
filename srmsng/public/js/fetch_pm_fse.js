@@ -139,10 +139,21 @@ function fetchTablePM(fse_code) {
           var type = "";
           if (data[1] == "Assigned") {
             status = "Acknowledge";
+            // status2 = "Deny";
             type = "Ack";
+            // type = "Deny";
+            // let btt = `<a href='#' class='btn btn-block btn-primary' style="width:auto; margin-bottom:5px" onClick="action${type}('${
+            //   data[0]
+            // }', '${data[2]}')"> ${status} </a>`;
+            // let btt2 =
+            //   `<a href='#' class='btn btn-primary' style="width:auto" data-toggle="modal" data-target="#note-modal" onClick="setModal('` +
+            //   data[0] +
+            //   `')"> ${status2} </a>`;
+            // return `<div class="form-group" style="margin-bottom:0">${btt}${btt2}</div>`;
           } else if (data[1] == "Acknowledged") {
             status = "Travel";
             type = "Travel";
+
           } else if (data[1] == "Travelling") {
             status = "Arrived";
             type = "Arrived";

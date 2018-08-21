@@ -1,4 +1,4 @@
-<?php
+<?php 
     require($_SERVER['DOCUMENT_ROOT'].'/srmsng/public/cookie_validate_admin.php');
 ?>
 <html>
@@ -23,15 +23,15 @@
 <?php include_once('../admin/admin_nav.php'); ?>
     <main class="container">
         <div class="input-group page-title">
-            <h1 style="margin-bottom:0;">Add Asset</h1>
-            <a class="btn btn-outline-secondary" href="./">
+            <h1 style="margin-bottom:0;">Edit Asset</h1>
+            <a class="btn btn-outline-secondary" href="./"> 
                 Cancel
             </a>
         </div>
-        <form id="add-form">
+        <form id="edit-form">
             <div class="form-group">
                 <label><h4>SNG Code</h4></label>
-                <input type="text" class="form-control" name="sng_code" placeholder="SNG Code" required/>
+                <input type="text" class="form-control" name="sng_code" placeholder="SNG Code" readonly required/>
             </div>
             <div class="row">
                 <div class="col">
@@ -49,7 +49,7 @@
                                     <div class="input-group-append">
                                         <button class="btn btn-primary" type="button" id="customer-search"><i class="fa fa-search"></i></span>
                                     </div>
-                                </div>
+                                </div> 
                                 <small class="form-text text-muted">Enter at least 3 characters and press enter to search.</small>
                             </div>
                             <div class="form-group">
@@ -61,18 +61,18 @@
                                     <div class="input-group-append">
                                         <button class="btn btn-primary" type="button" id="customer-code-search"><i class="fa fa-search"></i></span>
                                     </div>
-                                </div>
+                                </div> 
                                 <small class="form-text text-muted">Enter at least 3 characters and press enter to search.</small>
                             </div>
                             <div class="form-group">
                                 <button class="btn btn-primary" type="button" id="customer-choose-button">Choose Customer</button>
-                                <button class="btn btn-outline-secondary disabled" type="button" id="customer-edit-button" data-target="#add-customer-popup" data-toggle="modal">Edit Customer</button>
+                                <button class="btn btn-outline-secondary" type="button" id="customer-edit-button" data-target="#add-customer-popup" data-toggle="modal">Edit Customer</button>
                                 <small class="form-text text-danger hidden" id="customer-warning">All fields must be filled.</small>
                             </div>
                     </fieldset>
                 </div>
                 <div class="col">
-                    <fieldset id="location-choose"  class="disabled">
+                    <fieldset id="location-choose">
                         <legend>Location</legend>
                         <a href="#" style="float:right" id="add_location" data-target="#add-location-popup" data-toggle="modal">
                             <i class="fa fa-plus"></i> Add New Location
@@ -98,7 +98,7 @@
                                 <div class="input-group-append">
                                     <button class="btn btn-primary" type="button" id="location-code-search"><i class="fa fa-search"></i></span>
                                 </div>
-                            </div>
+                            </div> 
                             <small class="form-text text-muted">Enter at least 3 characters and press enter to search.</small>
                         </div>
                         <div class="row">
@@ -182,7 +182,7 @@
                             <input type="text" placeholder="Site Longitude" name="lon" id="longitude" class="form-control sub-field" required readonly>
                         </div>
                         <div class="form-group">
-                            <button class="btn btn-outline-secondary disabled" type="button" id="location-edit-button" data-target="#add-location-popup" data-toggle="modal">Edit Location</button>
+                            <button class="btn btn-outline-secondary" type="button" id="location-edit-button" data-target="#add-location-popup" data-toggle="modal">Edit Location</button>
                             <small class="form-text text-danger hidden" id="location-warning">All fields must be filled.</small>
                         </div>
                     </fieldset>
@@ -197,7 +197,7 @@
                             <i class="fa fa-plus"></i> Add New Sale Order
                         </a>
                         <div class="form-group">
-                            <label class="required">Sale Order</label>
+                            <label class="required">Sale Order</label>     
                             <div class="input-group">
                                 <input type="text" class="form-control" id="sale-order-search-field" name="sale_order_no" placeholder="Sale Order" autocomplete="off" required/>
                                 <div class="autofill-dropdown border" id="sale-order-dropdown">
@@ -211,37 +211,37 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Year</label>
-                                    <input type="text" class="form-control sub-field" name="since" id="year-field" placeholder="Year" readonly/>
+                                    <label>Year</label> 
+                                    <input type="text" class="form-control sub-field" name="since" id="year-field" placeholder="Year" readonly required/>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Date Order</label>
-                                    <input type="text" class="form-control sub-field" name="date_order" id="date-order-field" placeholder="Date Order" readonly/>
+                                    <input type="text" class="form-control sub-field" name="date_order" id="date-order-field" placeholder="Date Order" readonly required/>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>PO Number</label>
-                                    <input type="text" class="form-control sub-field" name="po_number" id="po-number-field" placeholder="PO Number" readonly/>
+                                    <label>PO Number</label> 
+                                    <input type="text" class="form-control sub-field" name="po_number" id="po-number-field" placeholder="PO Number" readonly required/>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>PO Date</label>
-                                    <input type="text" class="form-control sub-field" name="po_date" id="po-date-field" placeholder="PO Date" readonly/>
+                                    <input type="text" class="form-control sub-field" name="po_date" id="po-date-field" placeholder="PO Date" readonly required/>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
                             <label>D/O Number</label>
-                            <input type="text" class="form-control sub-field" name="do_number" id="do-no-field" placeholder="D/O No." readonly/>
+                            <input type="text" class="form-control sub-field" name="do_number" id="do-no-field" placeholder="D/O No." readonly required/>
                         </div>
                         <div class="form-group">
-                            <button class="btn btn-outline-secondary disabled" type="button" id="sale-order-edit-button" data-target="#add-sale-order-popup" data-toggle="modal">Edit Sale Order</button>
+                            <button class="btn btn-outline-secondary" type="button" id="sale-order-edit-button" data-target="#add-sale-order-popup" data-toggle="modal">Edit Sale Order</button>
                         </div>
                     </fieldset>
 
@@ -253,7 +253,7 @@
                         <div class="form-group">
                             <label class="required">Item Name</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" id="item-search-field" name="model" placeholder="Item Name" required autocomplete="true"/>
+                                <input type="text" class="form-control" id="item-search-field" name="model" placeholder="Item Name" required autocomplete="true" required/>
                                 <div class="autofill-dropdown border" id="item-dropdown">
                                 </div>
                                 <div class="input-group-append">
@@ -265,35 +265,40 @@
                         <div class="form-group">
                             <label class="required">Item Number</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" name="itemnumber" id="item-number-search-field" placeholder="Item Number"/>
+                                <input type="text" class="form-control" name="itemnumber" id="item-number-search-field" placeholder="Item Number" required/>
                                 <div class="autofill-dropdown border" id="item-number-dropdown">
                                 </div>
                                 <div class="input-group-append">
                                     <button class="btn btn-primary" type="button" id="item-number-search"><i class="fa fa-search"></i></span>
                                 </div>
-                            </div>
+                            </div> 
                             <small class="form-text text-muted">Enter at least 3 characters and press enter to search.</small>
                         </div>
-
+                        
                         <div class="form-group">
                             <label>Rate (kVA)</label>
-                            <input type="text" class="form-control sub-field" name="power" id="power-field" placeholder="Rate" readonly/>
+                            <input type="text" class="form-control sub-field" name="power" id="power-field" placeholder="Rate" readonly required/>
                         </div>
                         <div class="form-group">
-                            <button class="btn btn-outline-secondary disabled" type="button" id="item-edit-button" data-target="#add-item-popup" data-toggle="modal">Edit Item</button>
+                            <button class="btn btn-outline-secondary" type="button" id="item-edit-button" data-target="#add-item-popup" data-toggle="modal">Edit Item</button>
                         </div>
                     </fieldset>
 
                     <fieldset>
                         <div class="form-group">
                             <label class="required">Serial Number</label>
-                            <input type="text" class="form-control" name="serial" placeholder="Serial Number" id="serial-no-field" value="-" required readonly/>
+                            <input type="text" class="form-control" name="serial" placeholder="Serial Number" id="serial-no-field" required/>
                         </div>
-                        <div class="form-group">
-                            <label>Installed by</label>
-                            <select class="form-control" id="fse-dropdown" id="fse-field" name="fse_code">
-                                <option value="0">-- Select Field Service Engineer --</option>
-                            </select>
+                        <div class="form-group checkbox">
+                            <input type="checkbox" name="assign-fse"/>
+                            <label class="checkbox">Assign Field Service Engineer</label>
+                        </div>
+                        <div class="form-group disabled" id="fse-fieldset">
+                            <div class="select-multiple" id="fse-dropdown"></div>
+                            <span>Assign Field Service Engineer <b>Leader</b></span>
+                            <div id="selected-fse">
+                                <span class="selected-fse-none">None</span>
+                            </div>
                         </div>
                     </fieldset>
 
@@ -406,24 +411,24 @@
                     <div class="form-group">
                         <label><h4>Status</h4></label>
                         <select name="ups_status" class="form-control">
-                            <option value="Pending">Pending</option>
-                            <option value="Installed">Installed</option>
-                            <!-- <option value="Not Functioning">Not Functioning</option> -->
-                            <!-- <option value="Inactive">Inactive</option> -->
+                            <option value="Normal">Normal</option>
+                            <option value="Defective">Defective</option>
+                            <option value="Not Functioning">Not Functioning</option>
+                            <option value="Inactive">Inactive</option>
                         </select>
                     </div>
                     <div class="form-group" style="margin-top:40px; text-align:right">
-                        <a class="btn btn-outline-secondary" href="./">
+                        <a class="btn btn-outline-secondary" href="./"> 
                             Cancel
                         </a>
-                        <button type="submit" class="btn btn-primary">Add Asset</button>
-                    </div>
+                        <button type="submit" class="btn btn-primary">Edit Asset</button>
+                    </div> 
                 </div>
-            </div>
+            </div>    
         </form>
 
 
-        <!--================== Modal ==================-->
+    <!--================== Modal ==================-->
         <div class="modal" tabindex="-1" role="dialog" id="add-customer-popup">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -541,7 +546,7 @@
                                         <span class="input-group-text">ซอย</span>
                                     </div>
                                     <input type="text" placeholder="Soi" name="soi" id="soi" class="form-control clear">
-                                </div>
+                                </div>  
                             </div>
                             <div class="form-group">
                                 <label for="account_owner">
@@ -552,7 +557,7 @@
                                         <span class="input-group-text">ถนน</span>
                                     </div>
                                     <input type="text" placeholder="Enter Road" name="road" id="road" class="form-control clear">
-                                </div>
+                                </div>  
                             </div>
                             <div class="form-group">
                                 <label for="sub_district">
@@ -593,7 +598,7 @@
                             </div>
                             <div class="form-group">
                                 <label>Region</label>
-                                <select name="region" id="region" class="form-control ">
+                                <select name="region" id="region" class="form-control">
                                     <option value="กรุงเทพมหานคร">กรุงเทพมหานคร</option>
                                     <option value="กลาง">กลาง</option>
                                     <option value="ตะวันออกเฉียงเหนือ">ตะวันออกเฉียงเหนือ</option>
@@ -663,7 +668,7 @@
                                 <label>Since</label>
                                 <select list="birth_year"  class="form-control" id="since-field" name="since" autocomplete="off">
                                     <datalist id="birth_year">
-                                        <?php
+                                        <?php 
                                         $right_now = getdate();
                                         $this_year = $right_now['year'];
                                         $start_year = 2008;
@@ -748,15 +753,15 @@
                 </div>
             </div>
         </div>
-        <!-- End Modal -->
 
+        <!-- End Modal -->
     </main>
 </body>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="/srmsng/public/js/submit.js"></script>
 <script src="/srmsng/public/js/add_asset.js"></script>
 <script src="/srmsng/public/js/map_places.js"></script>
@@ -783,22 +788,23 @@
                 format: 'Y-MM-DD H:mm:ss'
             }
         });
+
         $('input[name="startwarranty"]').on("apply.daterangepicker", (start) => {
             var val = $('input[name="startwarranty"]').val();
             var mm = moment(val, "DD/M/Y H:mm").add(2, 'years');
-            // mm.add(2, "year");
             $('input[name="endwarranty"]').data('daterangepicker').setStartDate(mm);
         })
     });
+
     // Remember Me
-    window.addEventListener("beforeunload", function (e) {
+    window.addEventListener("beforeunload", function (e) {        
         let remember = "<?php echo $_SESSION['remember']?>";
 
         if(remember == "off"){
             $.ajax({
                 type: "POST",
                 url: '/srmsng/public/index.php/logout',
-                // async: false,/
+                // async: false,/         
                 success: data => {
                     console.log(data);
                 },
@@ -808,31 +814,62 @@
             });
             return;
         }
-    });
+    }); 
+    $('input[name="assign-fse"]').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#fse-fieldset').removeClass('disabled');
+                $('input[name="assign-fse"]').val("on");
+                assigned_fse = true;
+            } else {
+                $('#fse-fieldset').addClass('disabled');
+                $('#fse-fieldset input[type="checkbox"]').prop('checked',false).change();
+                assigned_fse = false;
+            }
+        });
+    function fetchDataFromSNGCode() {
+        var url_string = window.location.href;
+        var url = new URL(url_string);
+        var sng_code = url.searchParams.get("sng_code");
 
-    $('select[name="ups_status"]').on("change", () => {
-        console.log(5555)
-        var val = $('select[name="ups_status"]').val()
-        if(val == "Pending"){
-           $("#serial-no-field").val('-'); 
-           $("#serial-no-field").attr("readonly", true);
-            console.log(`Value: ${$('select[name="ups_status"]').val()}`);
-        }else{
-            $("#serial-no-field").val(""); 
-            $("#serial-no-field").attr("readonly", false);
-        }
-    })
-     // Map
-     function openMap() {
+        fetch("/srmsng/public/index.php/api/admin/getasset?sng_code=" + sng_code)
+        .then(res => {
+            // console.log(res);
+            return res.json();
+        })
+        .then(data => {
+            for (var value in data[0]) {
+                $(".form-control[name='" + value + "']").val(data[0][value]);
+            }
+            $(".form-control[name='toc']").val(data[0]['typeofcontract']);
+            // NEW!!!
+            console.log(data[0]);
+            var fseArray = JSON.parse(data[0]['groupFSE']);
+            console.log(fseArray);
+            for (var i in fseArray) {
+                console.log(`i: ${i}, = ${fseArray[i]}`);
+                $('#fse-dropdown input[value="' + i + '"]').trigger('click');
+                $(`#selected-fse input[value='${i}']`).click();
+            }
+            // END NEW!!!
+            
+            // Lat lng
+            $("#location-choose .sub-field[name='lat']").val(data[0]["latitude"]);
+            $("#location-choose .sub-field[name='lon']").val(data[0]["longitude"]);
+        });
+    }
+    // Map
+    function openMap() {
         $('#add-location-popup .close').trigger('click');
 
         $("#map-modal").modal("toggle");
-
+        
         var lat = $('#add-location-form input[name="lat"]').val();
         var lng = $('#add-location-form input[name="lon"]').val();
         initMarker(lat,lng);
     }
     $(document).ready( function() {
+        fetchDataFromSNGCode();
+        
         // Map
         initMap();
         $("#mark-location").on("click", function() {
@@ -846,6 +883,52 @@
             $('#add-location-popup input[name="longitude"]').val('');
         });
 
-        // document.getElementById("serial-no-field").defaultValue = "-";
+        fetch('/srmsng/public/index.php/api/admin/getfse')
+            .then(resp => {
+                return resp.json();
+            })
+            .then(data_json => {
+            data_json.forEach(element => {
+                if (element['fse_code'] != 0) {
+                    // // Fixed by phone (one FSE only)
+                    // var option = document.createElement("option");
+                    // option.setAttribute("value", element["fse_code"]);
+                    // option.innerHTML = element["engname"];
+                    // document.getElementById("fse-dropdown-single").appendChild(option);
+
+                    // On Site (Multiple FSEs)
+                    var item = document.createElement('span');
+                    item.setAttribute('class','select-multiple-item');
+
+                    var checkbox = document.createElement('input');
+                    checkbox.setAttribute('type','checkbox');
+                    checkbox.setAttribute('value',element['fse_code']);
+                    checkbox.setAttribute('name','fse_code[]');
+
+                    checkbox.onchange = function() {
+                        var fselabel = document.createElement('span');
+                        var radio_leader = document.createElement('input');
+                        radio_leader.setAttribute("type", "radio");
+                        radio_leader.setAttribute("name", "leader");
+                        radio_leader.setAttribute("value", element['fse_code']);
+                        radio_leader.required = true;
+                        fselabel.appendChild(radio_leader);
+                        fselabel.setAttribute('id',element['fse_code']);
+                        fselabel.appendChild(document.createTextNode(element['engname']));
+                        if (!checkbox.checked) {
+                            if (document.getElementById(element['fse_code'])) {
+                                document.getElementById(element['fse_code']).outerHTML = '';
+                            }
+                        } else {
+                            document.getElementById('selected-fse').appendChild(fselabel);
+                        }
+                    }
+
+                    item.appendChild(checkbox);
+                    item.appendChild(document.createTextNode(' ' + element['engname']));
+                    document.getElementById('fse-dropdown').appendChild(item);
+                }
+            });
+        });
     });
 </script>

@@ -421,15 +421,19 @@
                         if (data[0]['job_type'] != '' && data[0]['job_type'] != null) {
                             assigned_job_type = true;
                         }
-                        if (data[0]['GROUP_CONCAT(fse_code)'] != 0) {
+                        if (data[0]['groupFSE'] != 0) {
                             // enable assign fse if fse already exists for this ticket
                             $('input[name="assign-fse"]').prop('checked', true);
                             //$('#fse-fieldset input').prop('disabled', false);
                             $('#fse-fieldset').removeClass('disabled');
                             
-                            var fseArray = data[0]['GROUP_CONCAT(fse_code)'].split(',');
+                            var fseArray = data[0]['groupFSE'].split(',');
+                            var fseArray = JSON.parse(data[0]['groupFSE']);
+                            console.log(fseArray);
                             for (var i in fseArray) {
-                                $('#fse-dropdown input[value="' + fseArray[i] + '"]').trigger('click');
+                                console.log(`i: ${i}, = ${fseArray[i]}`);
+                                $('#fse-dropdown input[value="' + i + '"]').trigger('click');
+                                $(`#selected-fse input[value='${i}']`).click();
                             }
                             assigned_fse = true;
                         }

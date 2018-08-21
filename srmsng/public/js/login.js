@@ -66,11 +66,28 @@ function ajaxCall(token = null){
             
             if(token != null || data.token != undefined){
               // ajax
-          
-              if(confirm(data.description)){
-                // Confirm to force logout
-                ajaxCall(data.token);
-              }
+              swal({
+                title: 'Are you sure?',
+                text: data.description,
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes'
+              }).then((result) => {
+                if (result.value) {
+                  // swal(
+                  //   'Deleted!',
+                  //   'Your file has been deleted.',
+                  //   'success'
+                  // )
+                  ajaxCall(data.token);
+                }
+              })
+              // if(confirm(data.description)){
+              //   // Confirm to force logout
+              //   ajaxCall(data.token);
+              // }
             }else{
               $("#login-error .alert-content").text(data.description);
               $("#login-error").css("display", "block");

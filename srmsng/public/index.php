@@ -736,7 +736,7 @@ $app->post('/api/admin/addasset', function(Request $request, Response $response)
     $sla_response = $request->getParam('sla_response');
     $sla_recovery = $request->getParam('sla_recovery');
     $typeofcontract = $request->getParam('toc');
-
+    
     $sql = "INSERT INTO asset_tracker (sng_code, customer_no, contactname, contactnumber, 
                         pmyear, nextpm,itemnumber, serial, fse_code,
                         battery, quantity, battery_date, location_code,
@@ -841,7 +841,7 @@ $app->post('/api/admin/addticket', function(Request $request, Response $response
         return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
-    $sng_code = $request->getParam('sng_code');
+    $sng_code  = $request->getParam('sng_code');
     $name = $request->getParam('name');
     $phone_number = $request->getParam('phone_number');
     $email = $request->getParam('email');
@@ -863,6 +863,7 @@ $app->post('/api/admin/addticket', function(Request $request, Response $response
     $request_time = date('Y-m-d H:i:s', time());
     $start_time = $request->getParam('start_time');
     $close_time = $request->getParam('close_time');
+    $leader = $request->getParam('leader');
     $request_id = $_SESSION['account_no'];
     $request_user = $_SESSION['username_unhash'];
 
@@ -946,18 +947,20 @@ $app->post('/api/admin/addticket', function(Request $request, Response $response
 
     if ($fse_code != 0) {
         if ($job_type != 'Fixed by phone') {
-            $sql = "INSERT INTO job_fse (job_id, fse_code) VALUES ";
-
+        $sql = "INSERT INTO job_fse (job_id, fse_code, is_leader) VALUES ";
             foreach ($fse_code as $code=>$value) {
-                $sql = $sql . '(' . "'" . $cm_id . "'" . ', ' . "'" . $value . "'" . '),';
+                if ($value == $leader) $is_leader = 1;
+                else $is_leader = 0; 
+                $sql = $sql . "('$cm_id', '$value', '$is_leader'),";
             }
+
             $last_char = strlen($sql) - 1;
             $sql[$last_char] = ";";
         } else {
-            $sql = "INSERT INTO job_fse (job_id, fse_code) VALUES ('$cm_id', '$fse_code')";
+            $sql = "INSERT INTO job_fse (job_id, fse_code, is_leader) VALUES ('$cm_id', '$fse_code', '0')";
         }
-    } else {
-        $sql = "INSERT INTO job_fse (job_id, fse_code) VALUES ('$cm_id', '0')";
+    } else { 
+        $sql = "INSERT INTO job_fse (job_id, fse_code, is_leader) VALUES ('$cm_id', '0', '0')";
     }
 
     try{
@@ -1427,6 +1430,23 @@ $app->put('/api/fse/notfinishwork', function(Request $request, Response $respons
     $complete_time = date('Y-m-d H:i:s', time());
     $is_finish = false;
 
+    $sql = "SELECT job_status FROM srm_request WHERE cm_id = '$cm_id'";
+    try{
+        // Get DB Object
+        $db = new db();
+        // Connect
+        $db = $db->connect();
+
+        $stmt = $db->query($sql);
+        $result =  $stmt->fetch(PDO::FETCH_OBJ);
+        $result = json_encode($result);
+        $result = json_decode($result, true);
+        $db = null;
+    
+    } catch(PDOException $e) {
+        $db = null;
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
+    }
     if ($result['job_status'] == 'Working in Progress'){
         $sql = "UPDATE srm_request SET
                     job_status    = :set_job_status,
@@ -1516,6 +1536,90 @@ $app->put('/api/fse/finishwork', function(Request $request, Response $response){
         }
     } else {
         return "Some of your team have been response to this message.";
+    }
+});
+
+
+$app->put('/api/fse/deny', function(Request $request, Response $response){
+    $job_status = 'Pending';
+    $engname = $request->getParam('engname');
+    $cm_id = $request->getParam('cm_id');
+
+    $sql = "SELECT job_status 
+            FROM srm_request 
+            WHERE cm_id = '$cm_id'";
+    try{
+        // Get DB Object
+        $db = new db();
+        // Connect
+        $db = $db->connect();
+
+        $stmt = $db->query($sql);
+        $result =  $stmt->fetch(PDO::FETCH_OBJ);
+        $result = json_encode($result);
+        $result = json_decode($result, true);
+        $db = null;
+    } catch(PDOException $e) {
+        $db = null;
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
+    }
+
+    if ($result['job_status'] == 'Assigned'){
+        $sql = "DELETE FROM job_fse WHERE job_id = '$cm_id'";
+        try{
+            // Get DB Object
+            $db = new db();
+            // Connect
+            $db = $db->connect();
+    
+            $stmt = $db->prepare($sql);
+            $stmt->execute();
+            $db = null;
+    
+        } catch(PDOException $e) {
+            $db = null;
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
+        }
+
+        $sql = "INSERT INTO job_fse (job_id, fse_code, is_leader) VALUES ('$cm_id', '0', '0')";
+        try{
+            // Get DB Object
+            $db = new db();
+            // Connect
+            $db = $db->connect();
+            $stmt = $db->prepare($sql);
+            $stmt->execute();
+    
+        }catch(PDOException $e){
+            $db = null;
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
+        }
+
+
+        $sql = "UPDATE srm_request SET
+                    job_status    = :set_job_status
+                WHERE cm_id = '$cm_id'";
+
+        try{
+            // Get DB Object
+            $db = new db();
+            // Connect
+            $db = $db->connect();
+            $stmt = $db->prepare($sql);
+
+            $stmt->bindParam(':set_job_status', $job_status);
+            $stmt->execute();
+            $action = 'Work Complete CM id :';
+            system_log($engname . $action . $cm_id);
+            $db = null;
+            return $response->withStatus(200)->getBody()->write("SUCCESS");
+
+        } catch(PDOException $e) {
+            $db = null;
+            return $response->withStatus(400)->getBody()->write($e->getmessage());
+        }
+    } else {
+        return "You have no permission to reject this work.";
     }
 });
 
@@ -1774,7 +1878,10 @@ $app->put('/api/admin/assignticketonmap', function(Request $request, Response $r
     $cm_id = $request->getParam('cm_id');
     $fse_code = $request->getParam('fse_code');
     $cm_time = $request->getParam('cm_time');
-    $job_type = $request->getParam('job_type');
+    $leader = $request->getParam('leader');
+    $job_type = 'On site';
+    $complete_time = '';
+    $sng_code = $request->getParam('sng_code');
 
     $sql = "DELETE FROM job_fse WHERE job_id = '$cm_id'";
  
@@ -1794,14 +1901,17 @@ $app->put('/api/admin/assignticketonmap', function(Request $request, Response $r
     }
   
     if ($fse_code != 0) {
-        $sql = "INSERT INTO job_fse (job_id, fse_code) VALUES ";
-            foreach ($fse_code as $code=>$value) {
-                $sql = $sql . '(' . "'" . $cm_id . "'" . ', ' . "'" . $value . "'" . '),';
-            }
-            $last_char = strlen($sql) - 1;
-            $sql[$last_char] = ";";
+        $sql = "INSERT INTO job_fse (job_id, fse_code, is_leader) VALUES ";
+        foreach ($fse_code as $code=>$value) {
+            if ($value == $leader) $is_leader = 1;
+            else $is_leader = 0; 
+            $sql = $sql . "('$cm_id', '$value', '$is_leader'),";
+        }
+        $last_char = strlen($sql) - 1;
+        $sql[$last_char] = ";";
+
     } else { 
-        $sql = "INSERT INTO job_fse (job_id, fse_code) VALUES ('$cm_id', '0')";
+        $sql = "INSERT INTO job_fse (job_id, fse_code, is_leader) VALUES ('$cm_id', '0', '0')";
     }
     
     try {
@@ -1817,18 +1927,13 @@ $app->put('/api/admin/assignticketonmap', function(Request $request, Response $r
         return $response->withStatus(400)->getBody()->write($e->getmessage());
     }
 
-    if ($job_type != 'Fixed by phone')
-    {
-        if ($complete_time != '' && $fse_code != 0 && $cm_time != '' && $job_type != '') $job_status = 'Pending Approve';
-        elseif ($complete_time == '' && $fse_code != 0 && $cm_time != '' && $job_type != '') $job_status = 'Assigned';
-        else $job_status = 'Pending';
-    } else {
-        $complete_time = $close_time;
-        $job_status = "Closed";
-    }
+    if ($complete_time != '' && $fse_code != 0 && $cm_time != '' && $job_type != '') $job_status = 'Pending Approve';
+    elseif ($complete_time == '' && $fse_code != 0 && $cm_time != '' && $job_type != '') $job_status = 'Assigned';
+    else $job_status = 'Pending';
 
     $sql = "UPDATE srm_request SET
                 cm_time           = :set_cm_time,
+                job_status        = :set_job_status,
                 job_type          = :set_job_type
             WHERE cm_id = '$cm_id'";
 
@@ -1840,6 +1945,7 @@ $app->put('/api/admin/assignticketonmap', function(Request $request, Response $r
         $stmt = $db->prepare($sql);
         
         $stmt->bindParam(':set_cm_time', $cm_time);
+        $stmt->bindParam(':set_job_status', $job_status);
         $stmt->bindParam(':set_job_type', $job_type);
 
         $stmt->execute();
@@ -1867,6 +1973,20 @@ $app->put('/api/admin/assignticketonmap', function(Request $request, Response $r
                     AND location.location_code = asset_tracker.location_code
                     AND asset_tracker.itemnumber = material_master_record.itemnumber";
 
+        $sql3 = "SELECT problem_type, asset_problem, name, phone_number
+                FROM srm_request, asset_tracker, location, material_master_record, fse, root_cause, correction, job_fse
+                WHERE asset_tracker.sng_code    = srm_request.sng_code
+                    AND location.location_code    = asset_tracker.location_code
+                    AND asset_tracker.itemnumber  = material_master_record.itemnumber
+                    AND srm_request.cm_id         = '$cm_id'
+                    AND job_fse.job_id            = '$cm_id'
+                    AND fse.fse_code              = job_fse.fse_code
+                    AND srm_request.cause_id      = root_cause.cause_id
+                    AND srm_request.correction_id = correction.correction_id
+                    AND srm_request.job_status    != 'Closed'
+                    AND srm_request.job_status    != 'Completed'
+                GROUP BY srm_request.cm_id";
+
         try{
             // Get DB Object
             $db = new db();
@@ -1881,6 +2001,11 @@ $app->put('/api/admin/assignticketonmap', function(Request $request, Response $r
             $result2 = json_encode($result2);
             $result2 = json_decode($result2, true);
 
+            $stmt3 = $db->query($sql3);
+            $result3 = $stmt3->fetch(PDO::FETCH_OBJ);
+            $result3 = json_encode($result3);
+            $result3 = json_decode($result3, true);
+
             foreach($result1 as $row) {
                 $subject = 'Syngergize SRM';
                 $body = '<b>เรียนคุณ ' . $row['thainame'] . '</b><br>' .
@@ -1894,8 +2019,8 @@ $app->put('/api/admin/assignticketonmap', function(Request $request, Response $r
                 'จำนวนแบตเตอรี่: ' . $result2['quantity'] . '<br>'.
                 'วันที่ติดตั้งแบตเตอรี่: ' . $result2['battery_date'] . '<br>'.
                 '----------ข้อมูลปัญหา----------<br>'.
-                'ชนิดของปัญหา: ' . $problem_type . '<br>'.
-                'รายละเอียด: ' . $asset_problem . '<br>'.
+                'ชนิดของปัญหา: ' . $result3['problem_type'] . '<br>'.
+                'รายละเอียด: ' . $result3['asset_problem'] . '<br>'.
                 'สถานะ: ' . $result2['ups_status'] . '<br>'.
                 '----------สถานที่----------<br>'.
                 'ชื่อสถานที่: ' . $result2['sitename'] . '<br>'.
@@ -1909,8 +2034,8 @@ $app->put('/api/admin/assignticketonmap', function(Request $request, Response $r
                 '----------เวลา----------<br>'.
                 'เวลา: ' . $cm_time . '<br>'.
                 '----------ติดต่อ----------<br>'.
-                'ชื่อ: ' . $name . '<br>'.
-                'เบอร์ติดต่อ: ' . $phone_number . '<br><br>'.
+                'ชื่อ: ' . $result3['name'] . '<br>'.
+                'เบอร์ติดต่อ: ' . $result3['phone_number'] . '<br><br>'.
                 '<b>หากคุณรับทราบแล้วให้คลิกที่ลิงค์ด้านล่างนี้(อ่านรายละเอียดก่อนคลิก)</b><br>'.
                 '<a href="192.168.1.248/srmsng/public/fse">โปรดคลิกที่ลิงค์นี้เพื่อตอบรับ</a><br>'.
                 'บริษัท ซินเนอร์ไจซ์ โปรไวด์ เซอร์วิส จำกัด<br>'.
@@ -1985,10 +2110,9 @@ $app->put('/api/admin/assignticket', function(Request $request, Response $respon
     if ($fse_code != 0) {
         if ($job_type != 'Fixed by phone') {
         $sql = "INSERT INTO job_fse (job_id, fse_code, is_leader) VALUES ";
-            if ($value == $leader) $is_leader = 1;
-            else $is_leader = 0; 
-
             foreach ($fse_code as $code=>$value) {
+                if ($value == $leader) $is_leader = 1;
+                else $is_leader = 0; 
                 $sql = $sql . "('$cm_id', '$value', '$is_leader'),";
             }
 
@@ -2797,13 +2921,13 @@ $app->get('/api/admin/request/single', function(Request $request, Response $resp
     $cm_id = $request->getParam('cm_id');
     $sql = "SELECT sng_code, name, email, phone_number, asset_problem, asset_detected,
                     srm_request.cause_id, cause_description, srm_request.correction_id, correction_description,
-                    GROUP_CONCAT(fse_code), cm_time, complete_time, job_status, correction_detail, cause_detail,
+                    CONCAT('{', GROUP_CONCAT(CONCAT('\"', fse_code, '\"', ':', is_leader)), '}') AS groupFSE, cm_time, complete_time, job_status, correction_detail, cause_detail,
                     problem_type, solution, suggestions, job_type, start_time, close_time
             FROM srm_request, root_cause, correction, job_fse
             WHERE cm_id = '$cm_id' 
-            AND srm_request.cause_id = root_cause.cause_id
-            AND srm_request.correction_id = correction.correction_id
-            AND job_fse.job_id = srm_request.cm_id 
+                AND srm_request.cause_id = root_cause.cause_id
+                AND srm_request.correction_id = correction.correction_id
+                AND job_fse.job_id = srm_request.cm_id 
             GROUP BY srm_request.cm_id";
     try{
         // Get DB Object
@@ -3118,20 +3242,56 @@ $app->get('/api/admin/getsinglefse', function (Request $request, Response $respo
 });
 
 // Get all latitude and longitude for work location on google map. 
+$app->get('/api/admin/getcminfo', function (Request $request, Response $response) {
+    $cm_id = $request->getParam('cm_id');
+    $sql = "SELECT cm_time, 
+                    CONCAT('{', GROUP_CONCAT(DISTINCT CONCAT('\"', fse.fse_code, '\"', ':', '\"', fse.engname, '\"') ORDER BY fse.engname), '}') AS groupFSE,
+                    job_type, sitename, asset_tracker.sng_code
+                  FROM srm_request, asset_tracker, location, material_master_record, fse, root_cause, correction, job_fse
+                  WHERE asset_tracker.sng_code    = srm_request.sng_code
+                    AND location.location_code    = asset_tracker.location_code
+                    AND asset_tracker.itemnumber  = material_master_record.itemnumber
+                    AND srm_request.cm_id         = '$cm_id'
+                    AND job_fse.job_id            = '$cm_id'
+                    AND fse.fse_code              = job_fse.fse_code
+                    AND srm_request.cause_id      = root_cause.cause_id
+                    AND srm_request.correction_id = correction.correction_id
+                    AND srm_request.job_status    != 'Closed'
+                    AND srm_request.job_status    != 'Completed'
+                GROUP BY srm_request.cm_id";
+
+    try{
+        // Get DB Object
+        $db = new db();
+        // Connect
+        $db = $db->connect();
+
+        $stmt = $db->query($sql);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $db = null;
+        return $response->withJson($result);
+
+    } catch(PDOException $e) { 
+        $db = null;
+        return $response->withStatus(400)->getBody()->write($e->getmessage());
+    }
+});
+
+// Get all latitude and longitude for work location on google map. 
 $app->get('/api/admin/getlatlon', function (Request $request, Response $response) {
-    $sql = "SELECT location.location_code, sitename ,latitude, longitude, sitename, cm_id, cm_time,
-                GROUP_CONCAT(DISTINCT engname ORDER BY engname) AS groupFSE, fse.fse_code 
-            FROM srm_request, asset_tracker, location, material_master_record, fse, root_cause, correction, job_fse
-            WHERE asset_tracker.sng_code      = srm_request.sng_code
-                AND location.location_code    = asset_tracker.location_code
-                AND asset_tracker.itemnumber  = material_master_record.itemnumber
-                AND srm_request.cm_id         = job_fse.job_id
-                AND fse.fse_code              = job_fse.fse_code
-                AND srm_request.cause_id      = root_cause.cause_id
-                AND srm_request.correction_id = correction.correction_id
-                AND srm_request.job_status    != 'Closed'
-                AND srm_request.job_status    != 'Completed'
-            GROUP BY location.location_code";
+    $sql = "SELECT location.location_code, latitude, longitude, sitename, GROUP_CONCAT(DISTINCT cm_id ORDER BY cm_id) AS groupCM
+                  FROM srm_request, asset_tracker, location, material_master_record, fse, root_cause, correction, job_fse
+                  WHERE asset_tracker.sng_code      = srm_request.sng_code
+                    AND location.location_code    = asset_tracker.location_code
+                    AND asset_tracker.itemnumber  = material_master_record.itemnumber
+                    AND srm_request.cm_id         = job_fse.job_id
+                    AND fse.fse_code              = job_fse.fse_code
+                    AND srm_request.cause_id      = root_cause.cause_id
+                    AND srm_request.correction_id = correction.correction_id
+                    AND srm_request.job_status    != 'Closed'
+                    AND srm_request.job_status    != 'Completed'
+                    AND srm_request.job_status    != 'Incomplete'
+                  GROUP BY asset_tracker.location_code";
 
     try{
         // Get DB Object

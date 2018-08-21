@@ -15,89 +15,10 @@ var infowindow;
 // This function sets up the modal by filling in the sitename, problem_type, and asset_problem
 // of the selected location into the corresponding fields.
 // This function does not open the modal.
-
-function cmChange(code){
-  $("#fse-leader").empty();
-  var this_cm = $("#cm_id").val()
-  for (var code in markers) {
-    markers[code].selected = false;
-    markers[code].setIcon(markers[code].formericon);
-  }
-  fetch('/srmsng/public/index.php/api/admin/getcminfo?cm_id='+this_cm).then((data) => {return data.json()}).then((data) => {
-    $("#fse-code-input").html("");
-    $(".selected-fse .fse").remove();
-    console.log(data)
-
-    //SET VALUE on fetch
-    $("input[name='sitename']").val(data[0].sitename);
-    $('input[name="cm_id"]').val(this_cm);
-    $('input[name="cm_time"]').val(data[0].cm_time);
-    $('input[name="sng_code"]').val(data[0].sng_code);
-
-    // IF data have cm_time set checkbox on
-    if(data[0].cm_time){
-      $('input[name="assign-cm-time"]').click();
-    }else{
-      $('input[name="assign-cm-time"]').prop('checked', false);
-      $('input[name="cm-time"]').attr("disabled", true);
-      $('#cm-time-field').addClass("disabled");
-    }
-
-    // parsing groupFSE to JSON
-    var t = data[0].groupFSE;
-    console.log(`code is: ${t}`);
-    var ap = JSON.parse(t);
-
-    // Append FSE to modal
-    for(var each in ap){
-
-      for (var code in markers) {
-    
-        if (markers[code].title == ap[each]) {
-          markers[code].selected = true;
-          // markers[code].setIcon("/srmsng/src/image/track-icons/fse-available-check.png");
-        }
-        
-      }
-
-      if(ap[each] != "Undefined"){
-        $("#fse-code-input").append('<input type="hidden" name="fse_code[]" value="' + each + '"/>');
-        $("#selected-fse").append('<span class="fse" id="' + each + '">' + ap[each] + "</span>");
-        $("#selected-fse-on-select").append('<span class="fse" id="' + each + '">' + ap[each] + "</span>");
-        $('select[name="leader"]').append(`<option value="${each}">${ap[each]}</option>`);
-        $('#fse-leader-dropdown').css("display", "block");
-        $('select[name="leader"]').attr("disabled", false);
-      }else{
-        $('#fse-leader-dropdown').css("display", "none");
-        $('select[name="leader"]').attr("disabled", true);
-      }
-
-
-      // markers[code].setIcon("/srmsng/src/image/track-icons/fse-available-check.png");
-      // // Set selected status of the marker to true
-      // markers[code].selected = true;
-    }
-
-    
-    // for (var code in markers) {
-    //   if (markers[code].selected) {
-    //     console.log(`Marker: ${code}, selected: ${markers[code].selected}`);
-    //     markers[code].setIcon(markers[code].formericon);
-    //   }
-    // }
-
-
-  });
-
-}
-
 function setUpModal() {
   var code = $(this).data("entry-id");
-  
   console.log(`Code = ${code}`);
   console.log("CM_TIME: "+markers[code].cm_id+markers[code].groupFSE);
-
-  // //SET VALUE on fetch
   // $("input[name='sitename']").val(markers[code].title);
   // $('input[name="problem_type"]').val(markers[code].problem_type);
   // $('textarea[name="asset_problem"]').val(markers[code].asset_problem);
@@ -106,13 +27,9 @@ function setUpModal() {
 
   var list = markers[code].groupCM;
   console.log(`List: ${list}`);
-  list = list.split(",");
-  // list = ["Asd", "ASd"];
+  list = list.split(",")
   list.forEach((each) => {
     console.log(each);
-    $("#cm_id").append($("<option></option>")
-    .attr("value",each)
-    .text(each)); ;
   })
 
   var job_type = markers[code].job_type;
@@ -123,10 +40,9 @@ function setUpModal() {
     $('input[type="hidden"]').attr("disabled", false);
   }
 
-  // // parsing groupFSE to JSON
-  // var t = markers[code].groupFSE;
-  // console.log(`code is: ${code}`);
-  // var ap = JSON.parse(t);
+  var t = markers[code].groupFSE;
+  console.log(`code is: ${code}`);
+  var ap = JSON.parse(t);
   // console.log(markers[code].groupFSE);
   // console.log(JSON.parse(markers[code].groupFSE));
   // console
@@ -134,28 +50,26 @@ function setUpModal() {
   $("#fse-code-input").html("");
   $(".selected-fse .fse").remove();
 
-  
-  // // Append FSE to modal
-  // for(var each in ap){
+  for(var each in ap){
 
-  //   for (var code in markers) {
+    for (var code in markers) {
       
-  //     if (markers[code].title == ap[each]) {
-  //       markers[code].selected = true;
-  //       // markers[code].setIcon("/srmsng/src/image/track-icons/fse-available-check.png");
-  //     }
+      if (markers[code].title == ap[each]) {
+        markers[code].selected = true;
+        // markers[code].setIcon("/srmsng/src/image/track-icons/fse-available-check.png");
+      }
       
-  //   }
+    }
 
-  //   $("#fse-code-input").append('<input type="hidden" name="fse_code[]" value="' + each + '"/>');
-  //   $("#selected-fse").append('<span class="fse" id="' + each + '">' + ap[each] + "</span>");
-  //   $("#selected-fse-on-select").append('<span class="fse" id="' + each + '">' + ap[each] + "</span>");
+    $("#fse-code-input").append('<input type="hidden" name="fse_code[]" value="' + each + '"/>');
+    $("#selected-fse").append('<span class="fse" id="' + each + '">' + ap[each] + "</span>");
+    $("#selected-fse-on-select").append('<span class="fse" id="' + each + '">' + ap[each] + "</span>");
 
 
-  //   // markers[code].setIcon("/srmsng/src/image/track-icons/fse-available-check.png");
-  //   // // Set selected status of the marker to true
-  //   // markers[code].selected = true;
-  // }
+    // markers[code].setIcon("/srmsng/src/image/track-icons/fse-available-check.png");
+    // // Set selected status of the marker to true
+    // markers[code].selected = true;
+  }
 
   
   for(var code in markers){
@@ -163,8 +77,6 @@ function setUpModal() {
       console.log(`code: ${code}, selected: ${markers[code].selected}`);
     }
   }
-
-  // // Append Value
   // ap.forEach((each) => {
   //   console.log(each);
   //   // $("#fse-code-input").append('<input type="hidden" name="fse_code[]" value="' + each + '"/>');
@@ -179,114 +91,11 @@ function setUpModal() {
   //   $("#selected-fse").append('<span class="fse" id="' + markers[code].fse_code + '">' + each + "</span>");
   // })
 
-  // //  Add FSE's name to the list
+    // Add FSE's name to the list
   // $("#selected-fse-on-select").append('<span class="fse" id="' + code + '">' + markers[code].title + "</span>");
-  // // Remove the previous location's selected fse
+  // Remove the previous location's selected fse
   
   
-}
-
-function testCall(id){
-  // console.log(id);
-  $("#fse-leader-input").empty();
-  $(`span.fse[id="${id}"]`).css('background-color', "gold");
-  $(`span.fse`).not(`#${id}`).css('background-color', "rgba(0, 123, 255, 0.25)");
-  $(`#fse-leader-input`).append(`<input type="hidden" name="leader" value="${id}">`);
-  $(`span.fse`).each(function(){
-    // console.log($(this).attr('id'));
-    // console.log("CO");
-    if($(this).attr('id') != id){
-      // console.log(`id= ${id},,${$(this).attr('id')}`)
-      // $(`span[id="${id}"]`).css('background-color', "gold");
-      // $(`span[id="${id}"]`).css('background-color', "rgba(0, 123, 255, 0.25)");
-    }
-    // }else{
-      // console.log("Ese")
-    // }
-  })
-}
-
-function initModal(){
-  console.log(`THIS: ${this}`);
-  var code = $(this).data("entry-id");
-  $("#cm_id").html("");
-  var list = markers[code].groupCM;
-  console.log(`List: ${this_cm}`);
-  list = list.split(",");
-  list.forEach((each) => {
-    $("#cm_id").append($("<option></option>")
-    .attr("value",each)
-    .text(each)); ;
-  })
-  var this_cm = $("#cm_id").val()
-  fetch('/srmsng/public/index.php/api/admin/getcminfo?cm_id='+this_cm).then((data) => {return data.json()}).then((data) => {
-    $("#fse-code-input").html("");
-    $(".selected-fse .fse").remove();
-    console.log(data)
-    console.log(`Sitename: ${data[0].sitename}`)
-
-    //SET VALUE on fetch
-    $("input[name='sitename']").val(data[0].sitename);
-    $('input[name="cm_id"]').val(this_cm);
-    $('input[name="cm_time"]').val(data[0].cm_time);
-    $('input[name="sng_code"]').val(data[0].sng_code);
-
-    if(data[0].cm_time){
-      $('input[name="assign-cm-time"]').click();
-    }else{
-      $('input[name="assign-cm-time"]').prop('checked', false);
-      $('input[name="cm-time"]').attr("disabled", true);
-      $('#cm-time-field').addClass("disabled");
-    }
-
-
-    // parsing groupFSE to JSON
-    var t = data[0].groupFSE;
-    console.log(`code is: ${t}`);
-    var ap = JSON.parse(t);
-    console.log(ap);
-    $('select[name="leader"]').empty();
-    for(var each in ap){
-      console.log(`each: ${ap[each]}`);
-      for (var code in markers) {
-        
-        if (markers[code].title == ap[each]) {
-          markers[code].selected = true;
-          // markers[code].setIcon("/srmsng/src/image/track-icons/fse-available-check.png");
-        }
-        
-      }
-
-      if(ap[each] != "Undefined"){
-        $("#fse-code-input").append('<input type="hidden" name="fse_code[]" value="' + each + '"/>');
-        // $("#selected-fse").append(`<span class="fse" id="${each}" onClick="testCall('${each}')" data-entry-id="${each}">${ap[each]}</span>`);
-        $("#selected-fse").append('<span class="fse" id="' + each + '">' + ap[each] + "</span>");
-        $("#selected-fse-on-select").append('<span class="fse" id="' + each + '">' + ap[each] + "</span>");
-        // $("#selected-fse-on-select").append(`<span class="fse" id="${each}" onClick="testCall('${each}')" data-entry-id="${each}">${ap[each]}</span>`);
-        $('select[name="leader"]').append(`<option value="${each}">${ap[each]}</option>`);
-        $('#fse-leader-dropdown').css("display", "block");
-        $('select[name="leader"]').attr("disabled", false);
-      }else{
-        $('#fse-leader-dropdown').css("display", "none");
-        $('select[name="leader"]').attr("disabled", true);
-      }
-      
-
-      // markers[code].setIcon("/srmsng/src/image/track-icons/fse-available-check.png");
-      // // Set selected status of the marker to true
-      // markers[code].selected = true;
-    }
-
-    var code = $(this).data("entry-id");
-    // console.log(`Code = ${code}`);
-
- 
-
-  $("#cm_id").on("change", () => {
-    cmChange(code);
-  })
-  
-  });
 }
 
 // Cancel button in the modal
@@ -328,9 +137,6 @@ $("#select-done").on("click", function() {
 
   $("#selected-fse").html($("#selected-fse-on-select").html());
 
-  // $(`span.fse[id="${id}"]`).css('background-color', "gold");
-  // $(`span.fse`).not(`#${id}`).css('background-color', "rgba(0, 123, 255, 0.25)");
-  // $(`#fse-leader-input`).append(`<input type="hidden" name="leader" value="${id}">`);
   // Change the icon of the selected FSEs back to normal
   for (var code in markers) {
     if (markers[code].selected) {
@@ -338,10 +144,6 @@ $("#select-done").on("click", function() {
       markers[code].setIcon(markers[code].formericon);
     }
   }
-
-  $('#fse-leader-dropdown').css("display", "block");
-  $('select[name="leader"]').attr("disabled", false);
-
 });
 
 // Toggle Selection of FSE
@@ -351,11 +153,8 @@ function toggleSelect() {
     console.log(`Got you! who: ${markers[code].title}, selected: ${markers[code].selected}`);
     // Adds an invisible input with the FSE code filled in to gather data for submission
     $("#fse-code-input").append('<input type="hidden" name="fse_code[]" value="' + code + '"/>');
-    $(`#fse-leader-input`).append(`<input type="hidden" name="leader" value="${code}">`);
     // Add FSE's name to the list
     $("#selected-fse-on-select").append('<span class="fse" id="' + code + '">' + markers[code].title + "</span>");
-    $('select[name="leader"]').append(`<option value="${code}">${markers[code].title}</option>`);
-    // $("#selected-fse-on-select").append(`<span class="fse" id="${code}" onClick="testCall('${code}')" data-entry-id="${code}">${markers[code].title}</span>`);
     // Set icon to checkmark
     markers[code].setIcon("/srmsng/src/image/track-icons/fse-available-check.png");
     // Set selected status of the marker to true
@@ -366,7 +165,6 @@ function toggleSelect() {
     $('#fse-code-input input[value="' + code + '"]').remove();
     // Remove FSE from list
     $("#selected-fse-on-select #" + code).remove();
-    $(`#fse-leader option[value="${code}"]`).remove();
     // Set icon back to former icon
     markers[code].setIcon(markers[code].formericon);
     // Set selected status of the marker to false
@@ -548,10 +346,9 @@ function initMap() {
           groupCM: element["groupCM"],
           fse_code: element["fse_code"],
           job_type: element["job_type"],
-          sng_code: element["sng_code"],
         });
         marker.addListener("click", toggleDetails);
-        // var jp = JSON.parse(marker.groupFSE);
+        var jp = JSON.parse(marker.groupFSE);
         // for(var each in jp){
         //   console.log(`each is ${each}`);
         //   markers[each].selected = true;
@@ -577,12 +374,12 @@ function initMap() {
             contentString +=
               '<button class="btn btn-primary" data-toggle="modal" data-target="#assign-modal-site" data-entry-id="' +
               marker.code +
-              '" onClick="initModal.call(this)" disabled>Assign FSE</button>';
+              '" onClick="setUpModal.call(this)" disabled>Assign FSE</button>';
           } else {
             contentString +=
               '<button class="btn btn-primary" data-toggle="modal" data-target="#assign-modal-site" data-entry-id="' +
               marker.code +
-              '" onClick="initModal.call(this)">Assign FSE</button>';
+              '" onClick="setUpModal.call(this)">Assign FSE</button>';
           }
           infowindow.setContent(contentString);
         }

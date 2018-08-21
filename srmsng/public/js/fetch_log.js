@@ -14,6 +14,7 @@ $(document).ready(function() {
       url: "/srmsng/public/fetch-ajax/fetchLog.php",
       pages: 5 // number of pages to cache,
     }),
+    order: [[5, "desc"]],
     initComplete: function() {
       // Set up table styling
       $("#supertable").addClass("display");

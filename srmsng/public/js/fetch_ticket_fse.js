@@ -60,6 +60,10 @@ function fetchTable(fse_code) {
         data: 8
       },
       {
+        targets: 10,
+        data: 9
+      },
+      {
         targets: 11,
         className: "td-with-details",
         data: function(row) {
@@ -145,6 +149,16 @@ function fetchTable(fse_code) {
           if (data[1] == "Assigned") {
             status = "Acknowledge";
             type = "Ack";
+            status2 = "Deny";
+            type2 = "Deny";
+            let btt = `<a href='#' class='btn btn-block btn-primary' style="width:auto; margin-bottom:5px" onClick="action${type}('${
+              data[0]
+            }', '${data[2]}')"> ${status} </a>`;
+            let btt2 =
+              `<a href='#' class='btn btn-block btn-danger' style="width:auto" onClick="action${type2}('${
+                data[0]
+              }', '${data[2]}')"> ${status2} </a>`;
+            return `<div class="form-group" style="margin-bottom:0">${btt}${btt2}</div>`;
           } else if (data[1] == "Acknowledged") {
             status = "Travel";
             type = "Travel";
@@ -258,6 +272,38 @@ function actionAck(cm_id, name, sng_code) {
       console.log("ERR" + data);
     }
   });
+}
+
+function actionDeny(cm_id, name) {
+  swal({
+    title: 'Are you sure?',
+    text: "You won't be able to revert this!",
+    type: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, Deny it!'
+  }).then((result) => {
+    if(result.value){
+      $.ajax({
+        type: "PUT",
+        url: "/srmsng/public/index.php/api/fse/deny",
+        data: "cm_id=" + cm_id + "&engname=" + name,
+        success: data => {
+          toastr.options = {
+            positionClass: "toast-bottom-center"
+          };
+          toastr.success("<span>Please wait, this website is going to refresh...</span>");
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        },
+        error: data => {
+          console.log("ERR" + data);
+        }
+      });
+    }
+  })
 }
 
 function actionTravel(cm_id, name, sng_code) {

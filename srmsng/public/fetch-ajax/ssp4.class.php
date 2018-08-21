@@ -13,11 +13,11 @@
  *
  * @license MIT - http://datatables.net/license_mit
  */
-
-
-// This file has been edited to support drawing data from multiple tables and table.column
-// data_output() and complex() functions were edited.
-
+// REMOVE THIS BLOCK - used for DataTables test environment only!
+$file = $_SERVER['DOCUMENT_ROOT'].'/datatables/pdo.php';
+if ( is_file( $file ) ) {
+	include( $file );
+}
 class SSP {
 	/**
 	 * Create the data output array for the DataTables rows
@@ -26,50 +26,41 @@ class SSP {
 	 *  @param  array $data    Data from the SQL get
 	 *  @return array          Formatted data in a row based format
 	 */
-
-	 // EDIT: data_output has been edited to support table.column
 	static function data_output ( $columns, $data )
 	{
 		$out = array();
-		//echo json_encode($columns);
 		for ( $i=0, $ien=count($data) ; $i<$ien ; $i++ ) {
 			$row = array();
 			for ( $j=0, $jen=count($columns) ; $j<$jen ; $j++ ) {
 				$column = $columns[$j];
 				// Is there a formatter?
+				// if ( isset( $column['formatter'] ) ) {
+				// 	$row[ $column['dt'] ] = $column['formatter']( $data[$i][ $column['db'] ], $data[$i] );
+				// }
+				// else {
+				// 	$row[ $column['dt'] ] = $data[$i][ $columns[$j]['db'] ];
+				// }
 				if ( isset( $column['formatter'] ) ) {
 					$row[ $column['dt'] ] = $column['formatter']( $data[$i][ $column['db'] ], $data[$i] );
-				}
-				else {
-					// Check if the column name has a dot e.g. asset_tracker.sale_order_no
+				} else {
 					$index = explode('.',$columns[$j]['db']);
-					
+
 					if (count($index) > 1 ) {
-						// Check for AS
 						$has_group = strpos($index[1],'AS');
-	
+
 						if ($has_group !== false) {
-							// If AS exists in the column name, the alias name will be used
-							// e.g. GROUP_CONCAT(....) AS groupFSE
-							// uses groupFSE
 							$column_expl = explode(' AS ',$index[1]);
 							$row[ $column['dt'] ] = $data[$i][$column_expl[1]];
 						} else {
-							// If AS doesn't exist, the name after the dot will be used
-							// e.g. asset_tracker.sale_order_no uses sale_order_no
 							$row[ $column['dt'] ] = $data[$i][$index[1]];
 						}
 					} else {
-						// If the dot doesn't exist, the name of the column will be used
 						$row[ $column['dt'] ] = $data[$i][ $columns[$j]['db'] ] ;
 					}
-
 				}
 			}
-			
 			$out[] = $row;
 		}
-
 		return $out;
 	}
 	/**
@@ -134,33 +125,20 @@ class SSP {
 					$dir = $request['order'][$i]['dir'] === 'asc' ?
 						'ASC' :
 						'DESC';
-
-					// Get the correct column name for ordering
-					$column_name = $column['db'];
-					// Check for dot in the column name e.g. asset_tracker.sale_order_no
-					$expl = explode('.',$column_name);
-					
-					if (count($expl) > 1 ) {
-						// Check for AS
-						$has_group = strpos($column_name,'AS');
-
-						if ($has_group !== false) {
-							// If AS exists in the column name, the alias name will be used
-							// e.g. GROUP_CONCAT(....) AS groupFSE
-							// uses groupFSE
-							$column_expl = explode(' AS ',$column_name);
-							$column_name = $column_expl[1];
-						} else {
-							// If AS doesn't exist, the name after the dot will be used
-							// e.g. asset_tracker.sale_order_no uses sale_order_no
-							$column_name = $expl[1];
-						}
+					$dot_pos = strpos($column['db'],'.');
+					$as_pos = strpos($column['db'],' AS ');
+					if ($as_pos != '') {
+						$orderBy[] = '`'.substr($column['db'], $as_pos + 4).'` '.$dir;
+					} elseif ($dot_pos != '') {
+						$orderBy[] = '`'.substr($column['db'], $dot_pos + 1).'` '.$dir;
+					} else {
+						$orderBy[] = '`'.$column['db'].'` '.$dir;
 					}
-
-					$orderBy[] = $column_name.' '.$dir;
 				}
 			}
-			$order = 'ORDER BY '.implode(', ', $orderBy);
+			if ( count( $orderBy ) ) {
+				$order = 'ORDER BY '.implode(', ', $orderBy);
+			}
 		}
 		return $order;
 	}
@@ -186,45 +164,50 @@ class SSP {
 		$dtColumns = self::pluck( $columns, 'dt' );
 		if ( isset($request['search']) && $request['search']['value'] != '' ) {
 			$str = $request['search']['value'];
-			for ($i = 0, $ien = count($columns) ; $i < $ien; $i++) {
-				$column = $columns[$i];
-
-				// Get the correct column name for ordering
-				$column_name = $column['db'];
-				// Check for dot in the column name e.g. asset_tracker.sale_order_no
-				$expl = explode('.',$column_name);
-					
-				if (count($expl) > 1 ) {
-					// Check for AS
-					$has_group = strpos($column_name,'AS');
-
-					if ($has_group !== false) {
-						// If AS exists in the column name, the alias name will be used
-						// e.g. GROUP_CONCAT(....) AS groupFSE
-						// uses groupFSE
-						$column_expl = explode(' AS ',$column_name);
-						$column_name = $column_expl[1];
+			for ( $i=0, $ien=count($request['columns']) ; $i<$ien ; $i++ ) {
+				$requestColumn = $request['columns'][$i];
+				$columnIdx = array_search( $requestColumn['data'], $dtColumns );
+				$column = $columns[ $columnIdx ];
+				if ( $requestColumn['searchable'] == 'true' ) {
+					$binding = self::bind( $bindings, '%'.$str.'%', PDO::PARAM_STR );
+					$dot_pos = strpos($column['db'],'.');
+					$as_pos = strpos($column['db'],' AS ');
+					if ($as_pos != '') {
+						$globalSearch[] = "`".substr($column['db'], $as_pos + 4)."` LIKE ".$binding;
+					} elseif ($dot_pos != '') {
+						$globalSearch[] = "`".substr($column['db'], $dot_pos + 1)."` LIKE ".$binding;
 					} else {
-						// If AS doesn't exist, the name after the dot will be used
-						// e.g. asset_tracker.sale_order_no uses sale_order_no
-						$column_name = $expl[1];
+						$globalSearch[] = "`".$column['db']."` LIKE ".$binding;
 					}
 				}
-
-				$binding = self::bind( $bindings, '%'.$str.'%', PDO::PARAM_STR );
-				$globalSearch[] = $column_name." LIKE ".$binding;
+			}
+		}
+		// Individual column filtering
+		if ( isset( $request['columns'] ) ) {
+			for ( $i=0, $ien=count($request['columns']) ; $i<$ien ; $i++ ) {
+				$requestColumn = $request['columns'][$i];
+				$columnIdx = array_search( $requestColumn['data'], $dtColumns );
+				$column = $columns[ $columnIdx ];
+				$str = $requestColumn['search']['value'];
+				if ( $requestColumn['searchable'] == 'true' &&
+				 $str != '' ) {
+					$binding = self::bind( $bindings, '%'.$str.'%', PDO::PARAM_STR );
+					$columnSearch[] = "`".$column['db']."` LIKE ".$binding;
+				}
 			}
 		}
 		// Combine the filters into a single string
-		// EDIT: Removed parenthesis
 		$where = '';
 		if ( count( $globalSearch ) ) {
-			$where = implode(' OR ', $globalSearch);
+			$where = '('.implode(' OR ', $globalSearch).')';
 		}
 		if ( count( $columnSearch ) ) {
 			$where = $where === '' ?
 				implode(' AND ', $columnSearch) :
 				$where .' AND '. implode(' AND ', $columnSearch);
+		}
+		if ( $where !== '' ) {
+			$where = 'WHERE '.$where;
 		}
 		return $where;
 	}
@@ -306,7 +289,7 @@ class SSP {
 	 *  @param  string $whereAll WHERE condition to apply to all queries
 	 *  @return array          Server-side processing response array
 	 */
-	static function complex ( $request, $conn, $table, $primaryKey, $columns, $whereResult=null, $whereAll=null, $beforeFrom=null )
+	static function complex ( $request, $conn, $table, $primaryKey, $columns, $whereResult=null, $whereAll=null )
 	{
 		$bindings = array();
 		$db = self::db( $conn );
@@ -330,41 +313,84 @@ class SSP {
 				'WHERE '.$whereAll;
 			$whereAllSql = 'WHERE '.$whereAll;
 		}
-		
 		// Main query to actually get the data
-		
-		// Construct the request
-		if ($where !== '') {
-			// If $where is not empty, add WHERE $where
-			$clause = "FROM (SELECT " . implode(", ", self::pluck($columns, 'db')) . " FROM $table ) AS temp WHERE $where ";
-		} else {
-			$clause = "FROM (SELECT " . implode(", ", self::pluck($columns, 'db')) . " FROM $table ) AS temp $where";
-		}
-		$all_clause = "FROM (SELECT " . implode(", ", self::pluck($columns, 'db')) . " FROM $table ) AS temp";
-
-		// Execute SQL command
-		$data = self::sql_exec( $db, $bindings, "SELECT * $clause $order $limit");
-
+		$data = self::sql_exec( $db, $bindings,
+			"SELECT `".implode("`, `", self::pluck($columns, 'db'))."`
+			 FROM $table
+			 $where
+			 $order
+			 $limit"
+		);
 		// Data set length after filtering
 		$resFilterLength = self::sql_exec( $db, $bindings,
-			"SELECT COUNT(`{$primaryKey}`) $clause"
+			"SELECT COUNT(`{$primaryKey}`)
+			 FROM   `$table`
+			 $where"
 		);
 		$recordsFiltered = $resFilterLength[0][0];
-
 		// Total data set length
 		$resTotalLength = self::sql_exec( $db, $bindings,
-			"SELECT COUNT(`{$primaryKey}`) $all_clause"
+			"SELECT COUNT(`{$primaryKey}`)
+			 FROM   `$table` ".
+			$whereAllSql
 		);
+		$recordsTotal = $resTotalLength[0][0];
+		/*
+		 * Output
+		 */
+		return array(
+			"draw"            => isset ( $request['draw'] ) ?
+				intval( $request['draw'] ) :
+				0,
+			"recordsTotal"    => intval( $recordsTotal ),
+			"recordsFiltered" => intval( $recordsFiltered ),
+			"data"            => self::data_output( $columns, $data )
+		);
+	}
 
-		if (isset($resTotalLength[0][0])) $recordsTotal = $resTotalLength[0][0];
-		else $recordsTotal = 0;
-		// /*
-		//  * Output
-		//  */
-		if (isset($resFilterLength[0][0])) $recordsFiltered = $resFilterLength[0][0];
-		else $recordsFiltered = 0;
+	static function mod ( $request, $conn, $table, $primaryKey, $columns, $whereResult=null, $whereAll=null )
+	{
+		$bindings = array();
+		$db = self::db( $conn );
+		// Build the SQL query string from the request
+		$limit = self::limit( $request, $columns );
+		$order = self::order( $request, $columns );
 
+		// Build where cause SQL query
+		$where = self::filter( $request, $columns, $bindings );
+		$whereResult = self::_flatten( $whereResult );
+		$whereAll = self::_flatten( $whereAll );
+		if ( $whereResult ) {
+			$where = $where ?
+				$where .' AND '.$whereResult :
+				'WHERE '.$whereResult;
+		}
+		if ( $whereAll ) {
+			$where = $where ?
+				$where .' AND '.$whereAll :
+				'WHERE '.$whereAll;
+			$whereAllSql = 'WHERE '.$whereAll;
+		}
 
+		// Main query to actually get the data
+		$sql_all = "SELECT ".implode(", ", self::pluck($columns, 'db'))."
+					FROM $table";
+		if ($where !== '') {
+			$sql = "SELECT * FROM ($sql_all) AS sub_q $where";
+		} else {
+			$sql = $sql_all;
+		}
+		$data = self::sql_exec( $db, $bindings, "$sql $order $limit" );
+		// Data set length after filtering
+		$resFilterLength = self::sql_exec( $db, $bindings, "SELECT count($primaryKey) FROM ($sql) AS sub_q" );
+		$recordsFiltered = $resFilterLength[0][0];
+		// Total data set length
+		$resTotalLength = self::sql_exec( $db, $bindings, "SELECT count($primaryKey) FROM ($sql_all) AS sub_q" );
+		$recordsTotal = $resTotalLength[0][0];
+
+		/*
+		 * Output
+		 */
 		return array(
 			"draw"            => isset ( $request['draw'] ) ?
 				intval( $request['draw'] ) :
@@ -389,10 +415,10 @@ class SSP {
 	{
 		try {
 			$db = @new PDO(
-				"mysql:host={$sql_details['host']};dbname={$sql_details['db']};charset=utf8",
+				"mysql:host={$sql_details['host']};dbname={$sql_details['db']};charset={$sql_details['charset']}",
 				$sql_details['user'],
 				$sql_details['pass'],
-				array( PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION )
+				array( PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
 			);
 		}
 		catch (PDOException $e) {
@@ -420,7 +446,7 @@ class SSP {
 			$sql = $bindings;
 		}
 		$stmt = $db->prepare( $sql );
-
+		//echo $sql;
 		// Bind parameters
 		if ( is_array( $bindings ) ) {
 			for ( $i=0, $ien=count($bindings) ; $i<$ien ; $i++ ) {
@@ -451,7 +477,7 @@ class SSP {
 	 */
 	static function fatal ( $msg )
 	{
-		echo json_encode( array( 
+		echo json_encode( array(
 			"error" => $msg
 		) );
 		exit(0);
@@ -477,7 +503,7 @@ class SSP {
 		return $key;
 	}
 	/**
-	 * Pull a particular property from each assoc. array in a numeric array, 
+	 * Pull a particular property from each assoc. array in a numeric array,
 	 * returning and array of the property values from each item.
 	 *
 	 *  @param  array  $a    Array to get data from
@@ -492,6 +518,7 @@ class SSP {
 		}
 		return $out;
 	}
+
 	/**
 	 * Return a string from an array or a string
 	 *

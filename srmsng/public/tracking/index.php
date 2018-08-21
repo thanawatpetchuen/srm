@@ -21,7 +21,7 @@
 <body class="tracking">
     <?php include_once('../admin/admin_nav.php'); ?>
     <div id="map"></div>
-    <div class="modal" tabindex="-1" role="dialog" id="assign-modal-site">
+    <div class="modal" tabindex="-1" role="dialog" id="assign-modal-site" >
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -32,8 +32,15 @@
                 <form id="assign-tracking-form">
                     <div class="modal-body">
                         <div class="form-group">
+                            <label>SNG Code</label>
+                            <input type="text" class="form-control" name="sng_code" placeholder="SNG Code" readonly/>
+                        </div>
+                        <div class="form-group">
                             <label>CM ID</label>
-                            <input type="text" class="form-control" name="cm_id" placeholder="CM ID" readonly/>
+                            <!-- <select class="form-control" name="cm_id" id="cm_id" onChange="cmChange(this)"> -->
+                            <select class="form-control" name="cm_id" id="cm_id">
+                            </select>
+                            <!-- <input type="text" class="form-control" name="cm_id" placeholder="CM ID" readonly/> -->
                         </div>
                         <div class="form-group">
                             <label>Site Name</label>
@@ -47,19 +54,57 @@
                             <label>Details</label>
                             <textarea type="text" class="form-control" name="asset_problem" readonly></textarea>  
                         </div> -->
-                        <div class="form-group" id="cm-time-field">
-                            <label>CM Time</label>
-                            <input type="text" class="form-control" name="cm_time" placeholder="CM Time" id="cm_time" autocomplete="off"/>
+                        <div class="form-group checkbox" id="assign-cm-checkbox">
+                            <input type="checkbox" name="assign-cm-time"/>
+                            <label class="checkbox">Assign CM Time</label>
                         </div>
+                        <div class="form-group disabled" id="cm-time-field">
+                            <label>CM Time</label>
+                            <input type="text" class="form-control" name="cm_time" placeholder="CM Time" id="cm_time" autocomplete="off" disabled/>
+                        </div>
+                        <!-- <div class="form-group" id="job-type-field">
+                            <label>Job Type</label>
+                            <select name="job_type" class="form-control">
+                                <option value="">-- Select Job Type --</option>
+                                <option value="Fixed by phone">Fixed by Phone</option>
+                                <option value="On site">On Site</option>
+                            </select>
+                        </div> -->
                         <div class="form-group">
                             <label><b>Assign FSE</b></label>
                             <div class="selected-fse" id="selected-fse">
                                 <span class="selected-fse-none">None</span>
                             </div>
+                            
+                            <!-- <div class="form-group" id="fse-dropdown">
+                                <label for=""></label>
+                                <select class="form-control" id="fse-dropdown-single" id="fse-field" name="fse_code">
+                                    <option value="0">-- Select Field Service Engineer --</option>
+                                </select>
+                            </div> -->
                             <div id="fse-code-input">
                             </div>
+                            <!-- <div id="fse-leader-input"></div> -->
                             <button class="btn btn-primary" style="margin-top:15px;" type="button" id="select-from-map" data-dismiss="modal">Select from map</button>
                         </div>
+
+                        <div class="form-group" id="fse-leader-dropdown">
+                            <div><label><b>Select FSE Leader</b></label>
+                                    <select class="form-control" name="leader" id="fse-leader"></select>
+                            </div>
+                        </div>
+                        <!-- <div class="form-group checkbox">
+                            <input type="checkbox" name="assign-cm-time"/>
+                            <label class="checkbox">Assign CM Time</label>
+                        </div>
+                        <div class="form-group disabled" id="cm-time-field">
+                            <input type="text" class="form-control" name="cm_time" placeholder="CM Time" id="cm_time" autocomplete="off" disabled/>
+                        </div> -->
+
+                        <!-- <div class="form-group" id="start-time-field">
+                            <label>Start time</label>
+                            <input type="text" class="form-control" name="start_time" placeholder="Start Time" id="start_time" autocomplete="off" disabled/>
+                        </div> -->
                     </div>
                     <div class="modal-footer">
                         <i class="fas fa-spinner fa-spin text-center" style="font-size:22px; display: none" id="loader"></i>
@@ -82,7 +127,8 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.26.11/dist/sweetalert2.all.min.js"></script>
     
     <script src="https://www.gstatic.com/firebasejs/5.1.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/5.1.0/firebase-database.js"></script>
@@ -98,7 +144,7 @@
     <script>
       $(document).ready( function() {
         // Initialize Date Range Pickers
-        $('input[name="cm_time"]').daterangepicker({
+        $('input[name="cm_time"], input[name="start_time"]').daterangepicker({
             timePicker: true,
             "timePicker24Hour": true,
             singleDatePicker: true,
@@ -109,10 +155,138 @@
             }
         });
 
+        fetch('/srmsng/public/index.php/api/admin/getfse')
+            .then(resp => {
+                return resp.json();
+            })
+            .then(data_json => {
+                data_json.forEach(element => {
+                    if (element['fse_code'] != 0) {
+                        // Fixed by phone (one FSE only)
+                        var option = document.createElement("option");
+                        option.setAttribute("value", element["fse_code"]);
+                        option.innerHTML = element["engname"];
+                        // document.getElementById("fse-dropdown-single").appendChild(option);
+                    }
+                })
+            })
+
         // Submit tracking form
-        $('#assign-tracking-form').submit(function() {
+        $('#assign-tracking-form').submit(function(e) {
+            e.preventDefault();
             console.log($('#assign-tracking-form').serialize());
+            swal({
+            title: 'Are you sure?',
+            
+            showCancelButton: true,
+            confirmButtonText: 'Look up',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                $.ajax({
+                type: "PUT",
+                url: "/srmsng/public/index.php/api/admin/assignticketonmap",
+                data: $('#assign-tracking-form').serialize(),
+                success: (data) => {
+                    // console.log(data);
+                    // toastr.options = {
+                    // positionClass: "toast-top-center"
+                    // };
+                    // toastr.success("<span>Please wait, this website is going to refresh...</span>");
+                    // setTimeout(() => {
+                    // window.location.reload();
+                    // }, 1500);
+                    return data;
+                }
+                })
+                // return fetch(`//api.github.com/users/${login}`)
+                // .then(response => {
+                //     if (!response.ok) {
+                //     throw new Error(response.statusText)
+                //     }
+                //     return response.json()
+                // })
+                // .catch(error => {
+                //     swal.showValidationError(
+                //     `Request failed: ${error}`
+                //     )
+                // })
+            },
+            allowOutsideClick: () => !swal.isLoading()
+            }).then((result) => {
+            // if (result.value) {
+                swal({
+                // position: '',
+                type: 'success',
+                title: 'Your work has been saved',
+                showConfirmButton: false,
+                timer: 2000
+                }).then(() => {
+                    window.location.reload();
+                })
+            // }
+            })
+            // $.ajax({
+            //     type: "PUT",
+            //     url: "/srmsng/public/index.php/api/admin/assignticketonmap",
+            //     data: $('#assign-tracking-form').serialize(),
+            //     success: (data) => {
+            //         console.log(data);
+            //         toastr.options = {
+            //         positionClass: "toast-top-center"
+            //         };
+            //         toastr.success("<span>Please wait, this website is going to refresh...</span>");
+            //         setTimeout(() => {
+            //         window.location.reload();
+            //         }, 1500);
+            //     }
+            // })
             return false;
+        });
+        
+        $('select[name="job_type"]').on("change", () => {
+            var select_type = $('select[name="job_type"]').val();
+            if(select_type == "Fixed by phone"){
+                $("#selected-fse").css("display", "none");
+                // $("#selected-fse").addClass("disabled");
+                // $("#fse-code-input").attr("disabled", true);
+                $('input[type="hidden"]').attr("disabled", true);
+                $('#assign-cm-checkbox').addClass("disabled");
+                $('input[name="assign-cm-time"]').attr("disabled", true);
+                // $("#selected-fse").attr("disabled", true);
+                $("#fse-dropdown").css("display", "block");
+                $('#select-from-map').css("display", "none");
+                // $("#cm-time-field").addClass("disabled");
+                // $('input[name="cm_time"]').attr("disabled", true);
+                $('#cm-time-field input').prop('disabled', true);
+                $('#cm-time-field').addClass('disabled');
+                $("#start-time-field").css("display", "block");
+                $('input[name="start_time"]').removeAttr("disabled");
+
+            }else{
+                $("#selected-fse").css("display", "");
+                $("#fse-dropdown").css("display", "none");
+                $('input[type="hidden"]').attr("disabled", false);
+                $('#select-from-map').css("display", "block");
+                // $('input[name="cm_time"]').removeAttr("disabled");
+                // $("#cm-time-field").removeClass("disabled");
+                $("#start-time-field").css("display", "none");
+                $('input[name="start_time"]').attr("disabled", true);
+
+                $('#assign-cm-checkbox').removeClass("disabled");
+                $('input[name="assign-cm-time"]').removeAttr("disabled");
+            }
+        })
+
+        $('input[name="assign-cm-time"]').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#cm-time-field input').prop('disabled', false);
+                $('#cm-time-field').removeClass('disabled');
+                assigned_cm_time = true
+            } else {
+                $('#cm-time-field input').prop('disabled', true);
+                $('#cm-time-field').addClass('disabled');
+                assigned_cm_time = false
+            }
         });
       });
     </script>

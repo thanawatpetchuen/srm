@@ -287,14 +287,25 @@
                     <fieldset>
                         <div class="form-group">
                             <label class="required">Serial Number</label>
-                            <input type="text" class="form-control" name="serial" placeholder="Serial Number" id="serial-no-field" value="-" required readonly/>
+                            <input type="text" class="form-control" name="serial" placeholder="Serial Number" id="serial-no-field" required/>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group checkbox">
+                            <input type="checkbox" name="assign-fse"/>
+                            <label class="checkbox">Assign Field Service Engineer</label>
+                        </div>
+                        <div class="form-group disabled" id="fse-fieldset">
+                            <div class="select-multiple" id="fse-dropdown"></div>
+                            <span>Assign Field Service Engineer <b>Leader</b></span>
+                            <div id="selected-fse">
+                                <span class="selected-fse-none">None</span>
+                            </div>
+                        </div>
+                        <!-- <div class="form-group">
                             <label>Installed by</label>
                             <select class="form-control" id="fse-dropdown" id="fse-field" name="fse_code">
                                 <option value="0">-- Select Field Service Engineer --</option>
                             </select>
-                        </div>
+                        </div> -->
                     </fieldset>
 
                     <fieldset>
@@ -406,10 +417,10 @@
                     <div class="form-group">
                         <label><h4>Status</h4></label>
                         <select name="ups_status" class="form-control">
-                            <option value="Pending">Pending</option>
-                            <option value="Installed">Installed</option>
-                            <!-- <option value="Not Functioning">Not Functioning</option> -->
-                            <!-- <option value="Inactive">Inactive</option> -->
+                            <option value="Normal">Normal</option>
+                            <option value="Defective">Defective</option>
+                            <option value="Not Functioning">Not Functioning</option>
+                            <option value="Inactive">Inactive</option>
                         </select>
                     </div>
                     <div class="form-group" style="margin-top:40px; text-align:right">
@@ -810,18 +821,6 @@
         }
     });
 
-    $('select[name="ups_status"]').on("change", () => {
-        console.log(5555)
-        var val = $('select[name="ups_status"]').val()
-        if(val == "Pending"){
-           $("#serial-no-field").val('-'); 
-           $("#serial-no-field").attr("readonly", true);
-            console.log(`Value: ${$('select[name="ups_status"]').val()}`);
-        }else{
-            $("#serial-no-field").val(""); 
-            $("#serial-no-field").attr("readonly", false);
-        }
-    })
      // Map
      function openMap() {
         $('#add-location-popup .close').trigger('click');
@@ -832,6 +831,16 @@
         var lng = $('#add-location-form input[name="lon"]').val();
         initMarker(lat,lng);
     }
+    $('input[name="assign-fse"]').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#fse-fieldset').removeClass('disabled');
+                assigned_fse = true;
+            } else {
+                $('#fse-fieldset').addClass('disabled');
+                $('#fse-fieldset input[type="checkbox"]').prop('checked',false).change();
+                assigned_fse = false;
+            }
+        });
     $(document).ready( function() {
         // Map
         initMap();
@@ -846,6 +855,52 @@
             $('#add-location-popup input[name="longitude"]').val('');
         });
 
-        // document.getElementById("serial-no-field").defaultValue = "-";
+        fetch('/srmsng/public/index.php/api/admin/getfse')
+            .then(resp => {
+                return resp.json();
+            })
+            .then(data_json => {
+            data_json.forEach(element => {
+                if (element['fse_code'] != 0) {
+                    // // Fixed by phone (one FSE only)
+                    // var option = document.createElement("option");
+                    // option.setAttribute("value", element["fse_code"]);
+                    // option.innerHTML = element["engname"];
+                    // document.getElementById("fse-dropdown-single").appendChild(option);
+
+                    // On Site (Multiple FSEs)
+                    var item = document.createElement('span');
+                    item.setAttribute('class','select-multiple-item');
+
+                    var checkbox = document.createElement('input');
+                    checkbox.setAttribute('type','checkbox');
+                    checkbox.setAttribute('value',element['fse_code']);
+                    checkbox.setAttribute('name','fse_code[]');
+
+                    checkbox.onchange = function() {
+                        var fselabel = document.createElement('span');
+                        var radio_leader = document.createElement('input');
+                        radio_leader.setAttribute("type", "radio");
+                        radio_leader.setAttribute("name", "leader");
+                        radio_leader.setAttribute("value", element['fse_code']);
+                        radio_leader.required = true;
+                        fselabel.appendChild(radio_leader);
+                        fselabel.setAttribute('id',element['fse_code']);
+                        fselabel.appendChild(document.createTextNode(element['engname']));
+                        if (!checkbox.checked) {
+                            if (document.getElementById(element['fse_code'])) {
+                                document.getElementById(element['fse_code']).outerHTML = '';
+                            }
+                        } else {
+                            document.getElementById('selected-fse').appendChild(fselabel);
+                        }
+                    }
+
+                    item.appendChild(checkbox);
+                    item.appendChild(document.createTextNode(' ' + element['engname']));
+                    document.getElementById('fse-dropdown').appendChild(item);
+                }
+            });
+        });
     });
 </script>
