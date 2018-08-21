@@ -1590,7 +1590,7 @@ $app->put('/api/fse/deny', function(Request $request, Response $response){
             $stmt = $db->prepare($sql);
             $stmt->execute();
     
-        }catch(PDOException $e){
+        } catch(PDOException $e) {
             $db = null;
             return $response->withStatus(400)->getBody()->write($e->getmessage());
         }
