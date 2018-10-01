@@ -128,7 +128,8 @@
                     <th>CM Time</th>
                     <th>Request Time</th>
                     <th>Start Time</th>
-                    <th>Close Time</th>
+                    <th>Completion Time</th>
+                    <th>Closed Time</th>
                     <th>Action</th>
                 </thead>
                 <tbody id="maintable-approve">

@@ -12,8 +12,8 @@
     <title>Synergize Provide Service</title>
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
-    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href='http://fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -287,7 +287,7 @@
                     <fieldset>
                         <div class="form-group">
                             <label class="required">Serial Number</label>
-                            <input type="text" class="form-control" name="serial" placeholder="Serial Number" id="serial-no-field" required/>
+                            <input type="text" class="form-control" name="serial" placeholder="Serial Number" id="serial-no-field" value="-" required readonly/>
                         </div>
                         <div class="form-group">
                             <label>Installed by</label>
@@ -406,10 +406,10 @@
                     <div class="form-group">
                         <label><h4>Status</h4></label>
                         <select name="ups_status" class="form-control">
-                            <option value="Normal">Normal</option>
-                            <option value="Defective">Defective</option>
-                            <option value="Not Functioning">Not Functioning</option>
-                            <option value="Inactive">Inactive</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Installed">Installed</option>
+                            <!-- <option value="Not Functioning">Not Functioning</option> -->
+                            <!-- <option value="Inactive">Inactive</option> -->
                         </select>
                     </div>
                     <div class="form-group" style="margin-top:40px; text-align:right">
@@ -810,6 +810,18 @@
         }
     });
 
+    $('select[name="ups_status"]').on("change", () => {
+        console.log(5555)
+        var val = $('select[name="ups_status"]').val()
+        if(val == "Pending"){
+           $("#serial-no-field").val('-'); 
+           $("#serial-no-field").attr("readonly", true);
+            console.log(`Value: ${$('select[name="ups_status"]').val()}`);
+        }else{
+            $("#serial-no-field").val(""); 
+            $("#serial-no-field").attr("readonly", false);
+        }
+    })
      // Map
      function openMap() {
         $('#add-location-popup .close').trigger('click');
@@ -833,5 +845,7 @@
             $('#add-location-popup input[name="latitude"]').val('');
             $('#add-location-popup input[name="longitude"]').val('');
         });
+
+        // document.getElementById("serial-no-field").defaultValue = "-";
     });
 </script>

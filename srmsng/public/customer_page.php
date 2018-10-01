@@ -47,7 +47,7 @@ if(isset($_SESSION)){
             setcookie($cookie_name, $cookie_array_encode, time() + 43200, "/"); // 12 Hours
             $cookie_decode = json_decode($cookie_value); // Used by html tag to display TEXT
         }
-        header("location: /srmsng/public/customer");
+        header("location: /srmsng/public/announcement");
  
    }
 

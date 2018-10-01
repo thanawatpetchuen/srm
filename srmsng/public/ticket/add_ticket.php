@@ -317,7 +317,7 @@
                 $('#job-details-site').addClass('hidden');
                 $('#job-details-phone').removeClass('hidden');
 
-                $('#job-details-site input').val("");
+                $('#job-details-site input').not("[name='fse_code[]']").val("");
                 $('#job-details-site input[type="text"]').prop('disabled',true);
 
                 $('#job-details-site input[name="assign-close-time"], \

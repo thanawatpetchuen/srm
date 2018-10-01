@@ -104,6 +104,10 @@ function fetchTable() {
         data: 25
       },
       {
+        targets: 23,
+        data: 26
+      },
+      {
         targets: -1,
         searchable: false,
         data: 0,
@@ -223,6 +227,14 @@ function fetchTable() {
         data: 25
       },
       {
+        targets: 23,
+        data: 26
+      },
+      {
+        targets: 24,
+        data: 27
+      },
+      {
         targets: -1,
         searchable: false,
         data: function(row) {
@@ -230,7 +242,7 @@ function fetchTable() {
         },
         className: "fixed-col",
         render: function(data) {
-          if (data[1] === "Completed" || data[1] === "Incomplete") {
+          if (data[1] === "Completed" || data[1] === "Incomplete" || data[1] === "Closed") {
             render_data = `<a class='btn btn-primary text-center disabled' href='#'>` + data[1] + `</a>`;
           } else {
             render_data = `<div>

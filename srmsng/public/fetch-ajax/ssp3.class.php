@@ -299,7 +299,7 @@ class SSP {
 		}
 		// Main query to actually get the data
 		$data = self::sql_exec( $db, $bindings,
-			"SELECT `".implode("`, `", self::pluck($columns, 'db'))."`
+			"SELECT ".implode(", ", self::pluck($columns, 'db'))."
 			 FROM $table
 			 $where
 			 $order

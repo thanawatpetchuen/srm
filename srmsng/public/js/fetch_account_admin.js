@@ -24,7 +24,7 @@ function fetchTable() {
     ],
     columns: [
       {
-        data: 0,
+        data: 3,
         className: "td-check",
         render: function(data) {
           return (

@@ -16,8 +16,8 @@
     <title>Synergize Provide Service</title>
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
-    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href='http://fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.16/fc-3.2.4/r-2.2.1/datatables.min.css"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <link rel="stylesheet" href="/srmsng/public/css/style.css">
@@ -60,7 +60,7 @@
             <div class="row">
                 <div class="col-md-3">
                     <div class="card mb-4">
-                        <img class="card-img-top" src="http://placehold.it/750x300" alt="Card image cap">
+                        <img class="card-img-top" src="https://placehold.it/750x300" alt="Card image cap">
                         <div class="card-body">
                             <h2 class="card-title">Post Title</h2>
                             <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reiciendis aliquid atque, nulla? Quos cum ex quis soluta, a laboriosam. Dicta expedita corporis animi vero voluptate voluptatibus possimus, veniam magni quis!</p>
@@ -75,7 +75,7 @@
 
                 <div class="col-md-3">
                     <div class="card mb-4">
-                        <img class="card-img-top" src="http://placehold.it/750x300" alt="Card image cap">
+                        <img class="card-img-top" src="https://placehold.it/750x300" alt="Card image cap">
                         <div class="card-body">
                             <h2 class="card-title">Post Title</h2>
                             <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reiciendis aliquid atque, nulla? Quos cum ex quis soluta, a laboriosam. Dicta expedita corporis animi vero voluptate voluptatibus possimus, veniam magni quis!</p>
@@ -90,7 +90,7 @@
 
                 <div class="col-md-3">
                     <div class="card mb-4">
-                        <img class="card-img-top" src="http://placehold.it/750x300" alt="Card image cap">
+                        <img class="card-img-top" src="https://placehold.it/750x300" alt="Card image cap">
                         <div class="card-body">
                             <h2 class="card-title">Post Title</h2>
                             <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reiciendis aliquid atque, nulla? Quos cum ex quis soluta, a laboriosam. Dicta expedita corporis animi vero voluptate voluptatibus possimus, veniam magni quis!</p>
@@ -105,7 +105,7 @@
 
                 <div class="col-md-3">
                     <div class="card mb-4">
-                        <img class="card-img-top" src="http://placehold.it/750x300" alt="Card image cap">
+                        <img class="card-img-top" src="https://placehold.it/750x300" alt="Card image cap">
                         <div class="card-body">
                             <h2 class="card-title">Post Title</h2>
                             <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reiciendis aliquid atque, nulla? Quos cum ex quis soluta, a laboriosam. Dicta expedita corporis animi vero voluptate voluptatibus possimus, veniam magni quis!</p>

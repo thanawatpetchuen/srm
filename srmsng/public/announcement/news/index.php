@@ -154,7 +154,7 @@ $app->post('/api/addnotice', function(Request $request, Response $response, $arg
             $db = null;
             return $e->getmessage();
         }
-        return $response->withRedirect("/srmsng/public/announcement")->withStatus(201);
+        return $response->withRedirect("/srmsng/public/announcement");
     }else{
         return $this->renderer->render($response, "/unauth.php")->withStatus(401)->withHeader('Content-Type', 'text/html');
     }
